@@ -1,25 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect,useRef } from 'react'
 import qrcode from 'qrcode-generator'
-
-type QRCodeProps = {
-  value: string
-}
-
-export function QRCode({ value }: QRCodeProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const qr = qrcode(0, 'M')
-    qr.addData(value || ' ')
-    qr.make()
-    container.innerHTML = qr.createSvgTag({
-      scalable: true,
-      margin: 2,
-    })
-  }, [value])
-
-  return <div className="qr-preview" ref={containerRef} aria-label="QR code preview" />
+export function QRCode({value}:{value:string}) {
+const ref=useRef<HTMLDivElement>(null)
+useEffect(()=>{const el=ref.current;if(!el)return;el.innerHTML='';if(!value)return;try{const qr=qrcode(0,'M');qr.addData(value);qr.make();el.innerHTML=qr.createSvgTag({scalable:true,margin:2})}catch{el.textContent='Nội dung quá dài hoặc không hợp lệ.'}},[value])
+return <div className="qr-preview" ref={ref} aria-label="QR code preview"/>
 }
