@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 import qrcode from 'qrcode-generator'
 import type { QrDesign } from '../types'
 
 type Props = {
   value: string
   design: QrDesign
-  containerRef?: React.RefObject<HTMLDivElement | null>
+  containerRef?: RefObject<HTMLDivElement | null>
 }
 
 export function QRCode({ value, design, containerRef }: Props) {
