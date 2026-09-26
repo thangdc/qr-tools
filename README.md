@@ -1,29 +1,28 @@
 # QR Tools
 
-A lightweight QR code toolkit for generating, customizing, managing, importing, exporting, and printing QR codes, with VietQR and Pro features.
+A lightweight QR code toolkit built as a standalone React + TypeScript application.
 
-## Included
+## Stack
 
-- QR generation: URL, text, contact, Wi-Fi, email, phone, SMS, location, VietQR payment
-- QR customization and preview
-- Local history
-- Excel import/export and ZIP export
-- Batch printing
-- Pro license and manual payment flow
-- Optional Supabase authentication and cloud sync
+- React
+- TypeScript
+- Vite
+- GitHub Pages
+- Supabase (planned for cloud/pro features)
 
-## Run locally
-
-Serve the repository as a static site, for example:
+## Development
 
 ```bash
-python -m http.server 8080
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8080/qr-code-generator.html`.
+Build:
 
-The app uses browser-side JavaScript and CDN dependencies; no build step is required.
+```bash
+npm run build
+```
 
-## Source
+## Product direction
 
-Extracted from the QR Code Generator implementation on `thangdc/VietSoft` branch `ui/minimal-utility-foundation`. The extraction intentionally excludes unrelated VietSoft applications.
+QR Tools is a new frontend implementation of the QR product. The existing VietSoft production application remains isolated until the new application is functionally and visually ready for release.
