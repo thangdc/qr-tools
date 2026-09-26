@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<title>QR Tools | QR Code Generator</title>	
+	<meta name="viewport" content="width=device-width" />
+	
+	<meta name="description" content="Tạo mã QR Code miễn phí online cho URL, văn bản, Wi-Fi, liên hệ, email, thanh toán và nhiều nhu cầu khác. Tạo, tùy chỉnh, tải và quản lý QR dễ dàng."/>
+	<meta content='tạo mã QR Code miễn phí, tạo QR Code online, QR Code Generator, tạo QR từ Excel, in nhiều mã QR, QR WiFi, QR thanh toán' name='keywords'/>
+	<meta content='index, follow' name='robots'/>
+	
+	<link rel="shortcut icon" href="css/images/favicon.ico" />
+	<meta name="theme-color" content="#2563eb" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Tạo mã QR Code miễn phí online | VietSoft" />
+	<meta property="og:description" content="Tạo mã QR Code miễn phí online cho URL, Wi-Fi, liên hệ, email, thanh toán và nhiều nhu cầu khác. Tạo, tùy chỉnh và tải QR trực tiếp trên trình duyệt." />
+	<meta property="og:locale" content="vi_VN" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="Tạo mã QR Code miễn phí online | VietSoft" />
+	<meta name="twitter:description" content="Tạo mã QR Code miễn phí online cho URL, Wi-Fi, liên hệ, email, thanh toán và nhiều nhu cầu khác. Tạo, tùy chỉnh và tải QR trực tiếp trên trình duyệt." />
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": ["SoftwareApplication", "WebApplication"],
+		"name": "QR Tools QR Code Generator",
+		"url": "https://thangdc.github.io/qr-tools/qr-code-generator.html",
+		"description": "Công cụ tạo mã QR online miễn phí cho URL, văn bản, Wi-Fi, liên hệ, email, điện thoại, SMS, vị trí và thanh toán VietQR.",
+		"applicationCategory": "UtilitiesApplication",
+		"operatingSystem": "Web Browser",
+		"isAccessibleForFree": true,
+		"offers": [
+			{
+				"@type": "Offer",
+				"name": "Free",
+				"price": "0",
+				"priceCurrency": "VND"
+			},
+			{
+				"@type": "Offer",
+				"name": "Pro Monthly",
+				"price": "39000",
+				"priceCurrency": "VND",
+				"priceSpecification": {
+					"@type": "UnitPriceSpecification",
+					"price": "39000",
+					"priceCurrency": "VND",
+					"unitText": "MONTH"
+				}
+			},
+			{
+				"@type": "Offer",
+				"name": "Pro Annual",
+				"price": "199000",
+				"priceCurrency": "VND",
+				"priceSpecification": {
+					"@type": "UnitPriceSpecification",
+					"price": "199000",
+					"priceCurrency": "VND",
+					"unitText": "YEAR"
+				}
+			}
+		]
+	}
+	</script>
+	<!--<link rel="stylesheet" href="css/business.css" type="text/css" media="all" />-->
+	<!--[if IE 6]>
+		<link rel="stylesheet" href="css/ie6.css" type="text/css" media="all" />
+	<![endif]-->
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode_UTF8.js"></script>
+	<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+	
+	<!-- Latest compiled and minified CSS --><!-- Optional theme --><!-- Google Analytics 4 -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-774V8J1SPG"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag("js", new Date());
+		gtag("config", "G-774V8J1SPG");
+	</script>
+	<script type="text/javascript" src="js/analytics.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="libs/custom/qr-code.css?v=20260926-3">
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script type="text/javascript" src="libs/custom/qr-code-license.js?v=20260923-2"></script>
+	<script type="text/javascript" src="libs/custom/qr-code-auth.js?v=20260923-1"></script>
+	<script type="text/javascript" src="libs/custom/qr-history-repository.js?v=20260923-1"></script>
+	<script type="text/javascript" src="libs/custom/qr-cloud-history.js?v=20260923-1"></script>
+  <script type="text/javascript" src="libs/custom/qr-sync-engine.js?v=20260923-1"></script>
+  <script type="text/javascript" src="libs/custom/qr-sync-ui.js?v=20260923-1"></script>
+	<script type="text/javascript" src="libs/custom/qr-code-v2.js?v=20260924-11"></script>
+	<script type="text/javascript" src="libs/custom/qr-code-payment.js?v=20260924-1"></script>
+</head>
+<body class="skin-blue vs-modern">
+<div id="fb-root"></div>
+<div class="vs-file-export-modal" id="vsFileExportModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="vsFileExportModalTitle"><div class="vs-file-export-backdrop" data-file-export-close="true"></div><div class="vs-file-export-card" role="document"><button class="vs-file-export-close" id="vsFileExportModalClose" type="button" aria-label="Đóng">×</button><div class="vs-file-export-kicker">XUẤT RA TẬP TIN</div><h2 id="vsFileExportModalTitle">Chọn định dạng</h2><p>Chọn cách bạn muốn lưu các mã QR hiện tại.</p><div class="vs-file-export-options"><button class="vs-file-export-option" id="vsFileExportExcel" type="button"><span class="vs-file-export-option-icon">X</span><span><strong>Download Excel</strong><small>Dữ liệu QR dạng .xlsx</small></span></button><button class="vs-file-export-option" id="vsFileExportZip" type="button"><span class="vs-file-export-option-icon">ZIP</span><span><strong>Download ZIP</strong><small>Các mã QR dạng PNG trong một file .zip</small></span></button></div></div></div>
+<script type="text/javascript">(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=198119906913529&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- Header -->
+<header class="header">
+	<a href="#" class="vs-brand" aria-label="QR Tools"><span class="vs-brand-text">QR Tools</span></a>
+	<nav class="navbar navbar-static-top" role="navigation">
+		<a class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</a>
+	</nav>
+	<div class="vs-auth-account-wrap">
+		<button class="vs-auth-button" id="vsAuthLoginButton" type="button"><span class="vs-auth-user-icon" aria-hidden="true">👤</span><span>Đăng nhập</span></button>
+		<button class="vs-auth-button vs-auth-account" id="vsAuthAccount" type="button" style="display:none" aria-label="Tài khoản"><span class="vs-auth-user-icon" aria-hidden="true">👤</span><span id="vsAuthAccountLabel"></span><span class="vs-auth-chevron" aria-hidden="true">⌄</span></button>
+		<button class="vs-sync-status" id="vsSyncStatus" type="button" style="display:none" aria-label="Cloud Sync"><span id="vsSyncStatusIcon">☁</span><span id="vsSyncStatusLabel">Đã đồng bộ</span></button>
+	</div>
+</header>
+<!-- end Header -->
+
+<!-- Main -->
+<div class="wrapper row-offcanvas">
+	<section class="content"><div class="vs-hero"><h1>Tạo mã QR Code miễn phí online</h1><p>Tạo QR nhanh chóng cho URL, văn bản, liên hệ, Wi-Fi, email, điện thoại, SMS, vị trí và thanh toán VietQR. Tạo, tùy chỉnh và tải mã QR trực tiếp trên trình duyệt.</p></div><div class="vs-app"><div class="vs-card"><div class="vs-tabs" id="vsTabs"><a href="#" data-type="url" class="active">🔗 URL</a><a href="#" data-type="text">📝 Văn bản</a><a href="#" data-type="contact">👤 Liên hệ</a><a href="#" data-type="wifi">📶 Wi-Fi</a><a href="#" data-type="email">✉️ Email</a><a href="#" data-type="phone">📞 Điện thoại</a><a href="#" data-type="sms">💬 SMS</a><a href="#" data-type="location">📍 Vị trí</a><a href="#" data-type="payment"><svg class="vs-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-11zM5.5 6a.5.5 0 0 0-.5.5V8h14V6.5a.5.5 0 0 0-.5-.5h-13zM5 10v7.5a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V10H5z"/></svg><span>Thanh toán</span></a></div><div class="vs-generator"><div class="vs-form"><h2 id="vsFormTitle">Tạo QR cho URL</h2><div id="vsFields"></div><div class="vs-actions"><button class="vs-btn vs-btn-primary" id="vsGenerate"><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z"/></svg><span>Tạo mã QR</span></button><button class="vs-btn vs-btn-secondary" id="vsClear"><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10l1 2h3v2H3V6h3l1-2zm0 6h2v9h2v-9h2v9h2v-9h2v11H7V10z"/></svg><span>Xóa</span></button></div><div class="vs-history"><div class="vs-history-header"><h3>Lịch sử gần đây</h3><div class="vs-history-export"><input id="vsImportExcelInput" type="file" accept=".xlsx,.xls" hidden style="display:none!important" aria-hidden="true"><button class="vs-btn vs-btn-secondary vs-pro-feature" id="vsImportExcel" type="button" title="Tính năng Pro: Nhập dữ liệu Excel để xử lý nhiều QR"><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11.17l3.59-3.58L17 12l-5 6-5-6 1.41-1.41L11 14.17V3h2zM5 19h14v2H5v-2z"/></svg><span>Nhập Excel</span></button><button class="vs-btn vs-btn-secondary vs-pro-feature" id="vsFileExport" type="button" title="Tính năng Pro: Xuất dữ liệu QR ra Excel hoặc ZIP"><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h9l4 4v12H5V4zm8 1.5V9h3.5L13 5.5zM8 12h6v2H8v-2zm0 4h6v2H8v-2z"/></svg><span>Xuất ra tập tin</span></button><button class="vs-btn vs-btn-secondary vs-pro-feature" id="vsPrintHistory" type="button" title="Tính năng Pro: In nhiều QR từ lịch sử"><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6h2a2 2 0 0 1 2 2v6h-4v4H6v-4H2v-6a2 2 0 0 1 2-2h2zm2-4v4h8V5H8zm8 13H8v2h8v-2zm2-5H6v5h12v-5z"/></svg><span>In QR</span></button></div></div></div><div id="vsHistory"></div><div id="vsExportStatus" class="vs-export-status"></div></div></div><div class="vs-result"><h2>Kết quả</h2><div class="vs-preview" id="vsPreview"><div class="vs-empty">QR Code sẽ xuất hiện ở đây</div></div><div class="vs-custom vs-result-config"><div class="vs-grid2"><div class="vs-field"><label>Kích thước</label><select id="vsSize"><option value="220">220 × 220</option><option value="300">300 × 300</option><option value="400">400 × 400</option><option value="500">500 × 500</option></select></div><div class="vs-field"><label>Độ sửa lỗi</label><select id="vsLevel"><option value="L">Thấp</option><option value="M">Trung bình</option><option value="Q">Cao</option><option value="H">Rất cao</option></select></div></div></div><div class="vs-status" id="vsStatus"></div><div class="vs-actions"><button class="vs-btn vs-btn-primary" id="vsDownload" disabled><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3h2v10.17l3.59-3.58L18 11l-6 6-6-6 1.41-1.41L11 13.17V3zm-6 16h14v2H5v-2z"/></svg><span>Tải PNG</span></button><button class="vs-btn vs-btn-secondary" id="vsCopy" disabled><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7h11v14H8V7zm2 2v10h7V9h-7zM5 3h11v2H7v10H5V3z"/></svg><span>Sao chép</span></button><button class="vs-btn vs-btn-secondary" id="vsOpen" disabled><svg class="vs-btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6h-2V7.41l-8.29 8.3-1.42-1.42L16.59 6H14V4zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg><span>Mở ảnh</span></button></div></div></div></div></div></div><section class="vs-info-section vs-pro-plan-section"><div class="vs-info-card"><div class="vs-info-heading"><div class="vs-info-icon" aria-hidden="true">★</div><div><div class="vs-info-kicker">Free &amp; Pro</div><h2>Chọn cách làm việc phù hợp</h2><p class="vs-pro-plan-intro">Tạo QR cơ bản vẫn miễn phí. Pro tập trung vào workflow nhiều mã QR và các thao tác dành cho nhu cầu chuyên nghiệp.</p></div></div><div class="vs-pro-plan-grid"><div class="vs-plan-card"><div class="vs-plan-label">FREE</div><h3>Tạo QR hằng ngày</h3><ul><li><span>✓</span>Tạo tất cả loại QR</li><li><span>✓</span>Tùy chỉnh cơ bản</li><li><span>✓</span>Preview &amp; scan</li><li><span>✓</span>Lịch sử QR</li><li><span>✓</span>Tải 1 mã QR</li></ul></div><div class="vs-plan-card vs-plan-card-pro"><div class="vs-plan-label">PRO</div><h3>Workflow nhiều mã</h3><div class="vs-plan-pricing"><div class="vs-plan-price"><strong>39.000đ</strong><span>/ tháng</span></div><div class="vs-plan-price vs-plan-price-annual"><strong>199.000đ</strong><span>/ năm</span><em>Tiết kiệm ~57%</em></div></div><ul><li><span>✓</span>Nhập dữ liệu từ Excel</li><li><span>✓</span>Xuất dữ liệu sang Excel hoặc ZIP</li><li><span>✓</span>In nhiều mã QR</li><li><span>✓</span>Tùy chỉnh nâng cao</li></ul><button class="vs-btn vs-btn-primary vs-plan-cta" id="vsUpgradePro" type="button">Nâng cấp Pro</button><div class="vs-plan-cta-note">Chuyển khoản qua VietQR · License cấp sau khi xác nhận thanh toán.</div></div></div></div><div class="vs-pro-plan-note">Tạo QR cơ bản vẫn miễn phí. Pro dành cho workflow nhiều mã và các thao tác nâng cao.</div></div></section><section class="vs-info-section"><div class="vs-info-card"><div class="vs-info-heading"><div class="vs-info-icon" aria-hidden="true">✓</div><div><div class="vs-info-kicker">Bắt đầu nhanh</div><h2>Hướng dẫn sử dụng</h2></div></div><div class="vs-guide-grid"><div class="vs-guide-step"><span class="vs-guide-number">1</span><div><strong>Chọn loại QR</strong><p>Chọn URL, văn bản, liên hệ, Wi-Fi, email, điện thoại, SMS hoặc vị trí.</p></div></div><div class="vs-guide-step"><span class="vs-guide-number">2</span><div><strong>Tạo mã QR</strong><p>Nhập nội dung rồi nhấn <strong>Tạo mã QR</strong>. Dữ liệu được xử lý ngay trên trình duyệt.</p></div></div><div class="vs-guide-step"><span class="vs-guide-number">3</span><div><strong>Tùy chỉnh nếu cần</strong><p>Tùy chỉnh ngay trong khu vực <strong>Kết quả</strong> để đổi màu, kiểu điểm hoặc thêm logo cho QR đã tạo.</p></div></div><div class="vs-guide-step"><span class="vs-guide-number">4</span><div><strong>Lưu và sử dụng</strong><p>Tải PNG, sao chép ảnh hoặc mở ảnh QR để tiếp tục sử dụng.</p></div></div></div><div class="vs-info-note">🔒 Nội dung QR được tạo trực tiếp trên thiết bị và không được gửi vào Google Analytics.</div></div></section><section class="vs-info-section"><div class="vs-info-card"><div class="vs-info-heading"><div class="vs-info-icon" aria-hidden="true">?</div><div><div class="vs-info-kicker">Giải đáp nhanh</div><h2>Câu hỏi thường gặp</h2></div></div><div class="vs-faq-grid"><details open><summary>QR Code có miễn phí không?</summary><p>Có. Bạn có thể tạo và tải mã QR trực tiếp từ công cụ này.</p></details><details><summary>QR Code có hết hạn không?</summary><p>QR tĩnh không tự hết hạn. Tuy nhiên, nếu QR trỏ tới một website hoặc nội dung bên ngoài, nội dung đó vẫn có thể thay đổi hoặc ngừng hoạt động.</p></details><details><summary>Có tạo được QR Wi-Fi không?</summary><p>Có. Chọn tab <strong>Wi-Fi</strong>, nhập tên mạng, mật khẩu và loại bảo mật rồi tạo mã QR.</p></details><details><summary>Tùy chỉnh QR như thế nào?</summary><p>Sau khi tạo QR, hãy tùy chỉnh trực tiếp trong khu vực <strong>Kết quả</strong> để đổi màu sắc, kiểu điểm và logo. Bạn có thể xem thay đổi ngay trên ảnh QR.</p></details><details><summary>Dữ liệu tôi nhập có được lưu lên máy chủ không?</summary><p>Việc tạo QR được thực hiện trên trình duyệt. Lịch sử tạo mã được lưu trong bộ nhớ cục bộ của trình duyệt trên thiết bị của bạn.</p></details><details><summary>QR tùy chỉnh có ảnh hưởng khả năng quét không?</summary><p>Có thể nếu độ tương phản quá thấp hoặc logo che quá nhiều vùng mã. Nên giữ màu QR tương phản với nền và thử quét trước khi in hoặc chia sẻ.</p></details></div></div></section><section class="vs-info-section"><div class="vs-info-card"><div class="vs-info-heading"><div class="vs-info-icon" aria-hidden="true">QR</div><div><div class="vs-info-kicker">QR Code Generator</div><h2>Tạo QR Code cho nhiều nhu cầu</h2><p>Từ một mã QR đơn giản đến workflow nhiều mã, bạn có thể tạo QR Code online ngay trên trình duyệt mà không cần cài phần mềm.</p></div></div><div class="vs-guide-grid"><div class="vs-guide-step"><span class="vs-guide-number">URL</span><div><strong>Tạo QR Code cho website</strong><p>Chuyển đường dẫn website, landing page hoặc trang sản phẩm thành mã QR để chia sẻ và in ấn.</p></div></div><div class="vs-guide-step"><span class="vs-guide-number">WiFi</span><div><strong>Tạo QR Wi-Fi</strong><p>Chia sẻ tên mạng và mật khẩu bằng QR Wi-Fi để người khác kết nối nhanh hơn.</p></div></div><div class="vs-guide-step"><span class="vs-guide-number">Pay</span><div><strong>Tạo QR thanh toán</strong><p>Tạo mã QR thanh toán VietQR với thông tin ngân hàng, số tài khoản, số tiền và nội dung chuyển khoản.</p></div></div><div class="vs-guide-step"><span class="vs-guide-number">Excel</span><div><strong>Tạo nhiều mã QR từ Excel</strong><p>Pro hỗ trợ nhập dữ liệu Excel, tạo workflow nhiều QR, xuất dữ liệu và in nhiều mã QR từ lịch sử.</p></div></div></div></div></section></section> 
+</div>
+
+<!-- end Main -->
+
+<!-- Footer -->
+<div id="footer">
+	<!-- Shell -->
+	<div class="shell">
+		<p class="text-right"> &copy; 2026 QR Tools by ThangDC. </p>
+	</div>
+	<!-- end Shell -->
+</div>
+<!-- end Footer -->
+<div class="vs-pro-modal" id="vsProModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="vsProModalTitle"><div class="vs-pro-modal-backdrop" data-pro-close="true"></div><div class="vs-pro-modal-card" role="document"><button class="vs-pro-modal-close" id="vsProModalClose" type="button" aria-label="Đóng">×</button><div id="vsProUpgradeView"><div class="vs-pro-modal-kicker">QR CODE PRO</div><h2 id="vsProModalTitle">Nâng cấp Pro</h2><p class="vs-pro-modal-intro">Mở khóa workflow nhiều mã QR với Excel, xuất dữ liệu, in hàng loạt và tùy chỉnh nâng cao.</p><div class="vs-pro-modal-features"><div><span class="vs-pro-modal-icon">⇩</span><div><strong>Nhập Excel</strong><p>Nhập nhiều bản ghi từ Excel để tạo dữ liệu QR hàng loạt.</p></div></div><div><span class="vs-pro-modal-icon">⇧</span><div><strong>Xuất dữ liệu</strong><p>Đưa lịch sử QR ra Excel hoặc ZIP để lưu trữ và tiếp tục xử lý.</p></div></div><div><span class="vs-pro-modal-icon">▣</span><div><strong>In QR hàng loạt</strong><p>In nhiều mã QR từ lịch sử trong một lần thao tác.</p></div></div></div><div class="vs-pro-modal-pricing"><div><strong>39.000đ</strong><span>/ tháng</span></div><div><strong>199.000đ</strong><span>/ năm</span><em>Tiết kiệm ~57%</em></div></div><button class="vs-btn vs-btn-primary vs-pro-upgrade-cta" id="vsProUpgradeCta" type="button">Nâng cấp Pro</button><p class="vs-pro-upgrade-note">Thanh toán qua VietQR · License Key được cấp sau khi xác nhận.</p><button class="vs-pro-license-link" id="vsProOpenLicense" type="button">Đã có License Key? Kích hoạt Pro</button></div><div id="vsProLicenseView" hidden><div class="vs-pro-modal-kicker">KÍCH HOẠT QR CODE PRO</div><h2>Kích hoạt Pro</h2><div class="vs-pro-license"><div class="vs-pro-license-heading"><strong>Thông tin License</strong><span>Email + License Key</span></div><div class="vs-field"><label for="vsProLicenseEmail">Email mua License</label><input id="vsProLicenseEmail" type="email" autocomplete="email" placeholder="email@example.com"></div><div class="vs-field"><label for="vsProLicenseInput">License Key</label><textarea id="vsProLicenseInput" rows="3" placeholder="Dán License Key vào đây"></textarea></div><div class="vs-pro-license-actions"><button class="vs-btn vs-btn-primary" id="vsProModalContinue" type="button">Kích hoạt &amp; tiếp tục</button><button class="vs-btn vs-btn-secondary" id="vsProLicenseClear" type="button" hidden>Xóa License</button></div><div class="vs-pro-license-status" id="vsProLicenseStatus" role="status"></div></div><div class="vs-pro-license-explanation">License được xác thực bằng chữ ký số và kiểm tra trạng thái kích hoạt trên máy chủ.</div><button class="vs-pro-back-link" id="vsProBackToUpgrade" type="button">← Quay lại thông tin Pro</button></div></div></div>
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-56112101-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<div class="vs-payment-modal" id="vsPaymentModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="vsPaymentModalTitle"><div class="vs-payment-modal-backdrop" data-payment-close="true"></div><div class="vs-payment-modal-card" role="document"><button class="vs-payment-modal-close" id="vsPaymentModalClose" type="button" aria-label="Đóng">×</button><div class="vs-payment-modal-kicker">NÂNG CẤP QR CODE PRO</div><h2 id="vsPaymentModalTitle">Thanh toán Pro</h2><p class="vs-payment-modal-intro">Chọn gói, nhập email nhận License rồi quét QR để chuyển khoản. QR đã điền sẵn số tiền và nội dung để giảm sai sót.</p><div class="vs-payment-plan"><label for="vsPaymentPlan">Gói Pro</label><select id="vsPaymentPlan"><option value="annual">199.000đ / năm — tiết kiệm ~57%</option><option value="monthly">39.000đ / tháng</option></select></div><div class="vs-payment-email"><label for="vsPaymentEmail">Email nhận License Key</label><input id="vsPaymentEmail" type="email" autocomplete="email" placeholder="email@example.com"><small>Dùng đúng email này khi thanh toán để đối soát và cấp License.</small></div><div class="vs-payment-layout"><div class="vs-payment-qr-wrap"><img id="vsPaymentQr" src="" alt="VietQR thanh toán VietSoft Pro"><div class="vs-payment-qr-caption">Mở app ngân hàng và quét mã</div></div><div class="vs-payment-details"><div class="vs-payment-detail"><span>Ngân hàng</span><strong>ACB</strong></div><div class="vs-payment-detail"><span>Số tài khoản</span><strong>1709878</strong></div><div class="vs-payment-detail"><span>Chủ tài khoản</span><strong>Đinh Công Thắng</strong></div><div class="vs-payment-detail"><span>Số tiền</span><strong id="vsPaymentAmount">199.000đ</strong></div><div class="vs-payment-detail"><span>Nội dung chuyển khoản</span><strong id="vsPaymentTransferContent">VIETSOFT PRONAM EMAIL</strong></div><button class="vs-btn vs-btn-secondary vs-payment-copy" id="vsPaymentCopyContent" type="button">Sao chép nội dung chuyển khoản</button><div class="vs-payment-copy-status" id="vsPaymentCopyStatus"></div></div></div><div class="vs-payment-steps"><div><b>1</b><span>Chọn gói và nhập email.</span></div><div><b>2</b><span>Quét QR hoặc chuyển khoản đúng số tiền + nội dung.</span></div><div><b>3</b><span>Sau khi xác nhận thanh toán, License Key sẽ được cấp cho email đã nhập.</span></div></div><div class="vs-payment-status" id="vsPaymentStatus"></div><div class="vs-payment-actions"><button class="vs-btn vs-btn-primary" id="vsPaymentDone" type="button">Tôi đã thanh toán</button></div><button class="vs-payment-license-link" id="vsPaymentOpenLicense" type="button">Đã có License Key? Kích hoạt Pro</button><div class="vs-payment-note">Lưu ý: đây là thanh toán chuyển khoản thủ công. Không gửi thông tin thẻ hoặc mật khẩu ngân hàng.</div></div></div>
+<div class="vs-auth-modal" id="vsAuthModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="vsAuthTitle">
+	<div class="vs-auth-backdrop" data-auth-close="true"></div>
+	<div class="vs-auth-card" role="document">
+		<button class="vs-auth-close" id="vsAuthModalClose" type="button" aria-label="Đóng">×</button>
+		<div class="vs-auth-kicker">VIETSOFT ACCOUNT</div>
+		<h2 id="vsAuthTitle">Đăng nhập VietSoft</h2>
+		<p class="vs-auth-intro">Đăng nhập để quản lý tài khoản. Cloud Sync sẽ được mở cho tài khoản Pro.</p>
+		<div id="vsAuthLoginForm">
+			<div class="vs-auth-field"><label for="vsAuthEmail">Email</label><input id="vsAuthEmail" type="email" autocomplete="email" placeholder="email@example.com"></div>
+			<div class="vs-auth-field" id="vsAuthPasswordField"><label for="vsAuthPassword">Mật khẩu</label><input id="vsAuthPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+			<div class="vs-auth-field" id="vsAuthConfirmPasswordField" style="display:none"><label for="vsAuthConfirmPassword">Xác nhận mật khẩu</label><input id="vsAuthConfirmPassword" type="password" autocomplete="new-password" placeholder="••••••••"></div>
+			<div class="vs-auth-actions"><button class="vs-btn vs-btn-primary" id="vsAuthSubmit" type="button">Đăng nhập</button><button class="vs-btn vs-btn-primary" id="vsAuthSignup" type="button" style="display:none">Tạo tài khoản</button><button class="vs-btn vs-btn-primary" id="vsAuthForgotSubmit" type="button" style="display:none">Gửi email đặt lại mật khẩu</button></div>
+			<div class="vs-auth-links"><button id="vsAuthForgot" type="button">Quên mật khẩu?</button><button id="vsAuthCreateAccount" type="button">Tạo tài khoản</button><button id="vsAuthBackToLogin" type="button" style="display:none">← Đăng nhập</button></div>
+		</div>
+		<div id="vsAuthForgotForm" style="display:none"></div>
+		<div class="vs-auth-account-info" id="vsAuthAccountInfo" style="display:none"><strong>Tài khoản</strong><span id="vsAuthAccountEmail"></span></div>
+		<div class="vs-auth-actions"><button class="vs-btn vs-btn-secondary" id="vsAuthLogout" type="button" style="display:none">Đăng xuất</button></div>
+		<div class="vs-auth-status" id="vsAuthStatus" role="status"></div>
+	</div>
+</div>
+</body>
+</html>
