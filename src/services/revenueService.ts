@@ -54,7 +54,7 @@ export async function getOrderStatus(email: string, orderCode: string): Promise<
 }
 
 export async function activateProLicense(email: string, licenseKey: string, deviceId: string) {
-  return callFunction<{ success: boolean; expiresAt?: string; activationToken?: string; message?: string }>(
+  return callFunction<{ success: boolean; expiresAt?: string; activationToken?: string; activeDevices?: number; maxDevices?: number; code?: string; message?: string }>(
     'activate-license',
     { email, licenseKey, deviceId },
   );
@@ -105,6 +105,8 @@ export async function validateProLicense(
     success: boolean;
     plan?: ProPlan;
     expiresAt?: string;
+    activeDevices?: number;
+    maxDevices?: number;
     message?: string;
   }>('validate-license', { email, deviceId, activationToken });
 }
