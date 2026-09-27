@@ -429,7 +429,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
                   onChange={(e) => setSeqFrom(Number(e.target.value))}
                   className="w-14 h-8 px-2 bg-white border border-neutral-300 rounded-lg text-center"
                 />
-                <span className="text-neutral-400">to</span>
+                <span className="text-neutral-400">{tx('đến', 'to')}</span>
                 <input
                   type="number"
                   min={1}
@@ -518,7 +518,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               <span className="p-1.5 rounded-lg bg-blue-50 text-blue-700 group-hover:bg-blue-100">
                 <Utensils className="w-3.5 h-3.5" />
               </span>
-              <span className="font-semibold text-neutral-900">Table Tents</span>
+              <span className="font-semibold text-neutral-900">{tx('Bảng để bàn', 'Table Tents')}</span>
             </div>
             <p className="text-[11px] text-neutral-500 leading-relaxed">
               <strong>Bảng đặt bàn cafe / nhà hàng:</strong> Large foldable A5/A6 cards with Table #, Menu title, & Wi-Fi box.
@@ -534,7 +534,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               <span className="p-1.5 rounded-lg bg-amber-50 text-amber-700 group-hover:bg-amber-100">
                 <Tag className="w-3.5 h-3.5" />
               </span>
-              <span className="font-semibold text-neutral-900">Sticker Grid</span>
+              <span className="font-semibold text-neutral-900">{tx('Lưới tem dán', 'Sticker Grid')}</span>
             </div>
             <p className="text-[11px] text-neutral-500 leading-relaxed">
               <strong>Tem dán ly / bao bì:</strong> 9–16 small square stickers per sheet. Ideal for takeaway cups, bags, & packaging.
@@ -550,7 +550,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100">
                 <CreditCard className="w-3.5 h-3.5" />
               </span>
-              <span className="font-semibold text-neutral-900">Bank Stands</span>
+              <span className="font-semibold text-neutral-900">{tx('Bảng thanh toán', 'Bank Stands')}</span>
             </div>
             <p className="text-[11px] text-neutral-500 leading-relaxed">
               <strong>Bảng quầy thu ngân:</strong> Counter signs with Napas 247 logo, Account #, & beneficiary name.
@@ -566,7 +566,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               <span className="p-1.5 rounded-lg bg-purple-50 text-purple-700 group-hover:bg-purple-100">
                 <LayoutTemplate className="w-3.5 h-3.5" />
               </span>
-              <span className="font-semibold text-neutral-900">Desk Plaques</span>
+              <span className="font-semibold text-neutral-900">{tx('Bảng để bàn tối giản', 'Desk Plaques')}</span>
             </div>
             <p className="text-[11px] text-neutral-500 leading-relaxed">
               <strong>Bảng để bàn tối giản:</strong> Clean cards for reception desks, event check-ins, or conference rooms.
@@ -754,7 +754,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
                   type="button"
                   onClick={() => removeItem(item.id)}
                   className="text-neutral-400 hover:text-red-600 p-1 rounded-md cursor-pointer"
-                  title="Remove row"
+                  title={tx('Xóa dòng', 'Remove row')}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
