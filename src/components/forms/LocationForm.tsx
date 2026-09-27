@@ -27,7 +27,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
           ...data,
           latitude: pos.coords.latitude.toFixed(6),
           longitude: pos.coords.longitude.toFixed(6),
-          locationName: data.locationName || 'Current Location',
+          locationName: data.locationName || 'Vị trí hiện tại',
         });
         setDetecting(false);
       },
@@ -42,13 +42,13 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
     <div className="space-y-3.5">
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Location Name (Optional)
+          Tên vị trí (Tùy chọn)
         </label>
         <input
           type="text"
           value={data.locationName}
           onChange={(e) => onChange({ ...data, locationName: e.target.value })}
-          placeholder="e.g. Store Branch #1, Meeting Point"
+          placeholder="VD: Cửa hàng số 1, Điểm gặp"
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
         />
       </div>
@@ -89,12 +89,12 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
           className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-blue-600 transition-colors cursor-pointer"
         >
           <Navigation className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
-          <span>{detecting ? 'Đang lấy vị trí...' : 'Use my current GPS'}</span>
+          <span>{detecting ? 'Đang lấy vị trí...' : 'Dùng GPS hiện tại'}</span>
         </button>
       </div>
 
       <div className="pt-2 border-t border-neutral-100">
-        <span className="text-xs font-medium text-neutral-500">Popular presets:</span>
+        <span className="text-xs font-medium text-neutral-500">Vị trí mẫu phổ biến:</span>
         <div className="flex flex-wrap gap-2 mt-1.5">
           {PRESET_LOCATIONS.map((loc) => (
             <button
