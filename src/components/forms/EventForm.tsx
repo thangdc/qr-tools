@@ -56,7 +56,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Ngày & giờ bắt đầu</span>
+            <span>{tx('Ngày & giờ bắt đầu', 'Start Date & Time')}</span>
           </label>
           <input
             type="datetime-local"
@@ -69,7 +69,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Ngày & giờ kết thúc</span>
+            <span>{tx('Ngày & giờ kết thúc', 'End Date & Time')}</span>
           </label>
           <input
             type="datetime-local"
@@ -84,7 +84,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Địa điểm</span>
+          <span>{tx('Địa điểm', 'Venue / Location')}</span>
         </label>
         <input
           type="text"
@@ -99,13 +99,13 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <AlignLeft className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Mô tả & lịch trình</span>
+          <span>{tx('Mô tả & lịch trình', 'Description & Agenda')}</span>
         </label>
         <textarea
           rows={3}
           value={data.description}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
-          placeholder="Lịch trình, trang phục, diễn giả hoặc ghi chú đặc biệt..."
+          placeholder="{tx('Lịch trình, trang phục, diễn giả hoặc ghi chú đặc biệt...', 'Event agenda, dress code, speaker line-up, or special notes...')}"
           className="w-full p-3 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-xs placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors resize-y leading-relaxed"
         />
       </div>
@@ -114,7 +114,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div className="pt-1">
         <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-amber-500" />
-          <span>Mẫu nhanh:</span>
+          <span>{tx('Mẫu nhanh:', 'Quick Presets:')}</span>
         </span>
         <div className="flex flex-wrap gap-1.5">
           {[
