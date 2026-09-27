@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { QRDesignOptions } from '../types/qr';
-import { renderCustomQRCode } from '../utils/qrRenderer';
-import { X, Ruler, Download, Printer, Check } from 'lucide-react';
+import { renderTùy chỉnhQRCode } from '../utils/qrRenderer';
+import { X, Ruler, Tải xuống, Iner, Check } from 'lucide-react';
 
-interface PrintHandoffModalProps {
+interface InHandoffModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onĐóng: () => void;
   payload: string;
   design: QRDesignOptions;
 }
@@ -18,14 +18,14 @@ const PRESET_SIZES = [
   { name: 'Large Poster', mm: 150, useCase: 'Áp phích cửa kính' },
 ];
 
-export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
+export const InHandoffModal: React.FC<InHandoffModalProps> = ({
   isOpen,
-  onClose,
+  onĐóng,
   payload,
   design,
 }) => {
   const [selectedMm, setSelectedMm] = useState<number>(60);
-  const [customMm, setCustomMm] = useState<string>('60');
+  const [customMm, setTùy chỉnhMm] = useState<string>('60');
   const [addCropMarks, setAddCropMarks] = useState<boolean>(true);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
@@ -34,7 +34,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
   // 300 DPI conversion: 1 inch = 25.4 mm => pixels = (mm / 25.4) * 300
   const targetPixels = Math.round((selectedMm / 25.4) * 300);
 
-  const handleDownloadMetricPNG = async () => {
+  const handleTải xuốngMetricPNG = async () => {
     if (!payload) return;
     setIsExporting(true);
 
@@ -54,7 +54,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
 
       // Render QR
       const qrCanvas = document.createElement('canvas');
-      await renderCustomQRCode(qrCanvas, payload, design, targetPixels);
+      await renderTùy chỉnhQRCode(qrCanvas, payload, design, targetPixels);
 
       ctx.drawImage(qrCanvas, padding, padding, targetPixels, targetPixels);
 
@@ -102,7 +102,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
       a.href = url;
       a.download = `qr-print-${selectedMm}mm-300dpi.png`;
       a.click();
-      onClose();
+      onĐóng();
     } catch (e) {
       console.error(e);
     } finally {
@@ -120,7 +120,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             </span>
             <div>
               <h2 className="text-sm font-semibold text-neutral-900">
-                Print Handoff & Millimeter Sizing
+                In Handoff & Millimeter Sizing
               </h2>
               <p className="text-[11px] text-neutral-400">
                 Commercial 300 DPI calibrated output with optional crop marks
@@ -128,7 +128,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={onĐóng}
             className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -138,7 +138,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
         <div className="p-4 space-y-4 text-xs">
           <div>
             <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2">
-              Physical Print Dimension
+              Physical In Dimension
             </label>
             <div className="space-y-1.5">
               {PRESET_SIZES.map((preset) => (
@@ -147,7 +147,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
                   type="button"
                   onClick={() => {
                     setSelectedMm(preset.mm);
-                    setCustomMm(preset.mm.toString());
+                    setTùy chỉnhMm(preset.mm.toString());
                   }}
                   className={`w-full p-2.5 rounded border text-left flex items-center justify-between transition-colors cursor-pointer ${
                     selectedMm === preset.mm
@@ -169,7 +169,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
 
           <div className="flex items-center gap-3 pt-1">
             <label className="text-xs text-neutral-600 font-medium">
-              Custom mm:
+              Tùy chỉnh mm:
             </label>
             <input
               type="number"
@@ -177,7 +177,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
               max={500}
               value={customMm}
               onChange={(e) => {
-                setCustomMm(e.target.value);
+                setTùy chỉnhMm(e.target.value);
                 const n = parseInt(e.target.value, 10);
                 if (n > 0) setSelectedMm(n);
               }}
@@ -195,11 +195,11 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Print Standard:</span>
+              <span>In Standard:</span>
               <span className="font-semibold text-emerald-700">300 DPI (Offset Grade)</span>
             </div>
             <div className="flex justify-between">
-              <span>Physical Size:</span>
+              <span>Kích thước thực tế:</span>
               <span>{selectedMm} × {selectedMm} mm</span>
             </div>
           </div>
@@ -222,18 +222,18 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
         <div className="p-3.5 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
           <button
             type="button"
-            onClick={onClose}
+            onClick={onĐóng}
             className="px-3 py-1.5 text-xs text-neutral-600 hover:text-neutral-900 cursor-pointer"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="button"
             disabled={isExporting}
-            onClick={handleDownloadMetricPNG}
+            onClick={handleTải xuốngMetricPNG}
             className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Tải xuống className="w-3.5 h-3.5" />
             <span>{isExporting ? 'Generating...' : `Export ${selectedMm}mm (300 DPI)`}</span>
           </button>
         </div>
