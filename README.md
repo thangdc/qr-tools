@@ -1,28 +1,20 @@
-# QR Tools
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-A lightweight QR code toolkit built as a standalone React + TypeScript application.
+# Run and deploy your AI Studio app
 
-## Stack
+This contains everything you need to run your app locally.
 
-- React
-- TypeScript
-- Vite
-- GitHub Pages
-- Supabase (planned for cloud/pro features)
+View your app in AI Studio: https://ai.studio/apps/dffb83e5-ccc7-4011-94bf-661ef99a0e46
 
-## Development
+## Run Locally
 
-```bash
-npm install
-npm run dev
-```
+**Prerequisites:**  Node.js
 
-Build:
 
-```bash
-npm run build
-```
-
-## Product direction
-
-QR Tools is a new frontend implementation of the QR product. The existing VietSoft production application remains isolated until the new application is functionally and visually ready for release.
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
