@@ -697,12 +697,12 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-auto border-t border-neutral-200/80 bg-white py-4 print:hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="font-semibold text-neutral-900">QR Tools</span>
             <span>·</span>
             <span>{t('brandTagline')}</span>
           </div>
-          <div className="flex flex-wrap/ items-center justify-center sm:justify-end gap-x-3 gap-y-1 text-neutral-500">
+          <div className="flex items-center justify-start sm:justify-end gap-x-3 overflow-x-auto max-w-full whitespace-nowrap text-neutral-500">
             <a href="/terms.html" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
             <span>·</span>
             <a href="/privacy.html" className="hover:text-neutral-900 transition-colors">Bảo mật</a>
