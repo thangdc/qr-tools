@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenShortcuts,
   onOpenTemplates,
 }) => {
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language, toggleLanguage, t, tx } = useLanguage();
 
   return (
     <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-xs border-b border-neutral-200">
@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
               QR Tools
             </span>
             <span className="text-xs text-neutral-400 font-mono hidden md:inline">
-              / professional utility
+              / {tx('tiện ích chuyên nghiệp', 'professional utility')}
             </span>
           </button>
         </div>
