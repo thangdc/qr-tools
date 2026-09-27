@@ -3,14 +3,14 @@ import { X, Check, Sparkles, KeyRound } from 'lucide-react';
 
 interface ProModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onĐóng: () => void;
   isPro: boolean;
   onTogglePro: (val: boolean) => void;
 }
 
 export const ProModal: React.FC<ProModalProps> = ({
   isOpen,
-  onClose,
+  onĐóng,
   isPro,
   onTogglePro,
 }) => {
@@ -25,7 +25,7 @@ export const ProModal: React.FC<ProModalProps> = ({
       setKeyMessage('Pro license activated successfully!');
       setTimeout(() => {
         setKeyMessage(null);
-        onClose();
+        onĐóng();
       }, 1200);
     } else {
       setKeyMessage('Please enter a valid key or click Instant Demo Activation below.');
@@ -51,7 +51,7 @@ export const ProModal: React.FC<ProModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={onĐóng}
             className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -63,7 +63,7 @@ export const ProModal: React.FC<ProModalProps> = ({
           <div className="border border-neutral-200 rounded-md overflow-hidden text-xs">
             <div className="grid grid-cols-3 bg-neutral-50 p-2.5 font-medium text-neutral-600 border-b border-neutral-200">
               <span className="col-span-1">Feature</span>
-              <span className="text-center">Free Plan</span>
+              <span className="text-center">Miễn phí Plan</span>
               <span className="text-center font-semibold text-neutral-900">Pro Plan</span>
             </div>
 
@@ -130,19 +130,19 @@ export const ProModal: React.FC<ProModalProps> = ({
             type="button"
             onClick={() => {
               onTogglePro(!isPro);
-              onClose();
+              onĐóng();
             }}
             className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
           >
-            {isPro ? 'Deactivate Pro (Switch to Free)' : 'Instant 1-Click Pro Trial'}
+            {isPro ? 'Deactivate Pro (Switch to Miễn phí)' : 'Instant 1-Click Pro Trial'}
           </button>
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={onĐóng}
             className="px-4 py-1.5 text-xs font-medium bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-md transition-colors cursor-pointer"
           >
-            Close
+            Đóng
           </button>
         </div>
       </div>
