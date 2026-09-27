@@ -13,7 +13,7 @@ export const SmsForm: React.FC<SmsFormProps> = ({ data, onChange }) => {
     <div className="space-y-3.5">
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Số điện thoại
+          {tx('Số điện thoại', 'Phone Number')}
         </label>
         <input
           type="tel"
@@ -26,17 +26,17 @@ export const SmsForm: React.FC<SmsFormProps> = ({ data, onChange }) => {
 
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Nội dung tin nhắn
+          {tx('Nội dung tin nhắn', 'Message Body')}
         </label>
         <textarea
           rows={3}
           value={data.message}
           onChange={(e) => onChange({ ...data, message: e.target.value })}
-          placeholder="Nội dung SMS soạn sẵn..."
+          placeholder="{tx('Nội dung SMS soạn sẵn...', 'Pre-composed SMS text...')}"
           className="w-full p-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors resize-y"
         />
         <p className="mt-1.5 text-xs text-neutral-500">
-          Tạo bản nháp SMS trong ứng dụng Nhắn tin mặc định khi quét.
+          {tx('Tạo bản nháp SMS trong ứng dụng Nhắn tin mặc định khi quét.', 'Prepares SMS draft in default Messaging app when scanned.')}
         </p>
       </div>
     </div>
