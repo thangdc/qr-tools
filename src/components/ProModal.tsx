@@ -8,6 +8,7 @@ import {
   getOrderStatus,
   submitSePayCheckout,
   validateProLicense,
+  deactivateProLicense,
   type ProPlan,
 } from '../services/revenueService';
 
@@ -34,6 +35,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [copied, setCopied] = useState(false);
   const [activeDevices, setActiveDevices] = useState<number | null>(null);
   const [maxDevices, setMaxDevices] = useState<number | null>(null);
+  const [deactivating, setDeactivating] = useState(false);
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
 
@@ -209,6 +211,43 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
   if (!isOpen) return null;
 
+  const deactivateCurrentDevice = async () => {
+    const savedEmail = localStorage.getItem('qr_tools_license_email') || email.trim();
+    const activationToken = localStorage.getItem('qr_tools_activation_token');
+    if (!savedEmail || !activationToken) {
+      setMessage(tx('Không tìm thấy thông tin kích hoạt của thiết bị này.', 'This device activation information could not be found.'));
+      return;
+    }
+
+    if (!window.confirm(tx(
+      'Xóa kích hoạt trên thiết bị này? Sau đó bạn có thể kích hoạt License trên thiết bị khác.',
+      'Remove activation from this device? You can then activate the License on another device.',
+    ))) return;
+
+    setDeactivating(true);
+    setMessage(null);
+    try {
+      const result = await deactivateProLicense(savedEmail, getDeviceId(), activationToken);
+      if (!result.success) throw new Error(result.message || tx('Không thể xóa kích hoạt.', 'Unable to remove device activation.'));
+      localStorage.removeItem('qr_tools_activation_token');
+      localStorage.removeItem('qr_tools_pro');
+      localStorage.removeItem('qr_tools_pro_expires_at');
+      localStorage.removeItem('qr_tools_license_key');
+      localStorage.removeItem('qr_tools_license_email');
+      setLicenseKey('');
+      setExpiresAt(null);
+      setActiveDevices(result.activeDevices ?? null);
+      setMaxDevices(result.maxDevices ?? null);
+      onTogglePro(false);
+      setActivePanel('license');
+      setMessage(tx('Đã xóa thiết bị này khỏi License. Bạn có thể kích hoạt trên thiết bị khác.', 'This device has been removed from the License. You can activate it on another device.'));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : tx('Không thể xóa kích hoạt.', 'Unable to remove device activation.'));
+    } finally {
+      setDeactivating(false);
+    }
+  };
+
   const openCheckout = () => {
     setMessage(null);
     setPaymentStarted(false);
@@ -373,6 +412,24 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                 </div>
               )}
               <div className="mt-4 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={deactivateCurrentDevice}
+                  disabled={deactivating}
+                  className="h-9 rounded-lg border border-red-200 bg-white hover:bg-red-50 disabled:opacity-50 text-red-700 text-xs font-medium"
+                >
+                  {deactivating ? tx('Đang xóa…', 'Removing…') : tx('Xóa thiết bị này', 'Remove this device')}
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="h-9 rounded-lg text-neutral-600 hover:bg-white text-xs font-medium"
+                >
+                  {tx('Đóng', 'Close')}
+                </button>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+
                 <button type="button" onClick={openCheckout} className="h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold">
                   {tx('Gia hạn Pro', 'Renew Pro')}
                 </button>
@@ -380,9 +437,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                   {tx('Nhập License Key', 'Enter License Key')}
                 </button>
               </div>
-              <button type="button" onClick={onClose} className="mt-2 w-full h-9 rounded-lg text-neutral-600 hover:bg-white text-xs font-medium">
-                {tx('Đóng', 'Close')}
-              </button>
+
             </div>
           </div>
         ) : (
