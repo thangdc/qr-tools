@@ -32,7 +32,7 @@ async function callFunction<T>(name: string, body: Record<string, unknown>): Pro
     headers: {
       'Content-Type': 'application/json',
       ...(SUPABASE_PUBLISHABLE_KEY
-        ? { Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}` }
+        ? { apikey: SUPABASE_PUBLISHABLE_KEY }
         : {}),
     },
     body: JSON.stringify(body),
