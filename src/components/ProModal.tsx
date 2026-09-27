@@ -179,7 +179,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
               <ExternalLink className="w-4 h-4" />
             </button>
           ) : (
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 space-y-2">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-neutral-900">{tx('Đơn hàng', 'Order')}</span>
                 <span className="font-mono text-xs text-neutral-700">{orderCode}</span>
@@ -188,6 +188,20 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
               <div className="text-xs text-neutral-500">
                 {checking ? tx('Đang chờ SePay xác nhận thanh toán…', 'Waiting for SePay payment confirmation…') : tx('Đang tự động kiểm tra trạng thái.', 'Payment status is checked automatically.')}
               </div>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => {
+                  setPaymentStarted(false);
+                  setOrderCode('');
+                  setAmount(0);
+                  setLicenseKey('');
+                  setMessage(null);
+                }}
+                className="w-full h-9 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 disabled:opacity-50 text-neutral-800 text-xs font-semibold"
+              >
+                {tx('Tạo đơn hàng mới / Thanh toán lại', 'Create new order / Pay again')}
+              </button>
             </div>
           )}
 
