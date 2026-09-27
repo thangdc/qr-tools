@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { QRType } from '../types/qr';
+import { useLanguage } from '../i18n';
 import {
   Link2,
   FileText,
@@ -44,13 +45,26 @@ export const QrTypeSelector: React.FC<QrTypeSelectorProps> = ({
   onSelectType,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { language, t } = useLanguage();
+  const labels: Record<QRType, { label: string; sublabel: string }> = language === 'vi' ? {
+    url: { label: 'URL', sublabel: 'Liên kết' },
+    payment: { label: 'VietQR', sublabel: 'Napas 247' },
+    wifi: { label: 'WiFi', sublabel: 'Mạng' },
+    contact: { label: 'Liên hệ', sublabel: 'vCard' },
+    text: { label: 'Văn bản', sublabel: 'Ghi chú' },
+    email: { label: 'Email', sublabel: 'Thư' },
+    phone: { label: 'Điện thoại', sublabel: 'Gọi' },
+    sms: { label: 'SMS', sublabel: 'Tin nhắn' },
+    location: { label: 'Vị trí', sublabel: 'Bản đồ' },
+    event: { label: 'Sự kiện', sublabel: 'Lịch hẹn' },
+  } : Object.fromEntries(QR_TYPES.map((item) => [item.id, { label: item.label, sublabel: item.sublabel }])) as Record<QRType, { label: string; sublabel: string }>;
 
   return (
     <div className="w-full">
       <div
         ref={containerRef}
         role="tablist"
-        aria-label="QR Code Type Selection"
+        aria-label={t('qrTypeSelection')}
         className="flex items-center gap-1 p-1 bg-neutral-100/90 rounded-xl overflow-x-auto scrollbar-none border border-neutral-200/60"
       >
         {QR_TYPES.map((t) => {
@@ -79,7 +93,7 @@ export const QrTypeSelector: React.FC<QrTypeSelectorProps> = ({
                     : 'text-neutral-400 group-hover:text-neutral-600'
                 }`}
               />
-              <span>{t.label}</span>
+              <span>{labels[t.id].label}</span>
 
               {t.id === 'payment' && (
                 <span className="text-[9px] font-mono font-semibold px-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/60">
