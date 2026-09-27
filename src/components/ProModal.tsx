@@ -24,13 +24,13 @@ export const ProModal: React.FC<ProModalProps> = ({
   const handle{tx('Kích hoạt', 'Activate')}Key = () => {
     if (licenseKey.trim().toUpperCase() === 'QRPRO-2026' || licenseKey.trim().length >= 6) {
       onTogglePro(true);
-      setKeyMessage('Pro license activated successfully!');
+      setKeyMessage(tx('Đã kích hoạt giấy phép Pro thành công!', 'Pro license activated successfully!'));
       setTimeout(() => {
         setKeyMessage(null);
         on{tx('Đóng', 'Close')}();
       }, 1200);
     } else {
-      setKeyMessage('Please enter a valid key or click Instant Demo Activation below.');
+      setKeyMessage(tx('Vui lòng nhập mã hợp lệ hoặc nhấn nút dùng thử Pro bên dưới.', 'Please enter a valid key or click Instant Demo Activation below.'));
     }
   };
 
@@ -109,7 +109,7 @@ export const ProModal: React.FC<ProModalProps> = ({
                 type="text"
                 value={licenseKey}
                 onChange={(e) => setLicenseKey(e.target.value)}
-                placeholder="{tx('Nhập mã bản quyền (VD: QRPRO-2026)', 'Enter license key (e.g. QRPRO-2026)')}"
+                placeholder={tx('Nhập mã bản quyền (VD: QRPRO-2026)', 'Enter license key (e.g. QRPRO-2026)')}
                 className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600"
               />
               <button
