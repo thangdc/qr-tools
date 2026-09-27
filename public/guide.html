@@ -4,42 +4,203 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="index,follow">
-<title>Hướng dẫn sử dụng | QR Tools</title>
-<meta name="description" content="Hướng dẫn tạo, tùy chỉnh, quét, lưu, xuất và sử dụng QR Tools Pro.">
+<title>Hướng dẫn sử dụng QR Tools | Tạo, tùy chỉnh, quét và in QR</title>
+<meta name="description" content="Hướng dẫn đầy đủ QR Tools: tạo QR URL, WiFi, liên hệ, thanh toán VietQR, tùy chỉnh thiết kế, template, lịch sử, scanner, import Excel/CSV, xuất hàng loạt và in A4.">
 <style>
-:root{font-family:Arial,Helvetica,sans-serif;color:#171717;background:#fafafa}
-*{box-sizing:border-box}body{margin:0}a{color:#2563eb;text-decoration:none}a:hover{text-decoration:underline}
-.header{height:56px;background:rgba(255,255,255,.96);border-bottom:1px solid #e5e5e5;display:flex;align-items:center}
-.header-inner{width:min(960px,100%);margin:auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{font-weight:700;color:#171717}.back{font-size:14px;color:#525252}
-main{width:min(760px,100%);margin:0 auto;padding:48px 20px 64px}
-h1{font-size:32px;line-height:1.2;margin:0 0 10px}h2{font-size:19px;margin:32px 0 10px}p,li{font-size:15px;line-height:1.75;color:#404040}
-ul{padding-left:22px}.updated{font-size:13px;color:#737373;margin-bottom:32px}
-.note{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px;margin:20px 0}
-footer{border-top:1px solid #e5e5e5;background:#fff;padding:20px;text-align:center;color:#737373;font-size:13px}
-.links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:8px}
-@media(max-width:640px){main{padding:32px 16px 48px}h1{font-size:27px}h2{font-size:18px}}
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;background:#f7f7f8;--line:#e5e7eb;--muted:#64748b;--blue:#2563eb;--green:#059669}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+.header{position:sticky;top:0;z-index:10;height:58px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.header-inner{width:min(1080px,100%);height:100%;margin:auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:800;color:#111}.back{font-size:13px;color:#475569}
+main{width:min(1080px,100%);margin:auto;padding:42px 20px 72px}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center;margin-bottom:38px}.eyebrow{display:inline-flex;padding:6px 10px;border:1px solid #bfdbfe;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700}
+h1{font-size:42px;line-height:1.08;letter-spacing:-.03em;margin:14px 0 12px}h2{font-size:24px;letter-spacing:-.02em;margin:52px 0 12px}h3{font-size:16px;margin:0 0 7px}p,li{font-size:15px;line-height:1.72;color:#475569}ul{padding-left:22px}.lead{font-size:17px;line-height:1.7;color:#334155;max-width:680px}.muted{font-size:13px;color:#64748b}
+.hero-card,.card,.step,.callout{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 28px rgba(15,23,42,.05)}
+.hero-card{padding:18px}.card{padding:20px}.step{padding:22px}.callout{padding:16px;border-left:4px solid var(--blue)}
+.mock{border:1px solid #dbe2ea;border-radius:13px;overflow:hidden;background:#fff}.mock-top{height:34px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 12px;gap:6px}.dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1}.mock-body{padding:15px}.mock-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}.field{height:30px;border:1px solid #e2e8f0;border-radius:7px;margin:7px 0;background:#fff}.qr{width:130px;height:130px;margin:auto;background:repeating-conic-gradient(#111 0 25%,#fff 0 50%) 50%/18px 18px;border:10px solid #fff;outline:1px solid #dbe2e8}.mini{height:9px;background:#e2e8f0;border-radius:5px;margin:7px 0}.mini.short{width:60%}.pill{display:inline-block;font-size:11px;padding:4px 7px;border-radius:6px;background:#eff6ff;color:#1d4ed8}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.feature-icon{width:34px;height:34px;border-radius:10px;background:#f1f5f9;display:grid;place-items:center;margin-bottom:12px;font-weight:800;color:#334155}.pro{background:#ecfdf5;border-color:#a7f3d0}.pro .feature-icon{background:#d1fae5;color:#047857}
+.steps{display:grid;gap:14px}.step-head{display:flex;gap:12px;align-items:flex-start}.num{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.diagram{padding:22px;background:#0f172a;border-radius:18px;color:#e2e8f0;overflow:auto}.flow{display:flex;align-items:center;justify-content:center;gap:10px;min-width:760px}.node{padding:12px 15px;border:1px solid #475569;border-radius:12px;background:#1e293b;text-align:center;font-size:12px}.node strong{display:block;color:#fff;font-size:13px;margin-bottom:3px}.arrow{color:#60a5fa;font-size:20px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px}th{background:#f8fafc;color:#334155}tr:last-child td{border-bottom:0}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 8px}.toc a{padding:8px 11px;background:#fff;border:1px solid var(--line);border-radius:9px;color:#334155;font-size:13px}
+.check{display:flex;gap:9px;margin:8px 0}.check b{color:var(--green)}
+footer{border-top:1px solid var(--line);background:#fff;padding:24px 20px;text-align:center;color:#64748b;font-size:13px}.links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:760px){main{padding:28px 16px 52px}.hero{grid-template-columns:1fr;gap:18px}h1{font-size:32px}.grid,.grid-2{grid-template-columns:1fr}.hero-card{order:2}.flow{justify-content:flex-start}.header-inner{padding:0 16px}}
 </style>
 </head>
 <body>
-<header class="header"><div class="header-inner"><a class="brand" href="/">QR Tools</a><a class="back" href="/">← Về QR Tools</a></div></header>
+<header class="header"><div class="header-inner"><a class="brand" href="/">QR Tools</a><a class="back" href="/">← Về ứng dụng</a></div></header>
 <main>
-<h1>Hướng dẫn sử dụng QR Tools</h1><div class="updated">Hướng dẫn nhanh cho người mới bắt đầu</div>
-<p>QR Tools giúp bạn tạo, tùy chỉnh, lưu, quét và xuất mã QR trực tiếp trên trình duyệt.</p>
-<h2>1. Tạo mã QR</h2><p>Chọn loại QR ở màn hình chính như URL, Văn bản, Liên hệ, WiFi, Email, Điện thoại, SMS, Vị trí, Sự kiện hoặc Thanh toán VietQR. Nhập thông tin cần mã hóa; mã QR sẽ được tạo ngay trong trình duyệt.</p>
-<h2>2. Tùy chỉnh mã QR</h2><p>Sau khi tạo, bạn có thể điều chỉnh thiết kế theo các tùy chọn có sẵn và lưu thiết kế thành template để dùng lại cho các mã sau.</p>
-<h2>3. Lưu và mở lại lịch sử</h2><p>QR đã tạo có thể được lưu trong lịch sử trên thiết bị. Mở mục Lịch sử để xem lại, chỉnh sửa dữ liệu hoặc tạo lại mã QR.</p>
-<h2>4. Quét mã QR</h2><p>Mở Scanner để quét mã từ camera hoặc hình ảnh theo khả năng của trình duyệt và thiết bị. Với dữ liệu nhạy cảm, hãy kiểm tra nội dung trước khi mở liên kết.</p>
-<h2>5. Import và tạo hàng loạt</h2><p>Pro hỗ trợ các workflow nâng cao như import Excel/CSV, tạo nhiều QR và xuất hàng loạt. Dùng mẫu dữ liệu phù hợp với loại QR bạn chọn để tránh thiếu trường bắt buộc.</p>
-<h2>6. In và xuất</h2><p>Bạn có thể tải mã QR về để chia sẻ hoặc in. Pro có thêm xuất độ phân giải cao, xuất phù hợp in 300 DPI/mm và in nhiều mã trên khổ A4.</p>
-<h2>7. QR thanh toán</h2><p>Với VietQR, kiểm tra kỹ ngân hàng, số tài khoản, tên người nhận và số tiền trước khi chia sẻ hoặc in mã.</p>
-<h2>8. QR Tools Pro</h2><p>Chọn <strong>Pro</strong> để xem gói và thanh toán. Sau khi thanh toán thành công, hệ thống cấp License Key. Một license hỗ trợ tối đa 2 thiết bị đang kích hoạt. Bạn có thể nhập key trên thiết bị khác và xóa thiết bị hiện tại khi cần đổi thiết bị.</p>
-<h2>9. Nếu đã thanh toán nhưng chưa nhận được Pro</h2><p>Kiểm tra trạng thái thanh toán trong cửa sổ Pro và email dùng để mua hàng. Nếu cần hỗ trợ, gửi <a href="mailto:thang@thangdc.com">thang@thangdc.com</a> kèm email mua hàng và mã đơn hàng.</p>
-<h2>10. Liên hệ</h2><p>Hỗ trợ: <a href="mailto:thang@thangdc.com">thang@thangdc.com</a></p>
+<section class="hero">
+<div>
+<span class="eyebrow">HƯỚNG DẪN ĐẦY ĐỦ</span>
+<h1>Tạo QR nhanh. Tùy chỉnh đẹp. Xuất đúng nhu cầu.</h1>
+<p class="lead">QR Tools là bộ công cụ QR chạy trực tiếp trên trình duyệt: tạo nhiều loại QR, chỉnh thiết kế, lưu lịch sử, quét QR, tạo hàng loạt và in. Phần này giải thích cả workflow miễn phí và các tính năng Pro.</p>
+<div class="toc">
+<a href="#tao">Tạo QR</a><a href="#thiet-ke">Thiết kế</a><a href="#history">Lịch sử</a><a href="#scanner">Scanner</a><a href="#bulk">Batch & Export</a><a href="#print">In</a><a href="#payment">Thanh toán</a><a href="#pro">Pro</a>
+</div>
+</div>
+<div class="hero-card">
+<div class="mock">
+<div class="mock-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+<div class="mock-body"><div class="pill">QR Generator</div><div class="mock-grid"><div><div class="mini"></div><div class="field"></div><div class="field"></div><div class="mini short"></div></div><div><div class="qr"></div><div class="mini"></div></div></div></div>
+</div>
+<p class="muted" style="margin:12px 2px 0">Minh họa workflow giao diện: nhập dữ liệu ở trái → xem QR ngay ở phải.</p>
+</div>
+</section>
+
+<section id="tao">
+<h2>1. Tạo mã QR</h2>
+<p>Ở màn hình Generator, chọn loại QR rồi nhập dữ liệu. QR được cập nhật ngay khi bạn thay đổi nội dung.</p>
+<div class="grid">
+<div class="card"><div class="feature-icon">URL</div><h3>URL & Văn bản</h3><p>Tạo QR cho website, landing page, ghi chú hoặc bất kỳ chuỗi văn bản nào.</p></div>
+<div class="card"><div class="feature-icon">VC</div><h3>Liên hệ</h3><p>Đóng gói tên, điện thoại, email, công ty, địa chỉ và website vào QR vCard.</p></div>
+<div class="card"><div class="feature-icon">Wi</div><h3>WiFi</h3><p>Tạo QR WiFi với SSID, mật khẩu, chuẩn bảo mật và tùy chọn mạng ẩn.</p></div>
+<div class="card"><div class="feature-icon">@</div><h3>Email / Phone / SMS</h3><p>Tạo QR mở email, gọi điện hoặc soạn SMS với nội dung có sẵn.</p></div>
+<div class="card"><div class="feature-icon">⌖</div><h3>Vị trí</h3><p>Mã hóa tọa độ và tên địa điểm để chia sẻ vị trí nhanh.</p></div>
+<div class="card"><div class="feature-icon">↗</div><h3>Sự kiện</h3><p>Tạo QR sự kiện với thời gian, địa điểm và mô tả.</p></div>
+<div class="card"><div class="feature-icon">₫</div><h3>Thanh toán VietQR</h3><p>Chọn ngân hàng, số tài khoản, tên người nhận, số tiền và nội dung chuyển khoản.</p></div>
+</div>
+</section>
+
+<section>
+<h2>2. Workflow tổng thể</h2>
+<div class="diagram">
+<div class="flow">
+<div class="node"><strong>① Nhập dữ liệu</strong>URL · WiFi · Contact · VietQR...</div><div class="arrow">→</div>
+<div class="node"><strong>② Tạo QR</strong>Payload được cập nhật tức thời</div><div class="arrow">→</div>
+<div class="node"><strong>③ Thiết kế</strong>Màu · frame · template</div><div class="arrow">→</div>
+<div class="node"><strong>④ Lưu / Xuất</strong>History · PNG · Print</div>
+</div>
+</div>
+<p class="muted">Với batch workflow, bước ① có thể là Excel/CSV và bước ④ có thể là ZIP hoặc in nhiều mã A4.</p>
+</section>
+
+<section id="thiet-ke">
+<h2>3. Tùy chỉnh thiết kế & Template</h2>
+<div class="grid-2">
+<div class="card">
+<h3>Customize</h3>
+<p>Điều chỉnh giao diện QR trong panel tùy chỉnh. Preview bên phải phản ánh thay đổi ngay, giúp kiểm tra trước khi tải hoặc in.</p>
+<ul><li>Màu foreground/background</li><li>Margin và error correction</li><li>Frame / text theo template</li><li>Layout và thông tin hiển thị</li></ul>
+</div>
+<div class="card">
+<h3>Template Studio</h3>
+<p>Lưu một thiết kế thành template để tái sử dụng. Template có thể trở thành thiết kế mặc định cho những lần tạo QR sau.</p>
+<div class="callout"><strong>Mẹo:</strong> tạo một template theo brand của cửa hàng/doanh nghiệp rồi dùng lại cho nhiều QR.</div>
+</div>
+</div>
+</section>
+
+<section id="history">
+<h2>4. Lịch sử QR</h2>
+<p>Chọn <strong>Lịch sử</strong> trên thanh điều hướng để xem các QR đã lưu trên thiết bị.</p>
+<div class="grid-2">
+<div class="card"><h3>Khôi phục</h3><p>Mở lại một item để đưa dữ liệu và thiết kế về Generator, sau đó chỉnh sửa hoặc tạo lại QR.</p></div>
+<div class="card"><h3>Quản lý</h3><p>Xóa từng item hoặc xóa toàn bộ lịch sử khi không còn cần dùng. Dữ liệu lịch sử được lưu cục bộ trên thiết bị.</p></div>
+</div>
+</section>
+
+<section id="scanner">
+<h2>5. Scanner — quét QR có sẵn</h2>
+<p>Mở <strong>Scanner</strong> để đọc QR bằng camera hoặc hình ảnh tùy khả năng của trình duyệt/thiết bị. Sau khi giải mã, dữ liệu có thể được đưa trở lại Generator để chỉnh sửa.</p>
+<div class="callout"><strong>An toàn:</strong> QR có thể chứa URL hoặc dữ liệu không đáng tin cậy. Hãy kiểm tra nội dung trước khi mở liên kết hoặc thực hiện hành động.</div>
+</section>
+
+<section id="bulk">
+<h2>6. Batch & Export — tạo hàng loạt</h2>
+<p>Đây là workflow dành cho trường hợp có nhiều QR: danh sách sản phẩm, bàn ăn, phòng, tài sản, nhân viên, đơn hàng hoặc các mã cần in hàng loạt.</p>
+<table>
+<thead><tr><th>Workflow</th><th>Free</th><th>Pro</th></tr></thead>
+<tbody>
+<tr><td>Tạo QR đơn lẻ</td><td>✓</td><td>✓</td></tr>
+<tr><td>Lưu / khôi phục History</td><td>✓</td><td>✓</td></tr>
+<tr><td>Scanner</td><td>✓</td><td>✓</td></tr>
+<tr><td>Import Excel / CSV</td><td>—</td><td>✓</td></tr>
+<tr><td>Tạo nhiều QR & xuất ZIP</td><td>—</td><td>✓</td></tr>
+<tr><td>Xuất độ phân giải cao</td><td>—</td><td>✓</td></tr>
+<tr><td>In nhiều QR trên A4</td><td>—</td><td>✓</td></tr>
+<tr><td>Xuất 300 DPI / mm</td><td>—</td><td>✓</td></tr>
+</tbody>
+</table>
+<p class="muted">Khi import, dùng đúng cột dữ liệu mà loại QR yêu cầu và kiểm tra preview trước khi xuất hàng loạt.</p>
+</section>
+
+<section id="print">
+<h2>7. Xuất ảnh & in</h2>
+<div class="grid">
+<div class="card"><div class="feature-icon">PNG</div><h3>Tải QR</h3><p>Xuất QR để đăng web, gửi khách hàng hoặc đưa vào tài liệu.</p></div>
+<div class="card"><div class="feature-icon">A4</div><h3>In nhiều mã</h3><p>Pro hỗ trợ workflow in nhiều QR trên khổ A4, phù hợp nhãn, bàn, phòng hoặc tài sản.</p></div>
+<div class="card"><div class="feature-icon">300</div><h3>Print-ready</h3><p>Pro có xuất độ phân giải cao và tùy chọn 300 DPI/mm cho nhu cầu in ấn.</p></div>
+</div>
+</section>
+
+<section id="payment">
+<h2>8. QR thanh toán VietQR</h2>
+<p>Chọn <strong>Thanh toán</strong>, sau đó nhập ngân hàng, số tài khoản, tên người nhận, số tiền và nội dung. Kiểm tra kỹ thông tin trước khi chia sẻ mã.</p>
+<div class="diagram">
+<div class="flow">
+<div class="node"><strong>Thông tin nhận tiền</strong>Ngân hàng + tài khoản</div><div class="arrow">→</div>
+<div class="node"><strong>VietQR payload</strong>Số tiền + nội dung</div><div class="arrow">→</div>
+<div class="node"><strong>QR</strong>Khách quét để chuyển khoản</div>
+</div>
+</div>
+</section>
+
+<section id="pro">
+<h2>9. QR Tools Pro</h2>
+<div class="card pro">
+<h3>Pro dành cho workflow số lượng lớn và in ấn</h3>
+<p>Gói Pro hiện có <strong>59.000đ/tháng</strong> hoặc <strong>499.000đ/năm</strong>. License hỗ trợ tối đa <strong>2 thiết bị đang kích hoạt</strong>.</p>
+<ul>
+<li>Import Excel/CSV để tạo QR hàng loạt</li>
+<li>Bulk export / ZIP</li>
+<li>High-resolution export</li>
+<li>In nhiều QR trên A4</li>
+<li>Xuất 300 DPI/mm cho in ấn</li>
+<li>Table auto-sequencer</li>
+</ul>
+<p><strong>Luồng kích hoạt:</strong> Chọn Pro → nhập email → chọn gói → thanh toán qua SePay → hệ thống xác nhận → nhận License Key → kích hoạt trên thiết bị.</p>
+</div>
+</section>
+
+<section>
+<h2>10. Sau khi thanh toán</h2>
+<div class="steps">
+<div class="step"><div class="step-head"><span class="num">1</span><div><h3>Thanh toán</h3><p>Hoàn tất thanh toán theo thông tin hiển thị trong cửa sổ Pro.</p></div></div></div>
+<div class="step"><div class="step-head"><span class="num">2</span><div><h3>Chờ xác nhận</h3><p>QR Tools kiểm tra trạng thái đơn hàng. Nếu đã thanh toán nhưng UI chưa cập nhật, kiểm tra lại email và mã đơn.</p></div></div></div>
+<div class="step"><div class="step-head"><span class="num">3</span><div><h3>Kích hoạt</h3><p>License Key được lưu trên thiết bị sau khi kích hoạt. Bạn có thể xem trạng thái thiết bị trong cửa sổ Pro.</p></div></div></div>
+<div class="step"><div class="step-head"><span class="num">4</span><div><h3>Đổi thiết bị</h3><p>Xóa thiết bị hiện tại trong Pro trước khi kích hoạt trên thiết bị khác nếu đã đạt giới hạn.</p></div></div></div>
+</div>
+</section>
+
+<section>
+<h2>11. Quyền riêng tư & dữ liệu</h2>
+<div class="grid-2">
+<div class="card"><h3>Dữ liệu QR</h3><p>Việc tạo QR diễn ra trực tiếp trong trình duyệt. History và template được lưu cục bộ trên thiết bị theo thiết kế của ứng dụng.</p></div>
+<div class="card"><h3>Dữ liệu mua Pro</h3><p>Email và thông tin giao dịch cần thiết cho việc thanh toán, cấp license và hỗ trợ được xử lý bởi hệ thống backend/đối tác thanh toán. Xem <a href="/privacy.html">Chính sách bảo mật</a> để biết thêm.</p></div>
+</div>
+</section>
+
+<section>
+<h2>12. Checklist trước khi chia sẻ hoặc in QR</h2>
+<div class="card">
+<div class="check"><b>✓</b><span>Đã kiểm tra dữ liệu sau khi tạo QR.</span></div>
+<div class="check"><b>✓</b><span>Đã quét thử QR bằng một thiết bị khác.</span></div>
+<div class="check"><b>✓</b><span>Với VietQR: đã kiểm tra ngân hàng, số tài khoản, tên người nhận và số tiền.</span></div>
+<div class="check"><b>✓</b><span>Với QR URL: kiểm tra domain trước khi đưa cho khách hàng.</span></div>
+<div class="check"><b>✓</b><span>Với in ấn: kiểm tra kích thước, độ tương phản và khả năng quét sau khi in.</span></div>
+</div>
+</section>
+
+<section>
+<h2>13. Cần hỗ trợ?</h2>
+<p>Nếu đã thanh toán nhưng chưa nhận được Pro, hoặc gặp lỗi trong quá trình sử dụng, gửi email tới <a href="mailto:thang@thangdc.com">thang@thangdc.com</a> kèm email mua hàng và mã đơn hàng nếu có.</p>
+</section>
 </main>
 <footer>
-<div>QR Tools · Công cụ tạo mã QR trực tuyến</div>
-<div class="links"><a href="/terms.html">Điều khoản</a><a href="/privacy.html">Bảo mật</a><a href="/refund.html">Hoàn tiền</a></div>
+<div><strong>QR Tools</strong> · Công cụ tạo mã QR trực tuyến</div>
+<div class="links"><a href="/guide.html">Hướng dẫn</a><a href="/terms.html">Điều khoản</a><a href="/privacy.html">Bảo mật</a><a href="/refund.html">Hoàn tiền</a><a href="mailto:thang@thangdc.com">Liên hệ</a></div>
 </footer>
 </body>
 </html>

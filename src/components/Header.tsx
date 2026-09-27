@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, History, Layers, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X } from 'lucide-react';
+import { Sparkles, History, Layers, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
@@ -49,6 +49,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
         </nav>
 
         <div className="hidden md:flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <a href="/guide.html" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1.5 rounded-md transition-colors"><BookOpen className="w-3.5 h-3.5 text-neutral-500" /><span>Hướng dẫn</span></a>
           <button type="button" onClick={onOpenTemplates} className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1.5 rounded-md transition-colors cursor-pointer"><LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" /><span>{t('templates')}</span></button>
           <button type="button" onClick={onOpenPrivacy} className="hidden lg:inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-emerald-700 px-2 py-1 rounded transition-colors cursor-pointer"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /><span>{t('private')}</span></button>
           <button type="button" onClick={onOpenShortcuts} className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={t('shortcuts')}><Keyboard className="w-4 h-4" /></button>
@@ -69,6 +70,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
             <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-2`}><ScanLine className="w-4 h-4 text-neutral-400" />{t('scanner')}</button>
             <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-2`}><History className="w-4 h-4 text-neutral-400" />{t('history')}{historyCount > 0 && <span className="text-xs text-neutral-500">· {historyCount}</span>}</button>
             <button onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-2`}><Layers className="w-4 h-4 text-neutral-400" />{t('bulkExport')}</button>
+            <a href="/guide.html" onClick={() => setIsMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg text-left flex items-center gap-2"><BookOpen className="w-4 h-4 text-neutral-400" />Hướng dẫn</a>
             <button onClick={() => openAction(onOpenTemplates)} className="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg text-left flex items-center gap-2 cursor-pointer"><LayoutTemplate className="w-4 h-4 text-neutral-400" />{t('templates')}</button>
             <button onClick={() => openAction(onOpenPrivacy)} className="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg text-left flex items-center gap-2 cursor-pointer"><ShieldCheck className="w-4 h-4 text-emerald-600" />{t('private')}</button>
             <button onClick={() => openAction(onOpenShortcuts)} className="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg text-left flex items-center gap-2 cursor-pointer"><Keyboard className="w-4 h-4 text-neutral-400" />{t('shortcuts')}</button>
