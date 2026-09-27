@@ -42,7 +42,6 @@ import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
 import { Ruler, ShieldCheck, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from './i18n';
-import { LegalPage } from './components/LegalPage';
 
 const INITIAL_FORM_DATA: QRFormData = {
   url: { url: 'https://example.com' },
@@ -154,11 +153,6 @@ const QR_TYPE_LIST: QRType[] = [
 ];
 
 export default function App() {
-  const legalPath = window.location.pathname.replace(/\\/+$/, '') || '/';
-  if (legalPath === '/terms' || legalPath === '/privacy' || legalPath === '/refund') {
-    return <LegalPage type={legalPath.slice(1) as 'terms' | 'privacy' | 'refund'} />;
-  }
-
   const { t } = useLanguage();
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>('generator');
   const [selectedType, setSelectedType] = useState<QRType>('url');
@@ -716,11 +710,11 @@ export default function App() {
             </button>
           </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1 text-neutral-500">
-            <a href="/terms" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
+            <a href="/terms.html" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
             <span>·</span>
-            <a href="/privacy" className="hover:text-neutral-900 transition-colors">Bảo mật</a>
+            <a href="/privacy.html" className="hover:text-neutral-900 transition-colors">Bảo mật</a>
             <span>·</span>
-            <a href="/refund" className="hover:text-neutral-900 transition-colors">Hoàn tiền</a>
+            <a href="/refund.html" className="hover:text-neutral-900 transition-colors">Hoàn tiền</a>
             <span>·</span>
             <button
               onClick={() => setIsShortcutsOpen(true)}
