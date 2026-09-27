@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { scanImageData, parseRawQRPayload } from '../utils/qrDecoder';
+import { scanImageData, parseRawQRPayload } from '../utils/qr{tx('Bộ giải mã', 'Decoder')}';
 import { DecodedQRData } from '../types/qr';
+import { useLanguage } from '../i18n';
 import {
   Camera,
   Upload,
@@ -23,10 +24,11 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   onBackToGenerator,
   onLoadIntoGenerator,
 }) => {
+  const { tx } = useLanguage();
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<DecodedQRData | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, set{tx('Đã sao chép', 'Copied')}] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -56,7 +58,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     } catch (err: any) {
       console.error(err);
       setCameraError(
-        'Could not access camera. Please allow camera permissions or upload an image file instead.'
+        '{tx('Không thể truy cập camera. Hãy cấp quyền camera hoặc tải ảnh lên.', 'Could not access camera. Please allow camera permissions or upload an image file instead.')}'
       );
       setIsCameraActive(false);
     }
@@ -118,7 +120,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           const parsed = parseRawQRPayload(decodedRaw);
           setScanResult(parsed);
         } else {
-          alert('No readable QR code found in this image. Please try a clearer picture.');
+          alert('{tx('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn.', 'No readable QR code found in this image. Please try a clearer picture.')}');
         }
       }
     };
@@ -128,8 +130,8 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   const handleCopyRaw = () => {
     if (!scanResult) return;
     navigator.clipboard.writeText(scanResult.raw);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    set{tx('Đã sao chép', 'Copied')}(true);
+    setTimeout(() => set{tx('Đã sao chép', 'Copied')}(false), 2000);
   };
 
   return (
@@ -142,18 +144,18 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 mb-2 cursor-pointer transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Generator</span>
+          <span>{tx('Quay lại trình tạo', 'Back to Generator')}</span>
         </button>
         <div className="flex items-center gap-2">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
-            QR Scanner & Inspector
+            {tx('Quét & kiểm tra mã QR', 'QR Scanner & Inspector')}
           </h1>
           <span className="text-[11px] font-mono uppercase bg-neutral-100 px-2 py-0.5 rounded text-neutral-600">
-            Decoder
+            {tx('Bộ giải mã', 'Decoder')}
           </span>
         </div>
         <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-          Scan with webcam or drop an image file to inspect payload, decode credentials, and import into editor.
+          {tx('Quét bằng webcam hoặc tải ảnh để kiểm tra dữ liệu và đưa vào trình chỉnh sửa.', 'Scan with webcam or drop an image file to inspect payload, decode credentials, and import into editor.')}
         </p>
       </div>
 
@@ -178,7 +180,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
               <div className="text-center p-6 space-y-3">
                 <Camera className="w-10 h-10 mx-auto text-neutral-500" />
                 <p className="text-xs text-neutral-400 max-w-[200px]">
-                  Point your camera at any QR code or upload an image file below.
+                  {tx('Đưa camera vào mã QR hoặc tải ảnh lên bên dưới.', 'Point your camera at any QR code or upload an image file below.')}
                 </p>
               </div>
             )}
@@ -200,7 +202,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
                 className="flex-1 h-9 px-3 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Camera className="w-3.5 h-3.5" />
-                <span>Start Camera Scan</span>
+                <span>{tx('Bắt đầu quét camera', 'Start Camera Scan')}</span>
               </button>
             ) : (
               <button
@@ -208,7 +210,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
                 onClick={stopCamera}
                 className="flex-1 h-9 px-3 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium transition-colors cursor-pointer"
               >
-                Stop Camera
+                {tx('Dừng camera', 'Stop Camera')}
               </button>
             )}
 
@@ -218,7 +220,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
               className="flex-1 h-9 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>Upload Image...</span>
+              <span>{tx('Tải ảnh lên...', 'Upload Image...')}</span>
             </button>
             <input
               ref={fileInputRef}
@@ -234,7 +236,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         <div className="md:col-span-6 bg-white border border-neutral-200 rounded-lg p-5 space-y-4 shadow-xs">
           <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
             <span className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-              Decoded Inspection
+              {tx('Kết quả giải mã', 'Decoded Inspection')}
             </span>
             {scanResult && (
               <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold uppercase">
@@ -246,16 +248,16 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           {!scanResult ? (
             <div className="py-12 text-center text-neutral-400">
               <p className="text-sm font-medium text-neutral-600 mb-1">
-                Waiting for scan
+                {tx('Đang chờ quét', 'Waiting for scan')}
               </p>
               <p className="text-xs">
-                Position a QR code in the camera frame or choose an image file to analyze.
+                {tx('Đưa mã QR vào khung camera hoặc chọn ảnh để phân tích.', 'Position a QR code in the camera frame or choose an image file to analyze.')}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <span className="block text-xs text-neutral-400 mb-0.5">Title / Subject</span>
+                <span className="block text-xs text-neutral-400 mb-0.5">{tx('Tiêu đề / Chủ đề', 'Title / Subject')}</span>
                 <span className="text-base font-semibold text-neutral-900 block">
                   {scanResult.title}
                 </span>
@@ -278,12 +280,12 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
                     {copied ? (
                       <>
                         <Check className="w-3 h-3 text-emerald-600" />
-                        <span className="text-emerald-700">Copied</span>
+                        <span className="text-emerald-700">{tx('Đã sao chép', 'Copied')}</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-3 h-3" />
-                        <span>Copy string</span>
+                        <span>{tx('Sao chép chuỗi', 'Copy string')}</span>
                       </>
                     )}
                   </button>
@@ -301,10 +303,10 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
                   className="w-full h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>Load into Generator & Re-style</span>
+                  <span>{tx('Đưa vào trình tạo & chỉnh kiểu', 'Load into Generator & Re-style')}</span>
                 </button>
                 <p className="mt-1.5 text-center text-[11px] text-neutral-400">
-                  Pre-fills all fields so you can customize colors, logos, and frame borders.
+                  {tx('Điền sẵn các trường để bạn tùy chỉnh màu, logo và khung.', 'Pre-fills all fields so you can customize colors, logos, and frame borders.')}
                 </p>
               </div>
             </div>
