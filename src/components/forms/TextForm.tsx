@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { TextData } from '../../types/qr';
 import { FileText, X } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface TextFormProps {
 }
 
 export const TextForm: React.FC<TextFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   return (
     <div className="space-y-4">
       <div>
