@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Copy, KeyRound, Loader2, Sparkles, X } from 'lucide-react';
+import { Check, KeyRound, Loader2, ExternalLink, Sparkles, X } from 'lucide-react';
 import { useLanguage } from '../i18n';
-import { activateProLicense, createProOrder, getDeviceId, getOrderStatus, type ProPlan } from '../services/revenueService';
+import {
+  activateProLicense,
+  createProOrder,
+  getDeviceId,
+  getOrderStatus,
+  submitSePayCheckout,
+  type ProPlan,
+} from '../services/revenueService';
 
 interface ProModalProps {
   isOpen: boolean;
@@ -16,7 +23,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [email, setEmail] = useState('');
   const [licenseKey, setLicenseKey] = useState('');
   const [orderCode, setOrderCode] = useState('');
-  const [payment, setPayment] = useState<{amount:number; qrUrl:string; bankName:string; accountNumber:string; accountName:string} | null>(null);
+  const [amount, setAmount] = useState(0);
+  const [paymentStarted, setPaymentStarted] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -32,6 +40,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   useEffect(() => {
     if (!isOpen || !orderCode || !email || isPro) return;
     let cancelled = false;
+
     const check = async () => {
       if (cancelled) return;
       setChecking(true);
@@ -42,14 +51,18 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           setMessage(tx('Đã nhận thanh toán. Bấm Kích hoạt Pro để hoàn tất.', 'Payment received. Activate Pro to finish setup.'));
         }
       } catch {
-        // Best-effort polling; the user can continue manually.
+        // Best-effort polling.
       } finally {
         if (!cancelled) setChecking(false);
       }
     };
+
     const timer = window.setInterval(check, 4000);
     void check();
-    return () => { cancelled = true; window.clearInterval(timer); };
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
   }, [email, isOpen, isPro, orderCode, tx]);
 
   if (!isOpen) return null;
@@ -59,20 +72,32 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       setMessage(tx('Vui lòng nhập email nhận License.', 'Enter the email for your license.'));
       return;
     }
+
     setLoading(true);
     setMessage(null);
     try {
       const result = await createProOrder(email.trim(), plan);
-      if (!result.success || !result.orderCode || !result.paymentQrUrl) throw new Error(result.message || 'Không thể tạo đơn hàng.');
+      if (!result.success || !result.orderCode || !result.checkoutEndpoint || !result.checkoutFields) {
+        throw new Error(result.message || 'Không thể tạo đơn hàng.');
+      }
+
       setOrderCode(result.orderCode);
-      setPayment({
-        amount: result.amount || 0,
-        qrUrl: result.paymentQrUrl,
-        bankName: result.paymentBankName || '',
-        accountNumber: result.paymentAccountNumber || '',
-        accountName: result.paymentAccountName || '',
-      });
-      setMessage(tx('Quét QR và chuyển đúng số tiền với nội dung đơn hàng.', 'Scan the QR and transfer the exact amount using the order code.'));
+      setAmount(result.amount || 0);
+      const paymentWindow = submitSePayCheckout(result.checkoutEndpoint, result.checkoutFields);
+
+      if (!paymentWindow) {
+        setMessage(tx(
+          'Trình duyệt đã chặn cửa sổ thanh toán. Hãy cho phép popup rồi bấm thanh toán lại.',
+          'Your browser blocked the payment window. Allow popups and try again.',
+        ));
+        return;
+      }
+
+      setPaymentStarted(true);
+      setMessage(tx(
+        'Đã mở trang thanh toán SePay. Sau khi thanh toán xong, quay lại tab này để hệ thống tự xác nhận.',
+        'SePay checkout is open. After payment, return to this tab and it will confirm automatically.',
+      ));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không thể tạo đơn hàng.');
     } finally {
@@ -85,6 +110,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       setMessage(tx('Cần email và License Key.', 'Email and License Key are required.'));
       return;
     }
+
     setLoading(true);
     setMessage(null);
     try {
@@ -97,11 +123,6 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     } finally {
       setLoading(false);
     }
-  };
-
-  const copy = async (value: string) => {
-    await navigator.clipboard?.writeText(value);
-    setMessage(tx('Đã sao chép.', 'Copied.'));
   };
 
   return (
@@ -121,50 +142,75 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
         <div className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-2">
             {([['monthly', '59.000 ₫ / tháng'], ['yearly', '499.000 ₫ / năm']] as const).map(([id, label]) => (
-              <button key={id} type="button" onClick={() => setPlan(id)}
-                className={`rounded-lg border p-3 text-left ${plan === id ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 hover:border-neutral-300'}`}>
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPlan(id)}
+                className={`rounded-lg border p-3 text-left ${plan === id ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 hover:border-neutral-300'}`}
+              >
                 <div className="text-sm font-semibold text-neutral-900">{label}</div>
-                <div className="text-xs text-neutral-500 mt-1">{id === 'yearly' ? tx('Dành cho người dùng thường xuyên', 'For regular users') : tx('Gói tháng linh hoạt', 'Flexible monthly plan')}</div>
+                <div className="text-xs text-neutral-500 mt-1">
+                  {id === 'yearly' ? tx('Dành cho người dùng thường xuyên', 'For regular users') : tx('Gói tháng linh hoạt', 'Flexible monthly plan')}
+                </div>
               </button>
             ))}
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-semibold text-neutral-700">{tx('Email nhận License', 'License email')}</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com"
-              className="w-full h-10 px-3 text-sm border border-neutral-300 rounded-lg focus:outline-hidden focus:border-blue-600" />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              placeholder="you@example.com"
+              className="w-full h-10 px-3 text-sm border border-neutral-300 rounded-lg focus:outline-hidden focus:border-blue-600"
+            />
           </div>
 
-          {!payment ? (
-            <button type="button" disabled={loading} onClick={startCheckout}
-              className="w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2">
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}{tx('Tạo đơn & thanh toán', 'Create order & pay')}
+          {!paymentStarted ? (
+            <button
+              type="button"
+              disabled={loading}
+              onClick={startCheckout}
+              className="w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {tx('Thanh toán qua SePay', 'Pay with SePay')}
+              <ExternalLink className="w-4 h-4" />
             </button>
           ) : (
-            <div className="rounded-xl border border-neutral-200 p-4 space-y-4">
-              <div className="flex items-center gap-4">
-                <img src={payment.qrUrl} alt="QR thanh toán" className="w-44 h-44 border border-neutral-200 rounded-lg" />
-                <div className="min-w-0 space-y-2 text-sm">
-                  <div className="font-semibold text-neutral-900">{payment.amount.toLocaleString('vi-VN')} ₫</div>
-                  <div className="text-neutral-500">{payment.bankName}</div>
-                  <button type="button" onClick={() => void copy(payment.accountNumber)} className="flex items-center gap-1 text-blue-600">{payment.accountNumber}<Copy className="w-3.5 h-3.5" /></button>
-                  <div className="font-medium text-neutral-800">{payment.accountName}</div>
-                  <div className="rounded bg-neutral-100 px-2 py-1 font-mono text-xs break-all">{orderCode}</div>
-                  <div className="text-xs text-neutral-500">{checking ? tx('Đang kiểm tra thanh toán…', 'Checking payment…') : tx('Tự động kiểm tra mỗi vài giây.', 'Payment is checked automatically.')}</div>
-                </div>
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-neutral-900">{tx('Đơn hàng', 'Order')}</span>
+                <span className="font-mono text-xs text-neutral-700">{orderCode}</span>
               </div>
-              <div className="text-xs text-neutral-500">{tx('Chuyển đúng số tiền và giữ mã đơn hàng trong nội dung.', 'Transfer the exact amount and keep the order code in the memo.')}</div>
+              <div className="text-sm text-neutral-700">{amount.toLocaleString('vi-VN')} ₫</div>
+              <div className="text-xs text-neutral-500">
+                {checking ? tx('Đang chờ SePay xác nhận thanh toán…', 'Waiting for SePay payment confirmation…') : tx('Đang tự động kiểm tra trạng thái.', 'Payment status is checked automatically.')}
+              </div>
             </div>
           )}
 
           <div className="pt-2 border-t border-neutral-100">
-            <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5 text-neutral-500" />{tx('Kích hoạt License', 'Activate license')}</label>
+            <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
+              {tx('Kích hoạt License', 'Activate license')}
+            </label>
             <div className="flex gap-2">
-              <input value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} placeholder="License Key"
-                className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600" />
-              <button type="button" onClick={activate} disabled={loading}
-                className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5">
-                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}{tx('Kích hoạt', 'Activate')}
+              <input
+                value={licenseKey}
+                onChange={(e) => setLicenseKey(e.target.value)}
+                placeholder="License Key"
+                className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600"
+              />
+              <button
+                type="button"
+                onClick={activate}
+                disabled={loading}
+                className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5"
+              >
+                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {tx('Kích hoạt', 'Activate')}
               </button>
             </div>
           </div>
