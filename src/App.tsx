@@ -41,6 +41,7 @@ import { ProModal } from './components/ProModal';
 import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
 import { Ruler, ShieldCheck, LayoutTemplate } from 'lucide-react';
+import { useLanguage } from './i18n';
 
 const INITIAL_FORM_DATA: QRFormData = {
   url: { url: 'https://example.com' },
@@ -152,6 +153,7 @@ const QR_TYPE_LIST: QRType[] = [
 ];
 
 export default function App() {
+  const { t } = useLanguage();
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>('generator');
   const [selectedType, setSelectedType] = useState<QRType>('url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
@@ -507,10 +509,10 @@ export default function App() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
-                  QR Code Generator
+                  {t('qrGenerator')}
                 </h1>
                 <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-                  Create high-fidelity QR codes with custom templates, stands, and physical print formats.
+                  {t('generatorDescription')}
                 </p>
               </div>
 
@@ -522,7 +524,7 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-800 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
                 >
                   <LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>Templates ({templates.length})</span>
+                  <span>{t('templatesCount')} ({templates.length})</span>
                 </button>
 
                 <button
@@ -531,7 +533,7 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
                 >
                   <Ruler className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>300 DPI Export</span>
+                  <span>{t('dpiExport')}</span>
                 </button>
 
                 <button
@@ -540,7 +542,7 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-800 bg-emerald-50/60 hover:bg-emerald-50 border border-emerald-200/60 rounded-lg transition-all cursor-pointer shadow-2xs"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>100% Private</span>
+                  <span>{t('private')}</span>
                 </button>
               </div>
             </div>
@@ -688,7 +690,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="font-semibold text-neutral-900">QR Tools</span>
             <span>·</span>
-            <span>Professional QR utility</span>
+            <span>{t('brandTagline')}</span>
             <span>·</span>
             <button
               onClick={() => setIsPrivacyOpen(true)}
@@ -705,13 +707,13 @@ export default function App() {
               Shortcuts (?)
             </button>
             <span>·</span>
-            <span>Supports ISO/IEC 18004 & VietQR</span>
+            <span>{t('supports')}</span>
             <span>·</span>
             <button
               onClick={() => setIsProModalOpen(true)}
               className="hover:text-neutral-900 transition-colors cursor-pointer"
             >
-              {isPro ? 'Pro Active' : 'Upgrade to Pro'}
+              {isPro ? t('proActive') : t('upgradePro')}
             </button>
           </div>
         </div>
