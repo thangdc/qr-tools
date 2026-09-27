@@ -358,7 +358,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             title="Simulate Camera Viewfinder & Smartphone Prompt"
           >
             <Smartphone className="w-3 h-3" />
-            <span>Scan Sim</span>
+            <span>{tx('Mô phỏng quét', 'Scan Sim')}</span>
           </button>
 
           <button
@@ -486,7 +486,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
                   className="w-full py-1.5 px-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-800 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>Create / Customize Template...</span>
+                  <span>{tx('Tạo / Tùy chỉnh mẫu...', 'Create / Customize Template...')}</span>
                 </button>
               </div>
             </div>
@@ -500,7 +500,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
           title="Open Template Manager Studio"
         >
           <LayoutTemplate className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Studio</span>
+          <span>{tx('Kho mẫu', 'Studio')}</span>
         </button>
       </div>
 
@@ -758,7 +758,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             {copiedSvg ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-medium">SVG Ready</span>
+                <span className="text-emerald-700 font-medium">{tx('SVG sẵn sàng', 'SVG Ready')}</span>
               </>
             ) : (
               <>
@@ -778,7 +778,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             title="Open Template Studio"
           >
             <LayoutTemplate className="w-3 h-3 text-neutral-400" />
-            <span>Templates</span>
+            <span>{tx('Mẫu', 'Templates')}</span>
           </button>
 
           <button
@@ -789,7 +789,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             title="Export calibrated mm dimensions (300 DPI)"
           >
             <Ruler className="w-3 h-3 text-neutral-400" />
-            <span>300 DPI</span>
+            <span>{tx('300 DPI', '300 DPI')}</span>
           </button>
 
           <button
@@ -811,7 +811,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             title="Save to history"
           >
             {saved ? (
-              <span className="text-emerald-600 font-semibold">Saved ✓</span>
+              <span className="text-emerald-600 font-semibold">{tx('Đã lưu ✓', 'Saved ✓')}</span>
             ) : (
               <>
                 <Bookmark className="w-3.5 h-3.5 text-neutral-400" />
