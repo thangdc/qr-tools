@@ -4,14 +4,14 @@ import { X, Check, Sparkles, KeyRound } from 'lucide-react';
 
 interface ProModalProps {
   isOpen: boolean;
-  on{tx('Đóng', 'Close')}: () => void;
+  onClose: () => void;
   isPro: boolean;
   onTogglePro: (val: boolean) => void;
 }
 
 export const ProModal: React.FC<ProModalProps> = ({
   isOpen,
-  on{tx('Đóng', 'Close')},
+  onClose,
   isPro,
   onTogglePro,
 }) => {
@@ -27,7 +27,7 @@ export const ProModal: React.FC<ProModalProps> = ({
       setKeyMessage(tx('Đã kích hoạt giấy phép Pro thành công!', 'Pro license activated successfully!'));
       setTimeout(() => {
         setKeyMessage(null);
-        on{tx('Đóng', 'Close')}();
+        onClose();
       }, 1200);
     } else {
       setKeyMessage(tx('Vui lòng nhập mã hợp lệ hoặc nhấn nút dùng thử Pro bên dưới.', 'Please enter a valid key or click Instant Demo Activation below.'));
@@ -53,7 +53,7 @@ export const ProModal: React.FC<ProModalProps> = ({
             </div>
           </div>
           <button
-            onClick={on{tx('Đóng', 'Close')}}
+            onClick={onClose}
             className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -132,7 +132,7 @@ export const ProModal: React.FC<ProModalProps> = ({
             type="button"
             onClick={() => {
               onTogglePro(!isPro);
-              on{tx('Đóng', 'Close')}();
+              onClose();
             }}
             className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
           >
@@ -141,7 +141,7 @@ export const ProModal: React.FC<ProModalProps> = ({
 
           <button
             type="button"
-            onClick={on{tx('Đóng', 'Close')}}
+            onClick={onClose}
             className="px-4 py-1.5 text-xs font-medium bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-md transition-colors cursor-pointer"
           >
             {tx('Đóng', 'Close')}
