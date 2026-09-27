@@ -35,7 +35,7 @@ interface BatchCardPrintModalProps {
   items: BatchPrintItem[];
   templates: QRTemplate[];
   activeTemplateId: string;
-  onSelectMẫu: (templateId: string) => void;
+  onSelectTemplate: (templateId: string) => void;
 }
 
 export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
@@ -53,7 +53,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
   const [stickersPerPage, setStickersPerPage] = useState<9 | 12 | 16>(12);
   const [showCutLines, setShowCutLines] = useState(true);
   const [renderedCards, setRenderedCards] = useState<Record<string, string>>({});
-  const [isĐang tạo, setIsĐang tạo] = useState(false);
+  const [isRendering, setIsRendering] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
 
   // Synchronize with globally selected active template whenever print dialog opens
@@ -71,7 +71,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
     if (!isOpen || items.length === 0 || !currentTemplate) return;
 
     let isMounted = true;
-    setIsĐang tạo(true);
+    setIsRendering(true);
 
     const renderAll = async () => {
       const cards: Record<string, string> = {};
@@ -101,7 +101,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
       }
       if (isMounted) {
         setRenderedCards(cards);
-        setIsĐang tạo(false);
+        setIsRendering(false);
       }
     };
 
@@ -182,7 +182,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <button
               type="button"
               onClick={handleExportZip}
-              disabled={isZipping || isĐang tạo}
+              disabled={isZipping || isRendering}
               className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-40"
               title={tx('Tải tất cả thẻ dưới dạng PNG trong tệp ZIP', 'Download all cards as PNGs in a ZIP')}
             >
@@ -193,7 +193,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <button
               type="button"
               onClick={handlePrint}
-              disabled={isĐang tạo}
+              disabled={isRendering}
               className="h-8 px-4 bg-neutral-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-40"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -344,7 +344,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
         {/* Printable Canvas Sheet Viewport */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-neutral-100 print:bg-white print:p-0">
           <div className="max-w-[210mm] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm print:shadow-none print:p-0">
-            {isĐang tạo ? (
+            {isRendering ? (
               <div className="p-12 text-center text-xs text-neutral-400">
                 {tx('Đang tạo', 'Đang tạo')} {items.length} {tx('mã QR', 'mã QR')}...
               </div>
