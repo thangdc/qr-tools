@@ -79,14 +79,14 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
                 type={showPassword ? 'text' : 'password'}
                 value={data.password}
                 onChange={(e) => onChange({ ...data, password: e.target.value })}
-                placeholder="{tx('Mật khẩu Wi-Fi', 'Wi-Fi Password')}"
+                placeholder="Wi-Fi Password"
                 className="w-full h-10 pl-3 pr-9 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors font-mono"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2.5 p-1 text-neutral-400 hover:text-neutral-700 rounded cursor-pointer"
-                title={showPassword ? '{tx('Ẩn mật khẩu', 'Hide password')}' : '{tx('Hiện mật khẩu', 'Show password')}'}
+                title={showPassword ? tx('Ẩn mật khẩu', 'Hide password') : tx('Hiện mật khẩu', 'Show password')}
               >
                 {showPassword ? (
                   <EyeOff className="w-3.5 h-3.5" />
