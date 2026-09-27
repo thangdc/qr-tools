@@ -383,7 +383,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             title={tx('Mở hộp thoại in với các mẫu và tùy chọn bố cục', 'Open print dialog with templates and layout options')}
           >
             <Printer className="w-4 h-4 text-neutral-700" />
-            <span>{tx('In trang ({selectedCount})', `In trang (${selectedCount})`)}</span>
+            <span>In trang ({selectedCount})</span>
           </button>
 
           <button
@@ -394,7 +394,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             title={tx('Xuất các mã QR đã chọn thành PNG 1024px trong một file ZIP', 'Export all selected QR codes as individual 1024px PNGs inside a ZIP')}
           >
             <FileArchive className="w-4 h-4" />
-            <span>{isZipping ? zipProgress : tx(`Xuất ZIP (${selectedCount})`, `Xuất ZIP (${selectedCount})`)}</span>
+            <span>{isZipping ? zipProgress : `Xuất ZIP (${selectedCount})`}</span>
             {!isPro && <Sparkles className="w-3.5 h-3.5 text-amber-300" />}
           </button>
         </div>
