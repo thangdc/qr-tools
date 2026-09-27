@@ -32,6 +32,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<'active' | 'checkout' | 'license'>('active');
   const [copied, setCopied] = useState(false);
+  const [activeDevices, setActiveDevices] = useState<number | null>(null);
+  const [maxDevices, setMaxDevices] = useState<number | null>(null);
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
 
@@ -102,6 +104,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
         if (result.success && result.expiresAt) {
           setExpiresAt(result.expiresAt);
+          setActiveDevices(result.activeDevices ?? null);
+          setMaxDevices(result.maxDevices ?? null);
           localStorage.setItem('qr_tools_pro_expires_at', result.expiresAt);
           return;
         }
@@ -154,6 +158,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
           if (activation.expiresAt) {
             setExpiresAt(activation.expiresAt);
+            setActiveDevices(activation.activeDevices ?? null);
+            setMaxDevices(activation.maxDevices ?? null);
             try { localStorage.setItem('qr_tools_pro_expires_at', activation.expiresAt); } catch { /* ignore storage errors */ }
           }
           try {
@@ -288,6 +294,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       if (!result.success) throw new Error(result.message || 'Kích hoạt thất bại.');
       if (result.expiresAt) {
         setExpiresAt(result.expiresAt);
+        setActiveDevices(result.activeDevices ?? null);
+        setMaxDevices(result.maxDevices ?? null);
         try { localStorage.setItem('qr_tools_pro_expires_at', result.expiresAt); } catch { /* ignore storage errors */ }
       }
       try {
@@ -329,6 +337,12 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
               <p className="mt-1 text-sm text-neutral-600">
                 {tx('Bạn đã có đầy đủ tính năng Pro trên thiết bị này.', 'You already have access to all Pro features on this device.')}
               </p>
+              {activeDevices !== null && maxDevices !== null && (
+                <div className="mt-2 text-sm text-neutral-700">
+                  <span className="text-neutral-500">{tx('Thiết bị', 'Devices')}:</span>{' '}
+                  <span className="font-semibold">{activeDevices}/{maxDevices}</span>
+                </div>
+              )}
               <div className="mt-3 text-sm text-neutral-700">
                 <span className="text-neutral-500">{tx('Hết hạn', 'Expires')}:</span>{' '}
                 <span className="font-semibold">
