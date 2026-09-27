@@ -7,13 +7,13 @@ interface ShortcutsModalProps {
   onClose: () => void;
 }
 
-const SHORTCUTS = [
-  { keys: ['⌘ / Ctrl', 'S'], description: '{tx('Tải PNG độ phân giải cao (1024px)', 'Download High-Resolution PNG (1024px)')}' },
-  { keys: ['⌘ / Ctrl', 'C'], description: '{tx('Sao chép ảnh PNG vào bộ nhớ tạm', 'Copy PNG Image to Clipboard')}' },
-  { keys: ['⌘ / Ctrl', 'Shift', 'C'], description: '{tx('Sao chép mã SVG vector (cho Figma / Illustrator)', 'Copy Vector SVG Code (for Figma / Illustrator)')}' },
-  { keys: ['⌘ / Ctrl', 'P'], description: '{tx('Mở xem trước khi in', 'Open Print Preview')}' },
-  { keys: ['1', '–', '9'], description: '{tx('Chuyển nhanh loại QR (URL, Văn bản, Liên hệ, Wi-Fi...)', 'Quick-switch QR Type (URL, Text, Contact, WiFi, etc.)')}' },
-  { keys: ['?'], description: 'Toggle this {tx('Phím tắt', 'Keyboard Shortcuts')} Cheatsheet' },
+const SHORTCUTS = (tx: (vi: string, en: string) => string) => [
+  { keys: ['⌘ / Ctrl', 'S'], description: tx('Tải PNG độ phân giải cao (1024px)', 'Download High-Resolution PNG (1024px)') },
+  { keys: ['⌘ / Ctrl', 'C'], description: tx('Sao chép ảnh PNG vào bộ nhớ tạm', 'Copy PNG Image to Clipboard') },
+  { keys: ['⌘ / Ctrl', 'Shift', 'C'], description: tx('Sao chép mã SVG vector (cho Figma / Illustrator)', 'Copy Vector SVG Code (for Figma / Illustrator)') },
+  { keys: ['⌘ / Ctrl', 'P'], description: tx('Mở xem trước khi in', 'Open Print Preview') },
+  { keys: ['1', '–', '9'], description: tx('Chuyển nhanh loại QR (URL, Văn bản, Liên hệ, Wi-Fi...)', 'Quick-switch QR Type (URL, Text, Contact, WiFi, etc.)') },
+  { keys: ['?'], description: tx('Bật/tắt bảng phím tắt', 'Toggle this Keyboard Shortcuts cheatsheet') },
 ];
 
 export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose }) => {
@@ -41,7 +41,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
         </div>
 
         <div className="p-4 space-y-2 text-xs divide-y divide-neutral-100">
-          {SHORTCUTS.map((s, idx) => (
+          {SHORTCUTS(tx).map((s, idx) => (
             <div key={idx} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
               <span className="text-neutral-600">{s.description}</span>
               <div className="flex items-center gap-1 shrink-0 ml-3">
