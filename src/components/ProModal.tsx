@@ -316,7 +316,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                 <span className="font-semibold">
                   {expiresAt
                     ? new Date(expiresAt).toLocaleDateString(tx('vi-VN', 'en-US'), { day: '2-digit', month: '2-digit', year: 'numeric' })
-                    : tx('Đang kiểm tra…', 'Checking…')}
+                    : tx('Chưa có thông tin', 'Not available')}
                 </span>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
