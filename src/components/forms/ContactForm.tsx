@@ -48,17 +48,17 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
     <div className="space-y-3.5">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-          Contact Details
+          Thông tin liên hệ
         </label>
         {hasContactInfo && (
           <button
             type="button"
             onClick={handleDownloadVCF}
             className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
-            title="Download standard .vcf file"
+            title="Tải tệp .vcf chuẩn"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Download .vcf Card</span>
+            <span>Tải danh thiếp .vcf</span>
           </button>
         )}
       </div>
@@ -66,7 +66,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            First Name
+            Tên
           </label>
           <input
             type="text"
@@ -78,7 +78,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
         </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Last Name
+            Họ
           </label>
           <input
             type="text"
@@ -93,7 +93,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Phone Number
+            Số điện thoại
           </label>
           <input
             type="tel"
@@ -120,7 +120,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Organization / Company
+            Tổ chức / Công ty
           </label>
           <input
             type="text"
@@ -156,7 +156,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
         />
         <p className="mt-1.5 text-xs text-neutral-500">
-          Exports standard vCard 3.0. Phones scanning this can save contact directly to address book.
+          Xuất vCard 3.0 chuẩn. Khi quét, điện thoại có thể lưu liên hệ trực tiếp vào danh bạ.
         </p>
       </div>
     </div>
