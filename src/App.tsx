@@ -395,6 +395,14 @@ export default function App() {
     });
   };
 
+  const handleOpenMetricHandoff = () => {
+    if (!isPro) {
+      setIsProModalOpen(true);
+      return;
+    }
+    setIsMetricModalOpen(true);
+  };
+
   // Open card template for multiple batch items from Batch & Export
   const handlePrintBatch = (batchItems: BulkQRItem[]) => {
     setBatchPrintState({
@@ -646,7 +654,9 @@ export default function App() {
                   onOpenTemplateStudio={() => setIsTemplatesModalOpen(true)}
                   onSaveToHistory={handleSaveToHistory}
                   onPrintSingle={handlePrintSingle}
-                  onOpenMetricHandoff={() => setIsMetricModalOpen(true)}
+                  isPro={isPro}
+                  onOpenPro={() => setIsProModalOpen(true)}
+                  onOpenMetricHandoff={handleOpenMetricHandoff}
                 />
               </div>
             </div>
