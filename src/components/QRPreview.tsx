@@ -497,7 +497,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
           type="button"
           onClick={onOpenTemplateStudio}
           className="h-8 px-2.5 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 bg-white hover:bg-neutral-100 border border-neutral-200/90 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0"
-          title="Open Template Manager Studio"
+          title={tx('Mở kho quản lý mẫu', 'Open Template Manager Studio')}
         >
           <LayoutTemplate className="w-3.5 h-3.5 text-neutral-400" />
           <span>{tx('Kho mẫu', 'Studio')}</span>
@@ -684,7 +684,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
               disabled={isEmpty}
               onClick={() => handleDownloadPNG(downloadRes)}
               className="flex-1 h-9 px-4 text-xs font-semibold bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-l-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99]"
-              title="Download PNG with active template (⌘S)"
+              title={tx('Tải PNG với mẫu đang dùng (⌘S)', 'Download PNG with active template (⌘S)')}
             >
               <Download className="w-3.5 h-3.5" />
               <span>{tx('Tải PNG', 'Download PNG')}</span>
@@ -698,7 +698,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
               disabled={isEmpty}
               onClick={() => setResDropdownOpen(!resDropdownOpen)}
               className="h-9 px-2 bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-r-lg border-l border-neutral-800 transition-colors flex items-center justify-center cursor-pointer"
-              title="Select resolution"
+              title={tx('Chọn độ phân giải', 'Select resolution')}
             >
               <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
             </button>
@@ -732,7 +732,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             disabled={isEmpty}
             onClick={handleCopyImage}
             className="h-9 px-3 text-xs font-medium bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:pointer-events-none text-neutral-700 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
-            title="Copy templated image (⌘C)"
+            title={tx('Sao chép ảnh theo mẫu (⌘C)', 'Copy templated image (⌘C)')}
           >
             {copiedImg ? (
               <>
@@ -753,7 +753,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             disabled={isEmpty}
             onClick={handleCopySVG}
             className="h-9 px-3 text-xs font-medium bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:pointer-events-none text-neutral-700 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
-            title="Copy pure vector SVG for Figma (⌘⇧C)"
+            title={tx('Sao chép SVG vector cho Figma (⌘⇧C)', 'Copy pure vector SVG for Figma (⌘⇧C)')}
           >
             {copiedSvg ? (
               <>
@@ -775,7 +775,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             type="button"
             onClick={onOpenTemplateStudio}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title="Open Template Studio"
+            title={tx('Mở kho mẫu', 'Open Template Studio')}
           >
             <LayoutTemplate className="w-3 h-3 text-neutral-400" />
             <span>{tx('Mẫu', 'Templates')}</span>
@@ -786,7 +786,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             disabled={isEmpty}
             onClick={onOpenMetricHandoff}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title="Export calibrated mm dimensions (300 DPI)"
+            title={tx('Xuất theo kích thước mm chuẩn (300 DPI)', 'Export calibrated mm dimensions (300 DPI)')}
           >
             <Ruler className="w-3 h-3 text-neutral-400" />
             <span>{tx('300 DPI', '300 DPI')}</span>
@@ -797,7 +797,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             disabled={isEmpty}
             onClick={() => onPrintSingle(dataUrl)}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title="Print (⌘P)"
+            title={tx('In (⌘P)', 'Print (⌘P)')}
           >
             <Printer className="w-3.5 h-3.5 text-neutral-400" />
             <span>{tx('In', 'Print')}</span>
@@ -808,7 +808,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             disabled={isEmpty}
             onClick={handleSave}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title="Save to history"
+            title={tx('Lưu vào lịch sử', 'Save to history')}
           >
             {saved ? (
               <span className="text-emerald-600 font-semibold">{tx('Đã lưu ✓', 'Saved ✓')}</span>
