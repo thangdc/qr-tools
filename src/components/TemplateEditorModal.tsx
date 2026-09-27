@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../i18n';
 import { QRTemplate, TemplateLayout, FrameStyle, ModuleStyle, EyeStyle } from '../types/qr';
 import {
   X,
@@ -39,6 +40,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   onSaveTemplate,
   onDeleteTemplate,
 }) => {
+  const { tx } = useLanguage();
   const [editingTemplate, setEditingTemplate] = useState<QRTemplate | null>(null);
 
   if (!isOpen) return null;
@@ -120,7 +122,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                 className="h-8 px-3 text-xs font-medium text-white bg-neutral-900 hover:bg-black rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>New Template</span>
+                <span>{tx('Mẫu mới', 'New Template')}</span>
               </button>
             )}
             <button
@@ -496,7 +498,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                           {isDefault ? (
                             <span className="inline-flex items-center gap-0.5 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200/60">
                               <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                              <span>DEFAULT</span>
+                              <span>{tx('MẶC ĐỊNH', 'DEFAULT')}</span>
                             </span>
                           ) : (
                             <button
