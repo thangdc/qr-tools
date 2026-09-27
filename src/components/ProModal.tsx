@@ -46,9 +46,41 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       setChecking(true);
       try {
         const result = await getOrderStatus(email, orderCode);
-        if (!cancelled && result.status === 'paid' && result.licenseKey) {
-          setLicenseKey(result.licenseKey);
-          setMessage(tx('Đã nhận thanh toán. Bấm Kích hoạt Pro để hoàn tất.', 'Payment received. Activate Pro to finish setup.'));
+        if (cancelled || result.status !== 'paid' || !result.licenseKey) return;
+
+        setLicenseKey(result.licenseKey);
+        setLoading(true);
+
+        try {
+          const activation = await activateProLicense(
+            email.trim(),
+            result.licenseKey,
+            getDeviceId(),
+          );
+
+          if (cancelled) return;
+
+          if (!activation.success) {
+            setMessage(tx(
+              'Đã nhận thanh toán nhưng chưa kích hoạt được Pro. Bạn có thể bấm Kích hoạt để thử lại.',
+              'Payment received, but Pro activation could not be completed. You can click Activate to retry.',
+            ));
+            return;
+          }
+
+          onTogglePro(true);
+          setMessage(tx(
+            'Thanh toán thành công. Pro đã được tự động kích hoạt trên thiết bị này.',
+            'Payment received. Pro has been activated automatically on this device.',
+          ));
+        } catch (error) {
+          if (!cancelled) {
+            setMessage(error instanceof Error
+              ? error.message
+              : tx('Đã nhận thanh toán nhưng kích hoạt Pro thất bại.', 'Payment received, but Pro activation failed.'));
+          }
+        } finally {
+          if (!cancelled) setLoading(false);
         }
       } catch {
         // Best-effort polling.
@@ -63,7 +95,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [email, isOpen, isPro, orderCode, tx]);
+  }, [email, isOpen, isPro, onTogglePro, orderCode, tx]);
 
   if (!isOpen) return null;
 
