@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Check, Copy, KeyRound, Loader2, Sparkles, X } from 'lucide-react';
 import { useLanguage } from '../i18n';
-import { X, Check, Sparkles, KeyRound } from 'lucide-react';
+import { activateProLicense, createProOrder, getDeviceId, getOrderStatus, type ProPlan } from '../services/revenueService';
 
 interface ProModalProps {
   isOpen: boolean;
@@ -9,143 +10,172 @@ interface ProModalProps {
   onTogglePro: (val: boolean) => void;
 }
 
-export const ProModal: React.FC<ProModalProps> = ({
-  isOpen,
-  onClose,
-  isPro,
-  onTogglePro,
-}) => {
+export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTogglePro }) => {
   const { tx } = useLanguage();
+  const [plan, setPlan] = useState<ProPlan>('monthly');
+  const [email, setEmail] = useState('');
   const [licenseKey, setLicenseKey] = useState('');
-  const [keyMessage, setKeyMessage] = useState<string | null>(null);
+  const [orderCode, setOrderCode] = useState('');
+  const [payment, setPayment] = useState<{amount:number; qrUrl:string; bankName:string; accountNumber:string; accountName:string} | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setMessage(null);
+      setLoading(false);
+      setChecking(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !orderCode || !email || isPro) return;
+    let cancelled = false;
+    const check = async () => {
+      if (cancelled) return;
+      setChecking(true);
+      try {
+        const result = await getOrderStatus(email, orderCode);
+        if (!cancelled && result.status === 'paid' && result.licenseKey) {
+          setLicenseKey(result.licenseKey);
+          setMessage(tx('Đã nhận thanh toán. Bấm Kích hoạt Pro để hoàn tất.', 'Payment received. Activate Pro to finish setup.'));
+        }
+      } catch {
+        // Best-effort polling; the user can continue manually.
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    };
+    const timer = window.setInterval(check, 4000);
+    void check();
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [email, isOpen, isPro, orderCode, tx]);
 
   if (!isOpen) return null;
 
-  const handleActivateKey = () => {
-    if (licenseKey.trim().toUpperCase() === 'QRPRO-2026' || licenseKey.trim().length >= 6) {
-      onTogglePro(true);
-      setKeyMessage(tx('Đã kích hoạt giấy phép Pro thành công!', 'Pro license activated successfully!'));
-      setTimeout(() => {
-        setKeyMessage(null);
-        onClose();
-      }, 1200);
-    } else {
-      setKeyMessage(tx('Vui lòng nhập mã hợp lệ hoặc nhấn nút dùng thử Pro bên dưới.', 'Please enter a valid key or click Instant Demo Activation below.'));
+  const startCheckout = async () => {
+    if (!email.trim()) {
+      setMessage(tx('Vui lòng nhập email nhận License.', 'Enter the email for your license.'));
+      return;
     }
+    setLoading(true);
+    setMessage(null);
+    try {
+      const result = await createProOrder(email.trim(), plan);
+      if (!result.success || !result.orderCode || !result.paymentQrUrl) throw new Error(result.message || 'Không thể tạo đơn hàng.');
+      setOrderCode(result.orderCode);
+      setPayment({
+        amount: result.amount || 0,
+        qrUrl: result.paymentQrUrl,
+        bankName: result.paymentBankName || '',
+        accountNumber: result.paymentAccountNumber || '',
+        accountName: result.paymentAccountName || '',
+      });
+      setMessage(tx('Quét QR và chuyển đúng số tiền với nội dung đơn hàng.', 'Scan the QR and transfer the exact amount using the order code.'));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không thể tạo đơn hàng.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const activate = async () => {
+    if (!email.trim() || !licenseKey.trim()) {
+      setMessage(tx('Cần email và License Key.', 'Email and License Key are required.'));
+      return;
+    }
+    setLoading(true);
+    setMessage(null);
+    try {
+      const result = await activateProLicense(email.trim(), licenseKey.trim(), getDeviceId());
+      if (!result.success) throw new Error(result.message || 'Kích hoạt thất bại.');
+      onTogglePro(true);
+      setMessage(tx('Pro đã được kích hoạt trên thiết bị này.', 'Pro is activated on this device.'));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Kích hoạt thất bại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copy = async (value: string) => {
+    await navigator.clipboard?.writeText(value);
+    setMessage(tx('Đã sao chép.', 'Copied.'));
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="bg-white rounded-lg border border-neutral-200 shadow-xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        {/* Header */}
+      <div className="bg-white rounded-xl border border-neutral-200 shadow-xl max-w-xl w-full overflow-hidden">
         <div className="p-5 border-b border-neutral-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-md bg-blue-50 text-blue-600">
-              <Sparkles className="w-4 h-4" />
-            </span>
+            <span className="p-1.5 rounded-md bg-blue-50 text-blue-600"><Sparkles className="w-4 h-4" /></span>
             <div>
-              <h2 className="text-base font-semibold text-neutral-900">
-                QR Tools Pro
-              </h2>
-              <p className="text-xs text-neutral-500">
-                {tx('Tính năng chuyên nghiệp cho quy trình khối lượng lớn', 'Professional utility features for high-volume workflows')}
-              </p>
+              <h2 className="text-base font-semibold text-neutral-900">QR Tools Pro</h2>
+              <p className="text-xs text-neutral-500">{tx('Tạo QR hàng loạt, xuất và in chuyên nghiệp.', 'Batch QR generation, export and professional printing.')}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
 
-        {/* Feature comparison table */}
         <div className="p-5 space-y-4">
-          <div className="border border-neutral-200 rounded-md overflow-hidden text-xs">
-            <div className="grid grid-cols-3 bg-neutral-50 p-2.5 font-medium text-neutral-600 border-b border-neutral-200">
-              <span className="col-span-1">{tx('Tính năng', 'Feature')}</span>
-              <span className="text-center">{tx('Gói miễn phí', 'Free Plan')}</span>
-              <span className="text-center font-semibold text-neutral-900">{tx('Gói Pro', 'Pro Plan')}</span>
-            </div>
-
-            <div className="divide-y divide-neutral-100">
-              <div className="grid grid-cols-3 p-2.5 items-center">
-                <span className="text-neutral-700">{tx('Tất cả 9 loại QR (bao gồm VietQR)', 'All 9 QR Types (incl. VietQR)')}</span>
-                <span className="text-center text-neutral-600">{tx('Không giới hạn', 'Unlimited')}</span>
-                <span className="text-center font-medium text-blue-600">{tx('Không giới hạn', 'Unlimited')}</span>
-              </div>
-              <div className="grid grid-cols-3 p-2.5 items-center bg-neutral-50/40">
-                <span className="text-neutral-700">{tx('Xuất PNG & SVG độ phân giải cao', 'High-Res PNG & SVG Export')}</span>
-                <span className="text-center text-neutral-600">{tx('Tối đa 2048px', 'Up to 2048px')}</span>
-                <span className="text-center font-medium text-blue-600">{tx('Tối đa 4096px', 'Up to 4096px')}</span>
-              </div>
-              <div className="grid grid-cols-3 p-2.5 items-center">
-                <span className="text-neutral-700">{tx('Nhập Excel / CSV hàng loạt', 'Excel / CSV Batch Import')}</span>
-                <span className="text-center text-neutral-400">—</span>
-                <span className="text-center font-medium text-emerald-600">{tx('Có sẵn', 'Included')}</span>
-              </div>
-              <div className="grid grid-cols-3 p-2.5 items-center bg-neutral-50/40">
-                <span className="text-neutral-700">{tx('Đóng gói ZIP hàng loạt', 'Bulk ZIP Archive Packaging')}</span>
-                <span className="text-center text-neutral-400">—</span>
-                <span className="text-center font-medium text-emerald-600">{tx('Có sẵn', 'Included')}</span>
-              </div>
-              <div className="grid grid-cols-3 p-2.5 items-center">
-                <span className="text-neutral-700">{tx('Tờ nhãn dán có thể in', 'Printable Sticker Sheets')}</span>
-                <span className="text-center text-neutral-400">{tx('Đơn', 'Single')}</span>
-                <span className="text-center font-medium text-emerald-600">{tx('Nhiều lưới A4', 'Multi-grid A4')}</span>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-2">
+            {([['monthly', '59.000 ₫ / tháng'], ['yearly', '499.000 ₫ / năm']] as const).map(([id, label]) => (
+              <button key={id} type="button" onClick={() => setPlan(id)}
+                className={`rounded-lg border p-3 text-left ${plan === id ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 hover:border-neutral-300'}`}>
+                <div className="text-sm font-semibold text-neutral-900">{label}</div>
+                <div className="text-xs text-neutral-500 mt-1">{id === 'yearly' ? tx('Dành cho người dùng thường xuyên', 'For regular users') : tx('Gói tháng linh hoạt', 'Flexible monthly plan')}</div>
+              </button>
+            ))}
           </div>
 
-          {/* Key input or quick toggle */}
-          <div className="pt-2">
-            <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-              <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
-              <span>{tx('Kích hoạt mã bản quyền', 'License Key Activation')}</span>
-            </label>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-neutral-700">{tx('Email nhận License', 'License email')}</label>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@example.com"
+              className="w-full h-10 px-3 text-sm border border-neutral-300 rounded-lg focus:outline-hidden focus:border-blue-600" />
+          </div>
+
+          {!payment ? (
+            <button type="button" disabled={loading} onClick={startCheckout}
+              className="w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2">
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}{tx('Tạo đơn & thanh toán', 'Create order & pay')}
+            </button>
+          ) : (
+            <div className="rounded-xl border border-neutral-200 p-4 space-y-4">
+              <div className="flex items-center gap-4">
+                <img src={payment.qrUrl} alt="QR thanh toán" className="w-44 h-44 border border-neutral-200 rounded-lg" />
+                <div className="min-w-0 space-y-2 text-sm">
+                  <div className="font-semibold text-neutral-900">{payment.amount.toLocaleString('vi-VN')} ₫</div>
+                  <div className="text-neutral-500">{payment.bankName}</div>
+                  <button type="button" onClick={() => void copy(payment.accountNumber)} className="flex items-center gap-1 text-blue-600">{payment.accountNumber}<Copy className="w-3.5 h-3.5" /></button>
+                  <div className="font-medium text-neutral-800">{payment.accountName}</div>
+                  <div className="rounded bg-neutral-100 px-2 py-1 font-mono text-xs break-all">{orderCode}</div>
+                  <div className="text-xs text-neutral-500">{checking ? tx('Đang kiểm tra thanh toán…', 'Checking payment…') : tx('Tự động kiểm tra mỗi vài giây.', 'Payment is checked automatically.')}</div>
+                </div>
+              </div>
+              <div className="text-xs text-neutral-500">{tx('Chuyển đúng số tiền và giữ mã đơn hàng trong nội dung.', 'Transfer the exact amount and keep the order code in the memo.')}</div>
+            </div>
+          )}
+
+          <div className="pt-2 border-t border-neutral-100">
+            <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5 text-neutral-500" />{tx('Kích hoạt License', 'Activate license')}</label>
             <div className="flex gap-2">
-              <input
-                type="text"
-                value={licenseKey}
-                onChange={(e) => setLicenseKey(e.target.value)}
-                placeholder={tx('Nhập mã bản quyền (VD: QRPRO-2026)', 'Enter license key (e.g. QRPRO-2026)')}
-                className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600"
-              />
-              <button
-                type="button"
-                onClick={handleActivateKey}
-                className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors cursor-pointer"
-              >
-                {tx('Kích hoạt', 'Activate')}
+              <input value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} placeholder="License Key"
+                className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600" />
+              <button type="button" onClick={activate} disabled={loading}
+                className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5">
+                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}{tx('Kích hoạt', 'Activate')}
               </button>
             </div>
-            {keyMessage && (
-              <p className="mt-1.5 text-xs text-blue-600 font-medium">{keyMessage}</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-2 text-xs text-neutral-600">
+            {[tx('Batch Import Excel/CSV', 'Excel/CSV batch import'), tx('Xuất ZIP hàng loạt', 'Bulk ZIP export'), tx('In nhiều QR A4', 'Multi-QR A4 printing'), tx('Export độ phân giải cao', 'High-resolution export')].map((item) =>
+              <div key={item} className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" />{item}</div>
             )}
           </div>
-        </div>
 
-        {/* Footer actions */}
-        <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              onTogglePro(!isPro);
-              onClose();
-            }}
-            className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
-          >
-            {isPro ? tx('Tắt Pro (Chuyển về miễn phí)', 'Deactivate Pro (Switch to Free)') : tx('Dùng thử Pro 1 chạm', 'Instant 1-Click Pro Trial')}
-          </button>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 text-xs font-medium bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-md transition-colors cursor-pointer"
-          >
-            {tx('Đóng', 'Close')}
-          </button>
+          {message && <div className="rounded-lg bg-neutral-50 border border-neutral-200 px-3 py-2 text-xs text-neutral-700">{message}</div>}
         </div>
       </div>
     </div>
