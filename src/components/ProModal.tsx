@@ -402,6 +402,10 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
             </div>
           )}
 
+          </div>
+          </>
+          )}
+
           <div className="pt-2 border-t border-neutral-100">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5">
