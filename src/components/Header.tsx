@@ -49,7 +49,6 @@ export const Header: React.FC<HeaderProps> = (props) => {
         </nav>
 
         <div className="hidden md:flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <a href="/guide.html" className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1.5 rounded-md transition-colors"><BookOpen className="w-3.5 h-3.5 text-neutral-500" /><span>Hướng dẫn</span></a>
           <button type="button" onClick={onOpenTemplates} className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1.5 rounded-md transition-colors cursor-pointer"><LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" /><span>{t('templates')}</span></button>
           <button type="button" onClick={onOpenPrivacy} className="hidden lg:inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-emerald-700 px-2 py-1 rounded transition-colors cursor-pointer"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /><span>{t('private')}</span></button>
           <button type="button" onClick={onOpenShortcuts} className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={t('shortcuts')}><Keyboard className="w-4 h-4" /></button>
