@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../i18n';
 import {
   QRDesignOptions,
   ErrorCorrectionLevel,
@@ -13,7 +14,7 @@ import {
   X,
   Type,
   Grid,
-  CircleDot,
+  {tx('Tròn', 'Circle')}Dot,
   Check,
   Palette,
 } from 'lucide-react';
@@ -48,6 +49,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
   onChange,
   isPaymentType,
 }) => {
+  const { tx } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,15 +97,15 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
       >
         <span className="flex items-center gap-2">
           <SlidersHorizontal className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-700 transition-colors" />
-          <span>Styling & Frames</span>
+          <span>{tx('Kiểu dáng & khung', 'Styling & Frames')}</span>
           {hasModifications && (
             <span className="text-[10px] font-mono font-medium lowercase px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600">
-              modified
+              {tx('đã chỉnh sửa', 'modified')}
             </span>
           )}
         </span>
         <div className="flex items-center gap-1 text-[11px] text-neutral-400 font-normal normal-case">
-          <span>{isOpen ? 'Collapse' : 'Expand'}</span>
+          <span>{isOpen ? '{tx('Thu gọn', 'Collapse')}' : '{tx('Mở rộng', 'Expand')}'}</span>
           <ChevronDown
             className={`w-3.5 h-3.5 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
@@ -114,17 +116,17 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
       {isOpen && (
         <div className="pt-4 space-y-6 text-xs">
-          {/* Module Dots Shape & Corner Eyes */}
+          {/* Module Dots Shape & {tx('Góc mã', 'Corner Eyes')} */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <Grid className="w-3 h-3 text-neutral-400" />
-                <span>Pattern Modules</span>
+                <span>{tx('Kiểu ô mã', 'Pattern Modules')}</span>
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { id: 'square', label: 'Classic' },
-                  { id: 'dots', label: 'Rounded' },
+                  { id: 'square', label: '{tx('Cổ điển', 'Classic')}' },
+                  { id: 'dots', label: '{tx('Bo tròn', 'Rounded')}' },
                   { id: 'squircle', label: 'Squircle' },
                 ].map((m) => (
                   <button
@@ -147,14 +149,14 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
             <div>
               <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <CircleDot className="w-3 h-3 text-neutral-400" />
-                <span>Corner Eyes</span>
+                <{tx('Tròn', 'Circle')}Dot className="w-3 h-3 text-neutral-400" />
+                <span>{tx('Góc mã', 'Corner Eyes')}</span>
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { id: 'square', label: 'Square' },
-                  { id: 'rounded', label: 'Rounded' },
-                  { id: 'circle', label: 'Circle' },
+                  { id: 'square', label: '{tx('Vuông', 'Square')}' },
+                  { id: 'rounded', label: '{tx('Bo tròn', 'Rounded')}' },
+                  { id: 'circle', label: '{tx('Tròn', 'Circle')}' },
                 ].map((e) => (
                   <button
                     key={e.id}
@@ -180,7 +182,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-[11px] font-semibold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
                 <Type className="w-3 h-3 text-neutral-400" />
-                <span>Call-to-Action Caption</span>
+                <span>{tx('Nhãn kêu gọi hành động', 'Call-to-Action Caption')}</span>
               </label>
               {design.frameStyle !== 'none' && (
                 <button
@@ -188,17 +190,17 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                   onClick={() => onChange({ ...design, frameStyle: 'none' })}
                   className="text-[10px] text-neutral-400 hover:text-red-600 cursor-pointer"
                 >
-                  Clear frame
+                  {tx('Xóa khung', 'Clear frame')}
                 </button>
               )}
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
               {[
-                { id: 'none', label: 'None' },
-                { id: 'bottom-bar', label: 'Bottom Bar' },
-                { id: 'top-bar', label: 'Top Bar' },
-                { id: 'badge', label: 'Pill Badge' },
+                { id: 'none', label: '{tx('Không', 'None')}' },
+                { id: 'bottom-bar', label: '{tx('Thanh dưới', 'Bottom Bar')}' },
+                { id: 'top-bar', label: '{tx('Thanh trên', 'Top Bar')}' },
+                { id: 'badge', label: '{tx('Huy hiệu', 'Pill Badge')}' },
               ].map((f) => (
                 <button
                   key={f.id}
@@ -254,7 +256,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
           <div>
             <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Palette className="w-3 h-3 text-neutral-400" />
-              <span>Color Themes</span>
+              <span>{tx('Chủ đề màu', 'Color Themes')}</span>
             </label>
 
             <div className="flex flex-wrap gap-1.5 mb-3">
@@ -301,7 +303,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="block text-[10px] text-neutral-500 mb-1">
-                  Dots Color (Foreground)
+                  {tx('Màu ô (tiền cảnh)', 'Dots Color (Foreground)')}
                 </span>
                 <div className="flex items-center gap-2">
                   <input
@@ -325,7 +327,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
               <div>
                 <span className="block text-[10px] text-neutral-500 mb-1">
-                  Background
+                  {tx('Nền', 'Background')}
                 </span>
                 <div className="flex items-center gap-2">
                   <input
@@ -349,11 +351,11 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
             </div>
           </div>
 
-          {/* Margin & Error Correction */}
+          {/* Margin & {tx('Sửa lỗi', 'Error Correction')} */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">
-                Quiet Margin
+                {tx('Lề yên tĩnh', 'Quiet Margin')}
               </label>
               <div className="flex gap-1">
                 {[0, 1, 2, 4].map((m) => (
@@ -367,7 +369,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                         : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                     }`}
                   >
-                    {m === 0 ? 'None' : `${m}x`}
+                    {m === 0 ? '{tx('Không', 'None')}' : `${m}x`}
                   </button>
                 ))}
               </div>
@@ -375,7 +377,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
 
             <div>
               <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">
-                Error Correction
+                {tx('Sửa lỗi', 'Error Correction')}
               </label>
               <div className="flex gap-1">
                 {(['L', 'M', 'Q', 'H'] as ErrorCorrectionLevel[]).map((level) => {
@@ -409,7 +411,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
           {/* Center Logo */}
           <div>
             <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">
-              Center Emblem / Logo
+              {tx('Biểu tượng / Logo trung tâm', 'Center Emblem / Logo')}
             </label>
             <div className="flex flex-wrap items-center gap-1.5">
               <button
@@ -423,7 +425,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                 }`}
               >
-                None
+                {tx('Không', 'None')}
               </button>
 
               {isPaymentType && (
@@ -442,7 +444,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                       : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                   }`}
                 >
-                  VietQR Emblem
+                  {tx('Biểu tượng VietQR', 'VietQR Emblem')}
                 </button>
               )}
 
@@ -461,7 +463,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                 }`}
               >
-                Wi-Fi Symbol
+                {tx('Biểu tượng Wi-Fi', 'Wi-Fi Symbol')}
               </button>
 
               <button
@@ -479,12 +481,12 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                 }`}
               >
-                Link Symbol
+                {tx('Biểu tượng liên kết', 'Link Symbol')}
               </button>
 
               <label className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-dashed border-neutral-300 hover:border-neutral-500 bg-white text-neutral-700 cursor-pointer transition-colors">
                 <Upload className="w-3.5 h-3.5" />
-                <span>Upload file...</span>
+                <span>{tx('Tải tệp lên...', 'Upload file...')}</span>
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/svg+xml"
