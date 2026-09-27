@@ -21,7 +21,7 @@ export const ProModal: React.FC<ProModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handle{tx('Kích hoạt', 'Activate')}Key = () => {
+  const handleActivateKey = () => {
     if (licenseKey.trim().toUpperCase() === 'QRPRO-2026' || licenseKey.trim().length >= 6) {
       onTogglePro(true);
       setKeyMessage(tx('Đã kích hoạt giấy phép Pro thành công!', 'Pro license activated successfully!'));
@@ -114,7 +114,7 @@ export const ProModal: React.FC<ProModalProps> = ({
               />
               <button
                 type="button"
-                onClick={handle{tx('Kích hoạt', 'Activate')}Key}
+                onClick={handleActivateKey}
                 className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors cursor-pointer"
               >
                 {tx('Kích hoạt', 'Activate')}
@@ -136,7 +136,7 @@ export const ProModal: React.FC<ProModalProps> = ({
             }}
             className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
           >
-            {isPro ? '{tx('Tắt Pro (Chuyển về miễn phí)', 'Deactivate Pro (Switch to Free)')}' : '{tx('Dùng thử Pro 1 chạm', 'Instant 1-Click Pro Trial')}'}
+            {isPro ? tx('Tắt Pro (Chuyển về miễn phí)', 'Deactivate Pro (Switch to Free)') : tx('Dùng thử Pro 1 chạm', 'Instant 1-Click Pro Trial')}
           </button>
 
           <button
