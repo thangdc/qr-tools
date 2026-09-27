@@ -51,7 +51,7 @@ interface QRPreviewProps {
   isGenerating?: boolean;
   extraTemplateInfo?: RenderTemplateOptions;
   onOpenTemplateStudio: () => void;
-  onSaveToHistory: (dataUrl: string) => void;
+  onSaveToHistory: (dataUrl: string) => boolean;
   onPrintSingle: (dataUrl: string) => void;
   isPro: boolean;
   onOpenPro: () => void;
@@ -258,8 +258,8 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
 
   const handleSave = () => {
     if (!dataUrl) return;
-    onSaveToHistory(dataUrl);
-    setSaved(true);
+    const didSave = onSaveToHistory(dataUrl);
+    setSaved(didSave);
     setTimeout(() => setSaved(false), 2000);
   };
 
