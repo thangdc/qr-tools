@@ -46,6 +46,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
           <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-1.5`}><ScanLine className="w-3.5 h-3.5 text-neutral-400" /><span>{t('scanner')}</span></button>
           <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
           <button onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-1.5`}><Layers className="w-3.5 h-3.5 text-neutral-400" /><span>{t('bulkExport')}</span></button>
+          <a href="/guide.html" className="px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-neutral-400" /><span>Hướng dẫn</span></a>
         </nav>
 
         <div className="hidden md:flex items-center gap-1.5 sm:gap-2 shrink-0">
