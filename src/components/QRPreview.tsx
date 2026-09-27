@@ -11,10 +11,10 @@ import {
   QRDiagnostics,
 } from '../utils/qrRenderer';
 import {
-  Download,
-  Copy,
+  {tx('Tải xuống', 'Download')},
+  {tx('Sao chép', 'Copy')},
   Check,
-  Printer,
+  {tx('In', 'Print')}er,
   Bookmark,
   FileCode2,
   ChevronDown,
@@ -49,10 +49,10 @@ interface QRPreviewProps {
   onSelectTemplate: (templateId: string) => void;
   isGenerating?: boolean;
   extraTemplateInfo?: RenderTemplateOptions;
-  onOpenTemplateStudio: () => void;
+  on{tx('Mở', 'Open')}TemplateStudio: () => void;
   onSaveToHistory: (dataUrl: string) => void;
-  onPrintSingle: (dataUrl: string) => void;
-  onOpenMetricHandoff: () => void;
+  on{tx('In', 'Print')}Single: (dataUrl: string) => void;
+  on{tx('Mở', 'Open')}MetricHandoff: () => void;
 }
 
 export const QRPreview: React.FC<QRPreviewProps> = ({
@@ -65,21 +65,22 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   onSelectTemplate,
   isGenerating,
   extraTemplateInfo,
-  onOpenTemplateStudio,
+  on{tx('Mở', 'Open')}TemplateStudio,
   onSaveToHistory,
-  onPrintSingle,
-  onOpenMetricHandoff,
+  on{tx('In', 'Print')}Single,
+  on{tx('Mở', 'Open')}MetricHandoff,
 }) => {
+  const { tx } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dataUrl, setDataUrl] = useState<string>('');
   const [svgString, setSvgString] = useState<string>('');
-  const [copiedImg, setCopiedImg] = useState(false);
-  const [copiedSvg, setCopiedSvg] = useState(false);
+  const [copiedImg, set{tx('Đã sao chép', 'Copied')}Img] = useState(false);
+  const [copiedSvg, set{tx('Đã sao chép', 'Copied')}Svg] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [downloadRes, setDownloadRes] = useState<512 | 1024 | 2048>(1024);
-  const [resDropdownOpen, setResDropdownOpen] = useState(false);
-  const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
+  const [downloadRes, set{tx('Tải xuống', 'Download')}Res] = useState<512 | 1024 | 2048>(1024);
+  const [resDropdown{tx('Mở', 'Open')}, setResDropdown{tx('Mở', 'Open')}] = useState(false);
+  const [templateDropdown{tx('Mở', 'Open')}, setTemplateDropdown{tx('Mở', 'Open')}] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [diagnostics, setDiagnostics] = useState<QRDiagnostics | null>(null);
 
@@ -94,7 +95,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setTemplateDropdownOpen(false);
+        setTemplateDropdown{tx('Mở', 'Open')}(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -167,7 +168,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   }, [payload, activeTemplate, title, subtitle, type, extraTemplateInfo]);
 
   // High resolution download trigger with active template via centralized rendering service
-  const handleDownloadPNG = async (res = downloadRes) => {
+  const handle{tx('Tải xuống', 'Download')}PNG = async (res = downloadRes) => {
     if (!payload) return;
 
     try {
@@ -195,7 +196,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     }
   };
 
-  const handleDownloadSVG = () => {
+  const handle{tx('Tải xuống', 'Download')}SVG = () => {
     if (!svgString) return;
     const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -208,7 +209,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const handleCopyImage = async () => {
+  const handle{tx('Sao chép', 'Copy')}Image = async () => {
     if (!canvasRef.current) return;
     try {
       canvasRef.current.toBlob(async (blob) => {
@@ -217,30 +218,30 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             await navigator.clipboard.write([
               new ClipboardItem({ 'image/png': blob }),
             ]);
-            setCopiedImg(true);
-            setTimeout(() => setCopiedImg(false), 2000);
+            set{tx('Đã sao chép', 'Copied')}Img(true);
+            setTimeout(() => set{tx('Đã sao chép', 'Copied')}Img(false), 2000);
             return;
           } catch {
             // fallback
           }
         }
         await navigator.clipboard.writeText(payload);
-        setCopiedImg(true);
-        setTimeout(() => setCopiedImg(false), 2000);
+        set{tx('Đã sao chép', 'Copied')}Img(true);
+        setTimeout(() => set{tx('Đã sao chép', 'Copied')}Img(false), 2000);
       });
     } catch {
       await navigator.clipboard.writeText(payload);
-      setCopiedImg(true);
-      setTimeout(() => setCopiedImg(false), 2000);
+      set{tx('Đã sao chép', 'Copied')}Img(true);
+      setTimeout(() => set{tx('Đã sao chép', 'Copied')}Img(false), 2000);
     }
   };
 
-  const handleCopySVG = async () => {
+  const handle{tx('Sao chép', 'Copy')}SVG = async () => {
     if (!svgString) return;
     try {
       await navigator.clipboard.writeText(svgString);
-      setCopiedSvg(true);
-      setTimeout(() => setCopiedSvg(false), 2000);
+      set{tx('Đã sao chép', 'Copied')}Svg(true);
+      setTimeout(() => set{tx('Đã sao chép', 'Copied')}Svg(false), 2000);
     } catch (err) {
       console.error(err);
     }
@@ -284,8 +285,8 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         return {
           icon: ExternalLink,
           title: 'Website Link',
-          subtitle: payload.replace(/^https?:\/\//i, '').slice(0, 32) || 'Open web page',
-          btn: 'Open Safari',
+          subtitle: payload.replace(/^https?:\/\//i, '').slice(0, 32) || '{tx('Mở', 'Open')} web page',
+          btn: '{tx('Mở', 'Open')} Safari',
         };
       case 'wifi':
         return {
@@ -298,7 +299,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         return {
           icon: CreditCard,
           title: 'VietQR · Napas 247',
-          subtitle: 'Open Banking App to Transfer',
+          subtitle: '{tx('Mở', 'Open')} Banking App to Transfer',
           btn: 'Pay Now',
         };
       case 'event':
@@ -320,7 +321,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
           icon: Compass,
           title: `${type.toUpperCase()} Code`,
           subtitle: payload.slice(0, 32),
-          btn: 'Open',
+          btn: '{tx('Mở', 'Open')}',
         };
     }
   };
@@ -409,7 +410,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         <div ref={dropdownRef} className="relative flex-1 min-w-[200px]">
           <button
             type="button"
-            onClick={() => setTemplateDropdownOpen(!templateDropdownOpen)}
+            onClick={() => setTemplateDropdown{tx('Mở', 'Open')}(!templateDropdown{tx('Mở', 'Open')})}
             className="w-full h-8 px-2.5 bg-white border border-neutral-200/90 hover:border-neutral-300 rounded-lg text-xs flex items-center justify-between gap-2 shadow-2xs transition-colors cursor-pointer text-left"
           >
             <div className="flex items-center gap-1.5 truncate">
@@ -425,12 +426,12 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             </div>
             <ChevronDown
               className={`w-3.5 h-3.5 text-neutral-400 shrink-0 transition-transform ${
-                templateDropdownOpen ? 'rotate-180' : ''
+                templateDropdown{tx('Mở', 'Open')} ? 'rotate-180' : ''
               }`}
             />
           </button>
 
-          {templateDropdownOpen && (
+          {templateDropdown{tx('Mở', 'Open')} && (
             <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-neutral-200 rounded-xl shadow-xl py-1.5 z-40 max-h-72 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
               <div className="px-3 py-1 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
                 Select Display Template ({templates.length})
@@ -446,7 +447,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
                     type="button"
                     onClick={() => {
                       onSelectTemplate(tmpl.id);
-                      setTemplateDropdownOpen(false);
+                      setTemplateDropdown{tx('Mở', 'Open')}(false);
                     }}
                     className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-neutral-50 transition-colors cursor-pointer ${
                       isSelected ? 'bg-neutral-100/70 font-semibold text-neutral-900' : 'text-neutral-700'
@@ -478,13 +479,13 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    setTemplateDropdownOpen(false);
-                    onOpenTemplateStudio();
+                    setTemplateDropdown{tx('Mở', 'Open')}(false);
+                    on{tx('Mở', 'Open')}TemplateStudio();
                   }}
                   className="w-full py-1.5 px-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-800 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>Create / Customize Template...</span>
+                  <span>Create / {tx('Tùy chỉnh', 'Customize')} Template...</span>
                 </button>
               </div>
             </div>
@@ -493,9 +494,9 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
 
         <button
           type="button"
-          onClick={onOpenTemplateStudio}
+          onClick={on{tx('Mở', 'Open')}TemplateStudio}
           className="h-8 px-2.5 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 bg-white hover:bg-neutral-100 border border-neutral-200/90 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0"
-          title="Open Template Manager Studio"
+          title="{tx('Mở', 'Open')} Template Manager Studio"
         >
           <LayoutTemplate className="w-3.5 h-3.5 text-neutral-400" />
           <span>Studio</span>
@@ -615,7 +616,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
                   ? 'shadow-[0_20px_40px_-10px_rgba(0,0,0,0.18)] ring-1 ring-black/10'
                   : 'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] border border-neutral-200/90'
               }`}
-              onClick={() => handleDownloadPNG()}
+              onClick={() => handle{tx('Tải xuống', 'Download')}PNG()}
               title="Click to download high-resolution PNG"
             >
               <canvas
@@ -680,12 +681,12 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             <button
               type="button"
               disabled={isEmpty}
-              onClick={() => handleDownloadPNG(downloadRes)}
+              onClick={() => handle{tx('Tải xuống', 'Download')}PNG(downloadRes)}
               className="flex-1 h-9 px-4 text-xs font-semibold bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-l-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99]"
-              title="Download PNG with active template (⌘S)"
+              title="{tx('Tải PNG', '{tx('Tải xuống', 'Download')} PNG')} with active template (⌘S)"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download PNG</span>
+              <{tx('Tải xuống', 'Download')} className="w-3.5 h-3.5" />
+              <span>{tx('Tải PNG', '{tx('Tải xuống', 'Download')} PNG')}</span>
               <span className="text-neutral-400 font-mono text-[11px] font-normal">
                 {downloadRes}px
               </span>
@@ -694,23 +695,23 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             <button
               type="button"
               disabled={isEmpty}
-              onClick={() => setResDropdownOpen(!resDropdownOpen)}
+              onClick={() => setResDropdown{tx('Mở', 'Open')}(!resDropdown{tx('Mở', 'Open')})}
               className="h-9 px-2 bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-r-lg border-l border-neutral-800 transition-colors flex items-center justify-center cursor-pointer"
               title="Select resolution"
             >
               <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
             </button>
 
-            {resDropdownOpen && (
+            {resDropdown{tx('Mở', 'Open')} && (
               <div className="absolute right-0 bottom-full mb-1 w-36 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 z-30 text-xs">
                 {([512, 1024, 2048] as const).map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => {
-                      setDownloadRes(r);
-                      setResDropdownOpen(false);
-                      handleDownloadPNG(r);
+                      set{tx('Tải xuống', 'Download')}Res(r);
+                      setResDropdown{tx('Mở', 'Open')}(false);
+                      handle{tx('Tải xuống', 'Download')}PNG(r);
                     }}
                     className={`w-full text-left px-3 py-1.5 hover:bg-neutral-50 flex items-center justify-between cursor-pointer ${
                       downloadRes === r ? 'font-semibold text-neutral-900' : 'text-neutral-600'
@@ -724,34 +725,34 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             )}
           </div>
 
-          {/* Copy PNG */}
+          {/* {tx('Sao chép', 'Copy')} PNG */}
           <button
             type="button"
             disabled={isEmpty}
-            onClick={handleCopyImage}
+            onClick={handle{tx('Sao chép', 'Copy')}Image}
             className="h-9 px-3 text-xs font-medium bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:pointer-events-none text-neutral-700 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
-            title="Copy templated image (⌘C)"
+            title="{tx('Sao chép', 'Copy')} templated image (⌘C)"
           >
             {copiedImg ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-medium">Copied</span>
+                <span className="text-emerald-700 font-medium">{tx('Đã sao chép', 'Copied')}</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Copy</span>
+                <{tx('Sao chép', 'Copy')} className="w-3.5 h-3.5 text-neutral-400" />
+                <span>{tx('Sao chép', 'Copy')}</span>
               </>
             )}
           </button>
 
-          {/* Copy Vector SVG */}
+          {/* {tx('Sao chép', 'Copy')} Vector SVG */}
           <button
             type="button"
             disabled={isEmpty}
-            onClick={handleCopySVG}
+            onClick={handle{tx('Sao chép', 'Copy')}SVG}
             className="h-9 px-3 text-xs font-medium bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:pointer-events-none text-neutral-700 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
-            title="Copy pure vector SVG for Figma (⌘⇧C)"
+            title="{tx('Sao chép', 'Copy')} pure vector SVG for Figma (⌘⇧C)"
           >
             {copiedSvg ? (
               <>
@@ -771,9 +772,9 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         <div className="flex items-center justify-between gap-1 pt-0.5">
           <button
             type="button"
-            onClick={onOpenTemplateStudio}
+            onClick={on{tx('Mở', 'Open')}TemplateStudio}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title="Open Template Studio"
+            title="{tx('Mở', 'Open')} {tx('Kho mẫu', 'Template Studio')}"
           >
             <LayoutTemplate className="w-3 h-3 text-neutral-400" />
             <span>Templates</span>
@@ -782,7 +783,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
           <button
             type="button"
             disabled={isEmpty}
-            onClick={onOpenMetricHandoff}
+            onClick={on{tx('Mở', 'Open')}MetricHandoff}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
             title="Export calibrated mm dimensions (300 DPI)"
           >
@@ -793,12 +794,12 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
           <button
             type="button"
             disabled={isEmpty}
-            onClick={() => onPrintSingle(dataUrl)}
+            onClick={() => on{tx('In', 'Print')}Single(dataUrl)}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title="Print (⌘P)"
+            title="{tx('In', 'Print')} (⌘P)"
           >
-            <Printer className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Print</span>
+            <{tx('In', 'Print')}er className="w-3.5 h-3.5 text-neutral-400" />
+            <span>{tx('In', 'Print')}</span>
           </button>
 
           <button
