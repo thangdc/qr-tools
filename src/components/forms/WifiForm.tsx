@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { WifiData } from '../../types/qr';
+import { useLanguage } from '../../i18n';
 import { Wifi, Eye, EyeOff, KeyRound, Shield } from 'lucide-react';
 
 interface WifiFormProps {
@@ -8,9 +9,10 @@ interface WifiFormProps {
 }
 
 export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
-  const [showPassword, setShowPassword] = useState(false);
+  const { tx } = useLanguage();
+  const [show{tx('Mật khẩu', 'Password')}, setShow{tx('Mật khẩu', 'Password')}] = useState(false);
 
-  const generateSimplePassword = () => {
+  const generateSimple{tx('Mật khẩu', 'Password')} = () => {
     const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
     let pass = '';
     for (let i = 0; i < 8; i++) {
@@ -24,7 +26,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <Wifi className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Network Name (SSID)</span>
+          <span>{tx('Tên mạng (SSID)', 'Network Name (SSID)')}</span>
         </label>
         <input
           type="text"
@@ -39,7 +41,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Security Standard</span>
+            <span>{tx('Bảo mật', 'Security')} Standard</span>
           </label>
           <select
             value={data.security}
@@ -62,11 +64,11 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
                 <KeyRound className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Password</span>
+                <span>{tx('Mật khẩu', 'Password')}</span>
               </label>
               <button
                 type="button"
-                onClick={generateSimplePassword}
+                onClick={generateSimple{tx('Mật khẩu', 'Password')}}
                 className="text-[10px] text-neutral-500 hover:text-neutral-900 cursor-pointer"
               >
                 Generate random
@@ -74,19 +76,19 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             </div>
             <div className="relative flex items-center">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={show{tx('Mật khẩu', 'Password')} ? 'text' : 'password'}
                 value={data.password}
                 onChange={(e) => onChange({ ...data, password: e.target.value })}
-                placeholder="Wi-Fi Password"
+                placeholder="Wi-Fi {tx('Mật khẩu', 'Password')}"
                 className="w-full h-10 pl-3 pr-9 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors font-mono"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShow{tx('Mật khẩu', 'Password')}(!show{tx('Mật khẩu', 'Password')})}
                 className="absolute right-2.5 p-1 text-neutral-400 hover:text-neutral-700 rounded cursor-pointer"
-                title={showPassword ? 'Hide password' : 'Show password'}
+                title={show{tx('Mật khẩu', 'Password')} ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? (
+                {show{tx('Mật khẩu', 'Password')} ? (
                   <EyeOff className="w-3.5 h-3.5" />
                 ) : (
                   <Eye className="w-3.5 h-3.5" />
@@ -106,7 +108,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             className="w-4 h-4 rounded border-neutral-300 text-neutral-900"
           />
           <span className="text-xs font-medium text-neutral-700">
-            Hidden Network (SSID is not broadcasted)
+            {tx('Mạng ẩn', 'Hidden Network')} (SSID is not broadcasted)
           </span>
         </label>
       </div>
