@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
-import { BulkQRMục, QRType } from '../types/qr';
+import { BulkQRItem, QRType } from '../types/qr';
 import {
   FileArchive,
   Printer,
@@ -18,7 +18,7 @@ import {
   Utensils,
   CreditCard,
   Tag,
-  Trợ giúpCircle,
+  HelpCircle,
   Hash,
   ChevronDown,
   ChevronUp,
@@ -28,10 +28,10 @@ interface BulkToolsViewProps {
   isPro: boolean;
   onOpenPro: () => void;
   onBackToGenerator: () => void;
-  onPrintBatch: (mục: BulkQRMục[]) => void;
+  onPrintBatch: (items: BulkQRItem[]) => void;
 }
 
-const DEFAULT_BATCH_ITEMS: BulkQRMục[] = [
+const DEFAULT_BATCH_ITEMS: BulkQRItem[] = [
   {
     id: 'batch-1',
     label: 'Bàn 01 - Tầng 1',
@@ -91,7 +91,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   onPrintBatch,
 }) => {
   const { tx } = useLanguage();
-  const [mục, setMụcs] = useState<BulkQRMục[]>(DEFAULT_BATCH_ITEMS);
+  const [items, setItems] = useState<BulkQRItem[]>(DEFAULT_BATCH_ITEMS);
   const [importText, setImportText] = useState('');
   const [isZipping, setIsZipping] = useState(false);
   const [zipProgress, setZipProgress] = useState<string>('');
@@ -107,30 +107,30 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   const [seqZone, setSeqZone] = useState('Tầng 1');
 
   const toggleSelectAll = () => {
-    const allĐã chọn = mục.every((i) => i.selected);
-    setMụcs(mục.map((i) => ({ ...i, selected: !allĐã chọn })));
+    const allSelected = items.every((i) => i.selected);
+    setItems(items.map((i) => ({ ...i, selected: !allSelected })));
   };
 
-  const toggleMục = (id: string) => {
-    setMụcs(
-      mục.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i))
+  const toggleItem = (id: string) => {
+    setItems(
+      items.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i))
     );
   };
 
-  const removeMục = (id: string) => {
-    setMụcs(mục.filter((i) => i.id !== id));
+  const removeItem = (id: string) => {
+    setItems(items.filter((i) => i.id !== id));
   };
 
   const handleAddNew = () => {
-    const newMục: BulkQRMục = {
+    const newItem: BulkQRItem = {
       id: `batch-${Date.now()}`,
-      label: `QR Mục #${mục.length + 1}`,
+      label: `QR Item #${items.length + 1}`,
       type: 'url',
-      value: `https://example.com/qr/${mục.length + 1}`,
-      resolvedPayload: `https://example.com/qr/${mục.length + 1}`,
+      value: `https://example.com/qr/${items.length + 1}`,
+      resolvedPayload: `https://example.com/qr/${items.length + 1}`,
       selected: true,
     };
-    setMụcs([...mục, newMục]);
+    setItems([...items, newItem]);
   };
 
   const handleGenerateSequence = () => {
@@ -140,13 +140,13 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
     }
     const from = Math.max(1, seqFrom);
     const to = Math.max(from, Math.min(100, seqTo));
-    const newMụcs: BulkQRMục[] = [];
+    const newItems: BulkQRItem[] = [];
 
     for (let i = from; i <= to; i++) {
       const numStr = seqPadZeros ? i.toString().padStart(2, '0') : i.toString();
       const label = `${seqPrefix}${numStr}${seqZone ? ` - ${seqZone}` : ''}`;
       const payload = seqUrlTemplate.replace(/\{n\}/gi, numStr);
-      newMụcs.push({
+      newItems.push({
         id: `seq-${Date.now()}-${i}`,
         label,
         type: 'url',
@@ -156,7 +156,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       });
     }
 
-    setMụcs((prev) => [...prev, ...newMụcs]);
+    setItems((prev) => [...prev, ...newItems]);
     setShowSequencer(false);
   };
 
@@ -168,9 +168,9 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       .map((l) => l.trim())
       .filter(Boolean);
 
-    const parsed: BulkQRMục[] = lines.map((line, idx) => {
+    const parsed: BulkQRItem[] = lines.map((line, idx) => {
       const parts = line.split(/[,\t]/);
-      let label = `Mục ${mục.length + idx + 1}`;
+      let label = `Item ${items.length + idx + 1}`;
       let val = line;
       if (parts.length >= 2) {
         label = parts[0].trim().replace(/^"|"$/g, '');
@@ -187,7 +187,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       };
     });
 
-    setMụcs((prev) => [...prev, ...parsed]);
+    setItems((prev) => [...prev, ...parsed]);
   };
 
   const handleFileDrop = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,8 +258,8 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       return;
     }
 
-    const selectedMụcs = mục.filter((i) => i.selected);
-    if (selectedMụcs.length === 0) return;
+    const selectedItems = items.filter((i) => i.selected);
+    if (selectedItems.length === 0) return;
 
     setIsZipping(true);
     setZipProgress('Đang chuẩn bị file ZIP...');
@@ -270,16 +270,16 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
 
       const csvLines = [
         'Index,Label,Type,Payload,Filename',
-        ...selectedMụcs.map(
+        ...selectedItems.map(
           (item, idx) =>
             `${idx + 1},"${item.label.replace(/"/g, '""')}","${item.type}","${item.resolvedPayload.replace(/"/g, '""')}","qr_${idx + 1}_${item.label.replace(/[^a-z0-9]/gi, '_')}.png"`
         ),
       ];
       zip.file('index.csv', '\uFEFF' + csvLines.join('\n'));
 
-      for (let i = 0; i < selectedMụcs.length; i++) {
-        const item = selectedMụcs[i];
-        setZipProgress(`Đang tạo mã QR ${i + 1}/${selectedMụcs.length}...`);
+      for (let i = 0; i < selectedItems.length; i++) {
+        const item = selectedItems[i];
+        setZipProgress(`Đang tạo mã QR ${i + 1}/${selectedItems.length}...`);
 
         const canvas = document.createElement('canvas');
         await QRCode.toCanvas(canvas, item.resolvedPayload, {
@@ -318,12 +318,12 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       onOpenPro();
       return;
     }
-    const selected = mục.filter((i) => i.selected);
+    const selected = items.filter((i) => i.selected);
     if (selected.length === 0) return;
     onPrintBatch(selected);
   };
 
-  const selectedCount = mục.filter((i) => i.selected).length;
+  const selectedCount = items.filter((i) => i.selected).length;
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
@@ -501,7 +501,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
 
           <div className="flex items-center justify-between pt-1">
             <span className="text-[11px] text-amber-800">
-              Xem trước mục đầu tiên: <strong>{seqPrefix}{seqPadZeros ? seqFrom.toString().padStart(2, '0') : seqFrom}{seqZone ? ` - ${seqZone}` : ''}</strong> → <span className="font-mono">{seqUrlTemplate.replace('{n}', seqPadZeros ? seqFrom.toString().padStart(2, '0') : seqFrom.toString())}</span>
+              Xem trước items đầu tiên: <strong>{seqPrefix}{seqPadZeros ? seqFrom.toString().padStart(2, '0') : seqFrom}{seqZone ? ` - ${seqZone}` : ''}</strong> → <span className="font-mono">{seqUrlTemplate.replace('{n}', seqPadZeros ? seqFrom.toString().padStart(2, '0') : seqFrom.toString())}</span>
             </span>
 
             <button
@@ -678,7 +678,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
         </div>
       </div>
 
-      {/* Batch Mụcs Table */}
+      {/* Batch Items Table */}
       <div className="border border-neutral-200/90 rounded-xl bg-white overflow-hidden shadow-2xs">
         {/* Table Header Bar */}
         <div className="p-3 bg-neutral-50/80 border-b border-neutral-200 flex items-center justify-between">
@@ -688,14 +688,14 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               onClick={toggleSelectAll}
               className="text-neutral-500 hover:text-neutral-900 p-1 cursor-pointer"
             >
-              {mục.every((i) => i.selected) ? (
+              {items.every((i) => i.selected) ? (
                 <CheckSquare className="w-4 h-4 text-neutral-900" />
               ) : (
                 <Square className="w-4 h-4" />
               )}
             </button>
             <span className="text-xs font-medium text-neutral-700">
-              {selectedCount} {tx('trên', 'of')} {mục.length} {tx('mục đã chọn', 'mục selected')}
+              {selectedCount} {tx('trên', 'of')} {items.length} {tx('items đã chọn', 'items selected')}
             </span>
           </div>
 
@@ -705,13 +705,13 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             className="inline-flex items-center gap-1 text-xs font-medium text-neutral-700 hover:text-neutral-900 px-2 py-1 rounded-md hover:bg-neutral-200/60 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>{tx('Thêm một mục', 'Add Single Mục')}</span>
+            <span>{tx('Thêm một items', 'Add Single Item')}</span>
           </button>
         </div>
 
         {/* Rows */}
         <div className="divide-y divide-neutral-100 max-h-[460px] overflow-y-auto">
-          {mục.map((item, idx) => (
+          {items.map((item, idx) => (
             <div
               key={item.id}
               className={`p-3 flex items-center justify-between gap-3 text-xs transition-colors ${
@@ -721,7 +721,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <button
                   type="button"
-                  onClick={() => toggleMục(item.id)}
+                  onClick={() => toggleItem(item.id)}
                   className="cursor-pointer text-neutral-500 hover:text-neutral-900"
                 >
                   {item.selected ? (
@@ -740,8 +740,8 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
                     type="text"
                     value={item.label}
                     onChange={(e) =>
-                      setMụcs(
-                        mục.map((i) =>
+                      setItems(
+                        items.map((i) =>
                           i.id === item.id ? { ...i, label: e.target.value } : i
                         )
                       )
@@ -754,8 +754,8 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
                       type="text"
                       value={item.value}
                       onChange={(e) =>
-                        setMụcs(
-                          mục.map((i) =>
+                        setItems(
+                          items.map((i) =>
                             i.id === item.id
                               ? {
                                   ...i,
@@ -775,7 +775,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
-                  onClick={() => removeMục(item.id)}
+                  onClick={() => removeItem(item.id)}
                   className="text-neutral-400 hover:text-red-600 p-1 rounded-md cursor-pointer"
                   title={tx('Xóa dòng', 'Xóa row')}
                 >
