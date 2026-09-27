@@ -1,6 +1,0 @@
-{
-  "name": "QR Tools - Modern QR Code Generator",
-  "description": "Fast, minimal, and professional QR code generator for URLs, text, WiFi, vCards, VietQR payments, and bulk export.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
