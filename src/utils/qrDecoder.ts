@@ -9,9 +9,6 @@ export function scanImageData(imageData: ImageData): string | null {
   const decode = (data: ImageData) =>
     jsQR(data.data, data.width, data.height, {
       inversionAttempts: 'attemptBoth',
-      // More reliable for uploaded screenshots/photos with uneven lighting.
-      minCodeVersion: 1,
-      maxCodeVersion: 40,
     })?.data ?? null;
 
   // First try the source image unchanged.
