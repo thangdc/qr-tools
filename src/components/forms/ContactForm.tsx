@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { ContactData } from '../../types/qr';
 import { Download, FileText } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface ContactFormProps {
 }
 
 export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const updateField = (field: keyof ContactData, value: string) => {
     onChange({ ...data, [field]: value });
   };
