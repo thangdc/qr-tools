@@ -53,6 +53,8 @@ interface QRPreviewProps {
   onOpenTemplateStudio: () => void;
   onSaveToHistory: (dataUrl: string) => void;
   onPrintSingle: (dataUrl: string) => void;
+  isPro: boolean;
+  onOpenPro: () => void;
   onOpenMetricHandoff: () => void;
 }
 
@@ -69,6 +71,8 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   onOpenTemplateStudio,
   onSaveToHistory,
   onPrintSingle,
+  isPro,
+  onOpenPro,
   onOpenMetricHandoff,
 }) => {
   const { tx } = useLanguage();
@@ -171,6 +175,10 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   // High resolution download trigger with active template via centralized rendering service
   const handleDownloadPNG = async (res = downloadRes) => {
     if (!payload) return;
+    if (res >= 2048 && !isPro) {
+      onOpenPro();
+      return;
+    }
 
     try {
       const highResUrl = await QRRenderingService.renderToDataUrl(
