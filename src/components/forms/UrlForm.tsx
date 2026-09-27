@@ -1,12 +1,11 @@
 import React from 'react';
 import { useLanguage } from '../../i18n';
 import { UrlData } from '../../types/qr';
-import { Link2, X, ClipboardPaste, BarChart3, Sparkles } from 'lucide-react';
+import { Link2, X, ClipboardPaste, Sparkles } from 'lucide-react';
 
 interface UrlFormProps {
   data: UrlData;
   onChange: (data: UrlData) => void;
-  onOpenAnalytics?: () => void;
 }
 
 export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytics }) => {
@@ -64,16 +63,6 @@ export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytic
           <p className="text-xs text-neutral-500">
             {tx('Nhập liên kết web. Hỗ trợ https://, liên kết tên miền hoặc liên kết ứng dụng.', 'Enter any web link. Supports https://, domain links, or deep app links.')}
           </p>
-          {onOpenAnalytics && (
-            <button
-              type="button"
-              onClick={onOpenAnalytics}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-700 cursor-pointer"
-            >
-              <BarChart3 className="w-3 h-3" />
-              <span>Track scans (Analytics)</span>
-            </button>
-          )}
         </div>
       </div>
 
