@@ -122,10 +122,10 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             </span>
             <div>
               <h2 className="text-sm font-semibold text-neutral-900">
-                Print Handoff & Millimeter Sizing
+                {tx('Chuẩn bị in & kích thước mm', 'Print Handoff & Millimeter Sizing')}
               </h2>
               <p className="text-[11px] text-neutral-400">
-                Commercial 300 DPI calibrated output with optional crop marks
+                {tx('Xuất file 300 DPI chuẩn in ấn, có thể thêm dấu xén', 'Commercial 300 DPI calibrated output with optional crop marks')}
               </p>
             </div>
           </div>
@@ -140,7 +140,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
         <div className="p-4 space-y-4 text-xs">
           <div>
             <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2">
-              Physical Print Dimension
+              {tx('Kích thước in thực tế', 'Physical Print Dimension')}
             </label>
             <div className="space-y-1.5">
               {PRESET_SIZES.map((preset) => (
@@ -171,7 +171,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
 
           <div className="flex items-center gap-3 pt-1">
             <label className="text-xs text-neutral-600 font-medium">
-              Custom mm:
+              {tx('Kích thước tùy chỉnh (mm):', 'Custom mm:')}
             </label>
             <input
               type="number"
@@ -185,23 +185,23 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
               }}
               className="w-24 h-8 px-2 border border-neutral-300 rounded text-xs font-mono"
             />
-            <span className="text-xs text-neutral-400">mm width</span>
+            <span className="text-xs text-neutral-400">{tx('chiều rộng mm', 'mm width')}</span>
           </div>
 
           {/* Resolution specs summary */}
           <div className="p-3 bg-neutral-50 rounded border border-neutral-200 space-y-1 font-mono text-[11px] text-neutral-600">
             <div className="flex justify-between">
-              <span>Resolution:</span>
+              <span>{tx('Độ phân giải:', 'Resolution:')}</span>
               <span className="font-semibold text-neutral-900">
                 {targetPixels} × {targetPixels} px
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Print Standard:</span>
+              <span>{tx('Tiêu chuẩn in:', 'Print Standard:')}</span>
               <span className="font-semibold text-emerald-700">300 DPI (Offset Grade)</span>
             </div>
             <div className="flex justify-between">
-              <span>Physical Size:</span>
+              <span>{tx('Kích thước thực:', 'Physical Size:')}</span>
               <span>{selectedMm} × {selectedMm} mm</span>
             </div>
           </div>
@@ -215,7 +215,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
                 className="w-4 h-4 rounded border-neutral-300 text-blue-600"
               />
               <span className="text-xs font-medium text-neutral-700">
-                Add printer crop marks (Góc xén thành phẩm)
+                {tx('Thêm dấu xén thành phẩm', 'Add printer crop marks')} (Góc xén thành phẩm)
               </span>
             </label>
           </div>
@@ -227,7 +227,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             onClick={onClose}
             className="px-3 py-1.5 text-xs text-neutral-600 hover:text-neutral-900 cursor-pointer"
           >
-            Cancel
+            {tx('Hủy', 'Cancel')}
           </button>
           <button
             type="button"
@@ -236,7 +236,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting ? 'Generating...' : `Export ${selectedMm}mm (300 DPI)`}</span>
+            <span>{isExporting ? '{tx('Đang tạo...', 'Generating...')}' : `{tx(`Xuất ${selectedMm}mm (300 DPI)`, `Export ${selectedMm}mm (300 DPI)`)}`}</span>
           </button>
         </div>
       </div>

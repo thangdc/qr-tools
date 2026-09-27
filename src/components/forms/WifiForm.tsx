@@ -41,7 +41,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Security Standard</span>
+            <span>{tx('Tiêu chuẩn bảo mật', 'Security Standard')}</span>
           </label>
           <select
             value={data.security}
@@ -53,9 +53,9 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             }
             className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-xs font-medium focus:outline-hidden focus:border-neutral-900 transition-colors cursor-pointer"
           >
-            <option value="WPA">WPA / WPA2 / WPA3 (Recommended)</option>
-            <option value="WEP">WEP (Legacy standard)</option>
-            <option value="nopass">None (Open Public Network)</option>
+            <option value="WPA">{tx('WPA / WPA2 / WPA3 (Khuyến nghị)', 'WPA / WPA2 / WPA3 (Recommended)')}</option>
+            <option value="WEP">{tx('WEP (Tiêu chuẩn cũ)', 'WEP (Legacy standard)')}</option>
+            <option value="nopass">{tx('Không có (Mạng công cộng)', 'None (Open Public Network)')}</option>
           </select>
         </div>
 
@@ -71,7 +71,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
                 onClick={generateSimplePassword}
                 className="text-[10px] text-neutral-500 hover:text-neutral-900 cursor-pointer"
               >
-                Generate random
+                {tx('Tạo ngẫu nhiên', 'Generate random')}
               </button>
             </div>
             <div className="relative flex items-center">
@@ -86,7 +86,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-2.5 p-1 text-neutral-400 hover:text-neutral-700 rounded cursor-pointer"
-                title={showPassword ? 'Hide password' : 'Show password'}
+                title={showPassword ? tx('Ẩn mật khẩu', 'Hide password') : tx('Hiện mật khẩu', 'Show password')}
               >
                 {showPassword ? (
                   <EyeOff className="w-3.5 h-3.5" />
@@ -108,13 +108,13 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             className="w-4 h-4 rounded border-neutral-300 text-neutral-900"
           />
           <span className="text-xs font-medium text-neutral-700">
-            Hidden Network (SSID is not broadcasted)
+            {tx('Mạng ẩn (SSID không được phát)', 'Hidden Network (SSID is not broadcasted)')}
           </span>
         </label>
       </div>
 
       <p className="text-xs text-neutral-500">
-        When guests scan this QR code, iOS and Android connect automatically without typing the password.
+        {tx('Khi khách quét mã QR này, iOS và Android sẽ tự động kết nối mà không cần nhập mật khẩu.', 'When guests scan this QR code, iOS and Android connect automatically without typing the password.')}
       </p>
     </div>
   );

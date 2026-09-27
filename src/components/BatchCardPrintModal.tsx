@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLanguage } from '../i18n';
 import JSZip from 'jszip';
 import { QRType, QRTemplate } from '../types/qr';
 import { renderTemplatedQR } from '../utils/templateRenderer';
@@ -45,6 +46,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
   activeTemplateId,
   onSelectTemplate,
 }) => {
+  const { tx } = useLanguage();
   const [selectedTmplId, setSelectedTmplId] = useState(activeTemplateId);
   const [printFormatMode, setPrintFormatMode] = useState<'card' | 'sticker'>('card');
   const [cardsPerPage, setCardsPerPage] = useState<2 | 4 | 6>(4);
@@ -161,17 +163,17 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-semibold text-neutral-900">
-                  Print Studio ({items.length} QR Codes Selected)
+                  {tx('Xưởng in', 'Print Studio')} ({items.length} {tx('mã QR đã chọn', 'QR Codes Selected')})
                 </h2>
                 {currentTemplate.isDefault && (
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200/60 flex items-center gap-0.5">
                     <Star className="w-2.5 h-2.5 fill-amber-500" />
-                    <span>Default Template</span>
+                    <span>{tx('Mẫu mặc định', 'Default Template')}</span>
                   </span>
                 )}
               </div>
               <p className="text-xs text-neutral-500">
-                Choose between physical card stands or high-density adhesive sticker sheets.
+                {tx('Chọn giữa thẻ để bàn hoặc tờ nhãn dán mật độ cao.', 'Choose between physical card stands or high-density adhesive sticker sheets.')}
               </p>
             </div>
           </div>
@@ -182,10 +184,10 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               onClick={handleExportZip}
               disabled={isZipping || isRendering}
               className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-40"
-              title="Download all cards as PNGs in a ZIP"
+              title={tx('Tải tất cả thẻ dưới dạng PNG trong tệp ZIP', 'Download all cards as PNGs in a ZIP')}
             >
               <FileArchive className="w-3.5 h-3.5 text-neutral-500" />
-              <span>{isZipping ? 'Zipping...' : 'Export ZIP'}</span>
+              <span>{isZipping ? tx('Đang nén...', 'Zipping...') : tx('Xuất ZIP', 'Export ZIP')}</span>
             </button>
 
             <button
@@ -195,7 +197,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               className="h-8 px-4 bg-neutral-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-40"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print All ({items.length})</span>
+              <span>{tx('In tất cả (', 'Print All (')}{items.length})</span>
             </button>
 
             <button
@@ -213,7 +215,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
           {/* Format Mode Switcher */}
           <div className="flex items-center gap-1.5">
             <span className="font-semibold text-neutral-700 uppercase tracking-wider text-[11px]">
-              Print Format:
+              {tx('Định dạng in:', 'Print Format:')}
             </span>
             <div className="flex p-0.5 bg-neutral-200/60 rounded-lg">
               <button
@@ -226,7 +228,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 }`}
               >
                 <LayoutTemplate className="w-3.5 h-3.5 text-blue-600" />
-                <span>Card Stands & Tents</span>
+                <span>{tx('Thẻ để bàn & lều bàn', 'Card Stands & Tents')}</span>
               </button>
 
               <button
@@ -239,7 +241,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 }`}
               >
                 <Tag className="w-3.5 h-3.5 text-amber-600" />
-                <span>Adhesive Sticker Grid</span>
+                <span>{tx('Lưới nhãn dán', 'Adhesive Sticker Grid')}</span>
               </button>
             </div>
           </div>
@@ -248,7 +250,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
           <div className="flex items-center gap-3">
             {printFormatMode === 'card' ? (
               <div className="flex items-center gap-1.5">
-                <span className="text-neutral-500">Per A4 Page:</span>
+                <span className="text-neutral-500">{tx('Mỗi trang A4:', 'Per A4 Page:')}</span>
                 <div className="flex gap-1">
                   {[2, 4, 6].map((num) => (
                     <button
@@ -261,14 +263,14 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                           : 'bg-white border border-neutral-200 text-neutral-700'
                       }`}
                     >
-                      {num} {num === 2 ? '(A5 Large)' : num === 4 ? '(A6 Card)' : '(Mini)'}
+                      {num} {num === 2 ? '({tx('A5 lớn', 'A5 Large')})' : num === 4 ? '({tx('Thẻ A6', 'A6 Card')})' : '(Mini)'}
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
-                <span className="text-neutral-500">Stickers / Page:</span>
+                <span className="text-neutral-500">{tx('Nhãn / trang:', 'Stickers / Page:')}</span>
                 <div className="flex gap-1">
                   {[9, 12, 16].map((num) => (
                     <button
@@ -297,7 +299,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               />
               <span className="text-neutral-600 flex items-center gap-1">
                 <Scissors className="w-3 h-3" />
-                <span>Cut guides</span>
+                <span>{tx('Đường cắt', 'Cut guides')}</span>
               </span>
             </label>
           </div>
@@ -309,18 +311,18 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <Info className="w-4 h-4 text-blue-600 shrink-0" />
             {printFormatMode === 'card' ? (
               <span>
-                <strong>Card Stands Mode:</strong> Larger foldable physical cards (A5 or A6) for dining tables, acrylic counter stands, or reception desks with headers, descriptions, & Wi-Fi details.
+                <strong>{tx('Chế độ thẻ để bàn:', 'Card Stands Mode:')}</strong> {tx('Thẻ gấp vật lý kích thước lớn', 'Larger foldable physical cards')} (A5 or A6) for dining tables, acrylic counter stands, or reception desks with headers, descriptions, & Wi-Fi details.
               </span>
             ) : (
               <span>
-                <strong>Sticker Grid Mode:</strong> High-density peel-and-stick labels (9, 12, or 16 per A4 sheet) for disposable coffee cups, takeaway boxes, packaging, or product labels.
+                <strong>{tx('Chế độ lưới nhãn dán:', 'Sticker Grid Mode:')}</strong> {tx('Nhãn bóc dán mật độ cao', 'High-density peel-and-stick labels')} (9, 12, or 16 per A4 sheet) for disposable coffee cups, takeaway boxes, packaging, or product labels.
               </span>
             )}
           </div>
 
           {printFormatMode === 'card' && (
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-[11px] text-neutral-500">Template:</span>
+              <span className="text-[11px] text-neutral-500">{tx('Mẫu:', 'Template:')}</span>
               <select
                 value={selectedTmplId}
                 onChange={(e) => {
@@ -344,7 +346,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
           <div className="max-w-[210mm] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm print:shadow-none print:p-0">
             {isRendering ? (
               <div className="p-12 text-center text-xs text-neutral-400">
-                Rendering {items.length} QR items...
+                {tx('Đang tạo', 'Rendering')} {items.length} {tx('mã QR', 'QR items')}...
               </div>
             ) : printFormatMode === 'card' ? (
               /* Card Stands Layout */

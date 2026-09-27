@@ -8,12 +8,12 @@ interface ShortcutsModalProps {
 }
 
 const SHORTCUTS = [
-  { keys: ['⌘ / Ctrl', 'S'], description: 'Download High-Resolution PNG (1024px)' },
-  { keys: ['⌘ / Ctrl', 'C'], description: 'Copy PNG Image to Clipboard' },
-  { keys: ['⌘ / Ctrl', 'Shift', 'C'], description: 'Copy Vector SVG Code (for Figma / Illustrator)' },
-  { keys: ['⌘ / Ctrl', 'P'], description: 'Open Print Preview' },
-  { keys: ['1', '–', '9'], description: 'Quick-switch QR Type (URL, Text, Contact, WiFi, etc.)' },
-  { keys: ['?'], description: 'Toggle this Keyboard Shortcuts Cheatsheet' },
+  { keys: ['⌘ / Ctrl', 'S'], description: '{tx('Tải PNG độ phân giải cao (1024px)', 'Download High-Resolution PNG (1024px)')}' },
+  { keys: ['⌘ / Ctrl', 'C'], description: '{tx('Sao chép ảnh PNG vào bộ nhớ tạm', 'Copy PNG Image to Clipboard')}' },
+  { keys: ['⌘ / Ctrl', 'Shift', 'C'], description: '{tx('Sao chép mã SVG vector (cho Figma / Illustrator)', 'Copy Vector SVG Code (for Figma / Illustrator)')}' },
+  { keys: ['⌘ / Ctrl', 'P'], description: '{tx('Mở xem trước khi in', 'Open Print Preview')}' },
+  { keys: ['1', '–', '9'], description: '{tx('Chuyển nhanh loại QR (URL, Văn bản, Liên hệ, Wi-Fi...)', 'Quick-switch QR Type (URL, Text, Contact, WiFi, etc.)')}' },
+  { keys: ['?'], description: 'Toggle this {tx('Phím tắt', 'Keyboard Shortcuts')} Cheatsheet' },
 ];
 
 export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose }) => {
@@ -29,7 +29,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
               <Keyboard className="w-4 h-4" />
             </span>
             <h2 className="text-sm font-semibold text-neutral-900">
-              Keyboard Shortcuts
+              {tx('Phím tắt', 'Keyboard Shortcuts')}
             </h2>
           </div>
           <button
@@ -60,7 +60,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
 
         <div className="p-3 bg-neutral-50 border-t border-neutral-100 text-center">
           <span className="text-[11px] text-neutral-400">
-            Press <kbd className="px-1 bg-white border border-neutral-200 rounded font-mono">Esc</kbd> anytime to close
+            {tx('Nhấn ', 'Press ')}<kbd className="px-1 bg-white border border-neutral-200 rounded font-mono">Esc</kbd> {tx(' bất kỳ lúc nào để đóng', ' anytime to close')}
           </span>
         </div>
       </div>

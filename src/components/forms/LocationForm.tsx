@@ -27,7 +27,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
           ...data,
           latitude: pos.coords.latitude.toFixed(6),
           longitude: pos.coords.longitude.toFixed(6),
-          locationName: data.locationName || 'Current Location',
+          locationName: data.locationName || tx('Vị trí hiện tại', 'Current Location'),
         });
         setDetecting(false);
       },
@@ -42,13 +42,13 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
     <div className="space-y-3.5">
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Location Name (Optional)
+          {tx('Tên vị trí (Tùy chọn)', 'Location Name (Optional)')}
         </label>
         <input
           type="text"
           value={data.locationName}
           onChange={(e) => onChange({ ...data, locationName: e.target.value })}
-          placeholder="e.g. Store Branch #1, Meeting Point"
+          placeholder={tx('VD: Cửa hàng số 1, Điểm gặp', 'e.g. Store Branch #1, Meeting Point')}
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
         />
       </div>
@@ -89,12 +89,12 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
           className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-blue-600 transition-colors cursor-pointer"
         >
           <Navigation className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
-          <span>{detecting ? 'Đang lấy vị trí...' : 'Use my current GPS'}</span>
+          <span>{detecting ? 'Đang lấy vị trí...' : tx('Dùng GPS hiện tại', 'Use my current GPS')}</span>
         </button>
       </div>
 
       <div className="pt-2 border-t border-neutral-100">
-        <span className="text-xs font-medium text-neutral-500">Popular presets:</span>
+        <span className="text-xs font-medium text-neutral-500">{tx('Vị trí mẫu phổ biến:', 'Popular presets:')}</span>
         <div className="flex flex-wrap gap-2 mt-1.5">
           {PRESET_LOCATIONS.map((loc) => (
             <button

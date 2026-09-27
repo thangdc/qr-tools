@@ -13,7 +13,7 @@ export const PhoneForm: React.FC<PhoneFormProps> = ({ data, onChange }) => {
     <div className="space-y-4">
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Phone Number
+          {tx('Số điện thoại', 'Phone Number')}
         </label>
         <input
           type="tel"
@@ -23,7 +23,7 @@ export const PhoneForm: React.FC<PhoneFormProps> = ({ data, onChange }) => {
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors font-mono"
         />
         <p className="mt-1.5 text-xs text-neutral-500">
-          Dial directly when scanned on mobile devices.
+          {tx('Gọi trực tiếp khi quét trên thiết bị di động.', 'Dial directly when scanned on mobile devices.')}
         </p>
       </div>
     </div>

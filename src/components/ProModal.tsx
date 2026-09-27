@@ -4,14 +4,14 @@ import { X, Check, Sparkles, KeyRound } from 'lucide-react';
 
 interface ProModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  on{tx('Đóng', 'Close')}: () => void;
   isPro: boolean;
   onTogglePro: (val: boolean) => void;
 }
 
 export const ProModal: React.FC<ProModalProps> = ({
   isOpen,
-  onClose,
+  on{tx('Đóng', 'Close')},
   isPro,
   onTogglePro,
 }) => {
@@ -21,16 +21,16 @@ export const ProModal: React.FC<ProModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleActivateKey = () => {
+  const handle{tx('Kích hoạt', 'Activate')}Key = () => {
     if (licenseKey.trim().toUpperCase() === 'QRPRO-2026' || licenseKey.trim().length >= 6) {
       onTogglePro(true);
-      setKeyMessage('Pro license activated successfully!');
+      setKeyMessage(tx('Đã kích hoạt giấy phép Pro thành công!', 'Pro license activated successfully!'));
       setTimeout(() => {
         setKeyMessage(null);
-        onClose();
+        on{tx('Đóng', 'Close')}();
       }, 1200);
     } else {
-      setKeyMessage('Please enter a valid key or click Instant Demo Activation below.');
+      setKeyMessage(tx('Vui lòng nhập mã hợp lệ hoặc nhấn nút dùng thử Pro bên dưới.', 'Please enter a valid key or click Instant Demo Activation below.'));
     }
   };
 
@@ -48,12 +48,12 @@ export const ProModal: React.FC<ProModalProps> = ({
                 QR Tools Pro
               </h2>
               <p className="text-xs text-neutral-500">
-                Professional utility features for high-volume workflows
+                {tx('Tính năng chuyên nghiệp cho quy trình khối lượng lớn', 'Professional utility features for high-volume workflows')}
               </p>
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={on{tx('Đóng', 'Close')}}
             className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -71,14 +71,14 @@ export const ProModal: React.FC<ProModalProps> = ({
 
             <div className="divide-y divide-neutral-100">
               <div className="grid grid-cols-3 p-2.5 items-center">
-                <span className="text-neutral-700">All 9 QR Types (incl. VietQR)</span>
+                <span className="text-neutral-700">{tx('Tất cả 9 loại QR (bao gồm VietQR)', 'All 9 QR Types (incl. VietQR)')}</span>
                 <span className="text-center text-neutral-600">{tx('Không giới hạn', 'Unlimited')}</span>
                 <span className="text-center font-medium text-blue-600">{tx('Không giới hạn', 'Unlimited')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center bg-neutral-50/40">
                 <span className="text-neutral-700">{tx('Xuất PNG & SVG độ phân giải cao', 'High-Res PNG & SVG Export')}</span>
-                <span className="text-center text-neutral-600">Up to 2048px</span>
-                <span className="text-center font-medium text-blue-600">Up to 4096px</span>
+                <span className="text-center text-neutral-600">{tx('Tối đa 2048px', 'Up to 2048px')}</span>
+                <span className="text-center font-medium text-blue-600">{tx('Tối đa 4096px', 'Up to 4096px')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center">
                 <span className="text-neutral-700">{tx('Nhập Excel / CSV hàng loạt', 'Excel / CSV Batch Import')}</span>
@@ -86,14 +86,14 @@ export const ProModal: React.FC<ProModalProps> = ({
                 <span className="text-center font-medium text-emerald-600">{tx('Có sẵn', 'Included')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center bg-neutral-50/40">
-                <span className="text-neutral-700">Bulk ZIP Archive Packaging</span>
+                <span className="text-neutral-700">{tx('Đóng gói ZIP hàng loạt', 'Bulk ZIP Archive Packaging')}</span>
                 <span className="text-center text-neutral-400">—</span>
                 <span className="text-center font-medium text-emerald-600">{tx('Có sẵn', 'Included')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center">
-                <span className="text-neutral-700">Printable Sticker Sheets</span>
-                <span className="text-center text-neutral-400">Single</span>
-                <span className="text-center font-medium text-emerald-600">Multi-grid A4</span>
+                <span className="text-neutral-700">{tx('Tờ nhãn dán có thể in', 'Printable Sticker Sheets')}</span>
+                <span className="text-center text-neutral-400">{tx('Đơn', 'Single')}</span>
+                <span className="text-center font-medium text-emerald-600">{tx('Nhiều lưới A4', 'Multi-grid A4')}</span>
               </div>
             </div>
           </div>
@@ -102,22 +102,22 @@ export const ProModal: React.FC<ProModalProps> = ({
           <div className="pt-2">
             <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
-              <span>License Key Activation</span>
+              <span>{tx('Kích hoạt mã bản quyền', 'License Key Activation')}</span>
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={licenseKey}
                 onChange={(e) => setLicenseKey(e.target.value)}
-                placeholder="Enter license key (e.g. QRPRO-2026)"
+                placeholder={tx('Nhập mã bản quyền (VD: QRPRO-2026)', 'Enter license key (e.g. QRPRO-2026)')}
                 className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600"
               />
               <button
                 type="button"
-                onClick={handleActivateKey}
+                onClick={handle{tx('Kích hoạt', 'Activate')}Key}
                 className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors cursor-pointer"
               >
-                Activate
+                {tx('Kích hoạt', 'Activate')}
               </button>
             </div>
             {keyMessage && (
@@ -132,19 +132,19 @@ export const ProModal: React.FC<ProModalProps> = ({
             type="button"
             onClick={() => {
               onTogglePro(!isPro);
-              onClose();
+              on{tx('Đóng', 'Close')}();
             }}
             className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
           >
-            {isPro ? 'Deactivate Pro (Switch to Free)' : 'Instant 1-Click Pro Trial'}
+            {isPro ? '{tx('Tắt Pro (Chuyển về miễn phí)', 'Deactivate Pro (Switch to Free)')}' : '{tx('Dùng thử Pro 1 chạm', 'Instant 1-Click Pro Trial')}'}
           </button>
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={on{tx('Đóng', 'Close')}}
             className="px-4 py-1.5 text-xs font-medium bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-md transition-colors cursor-pointer"
           >
-            Close
+            {tx('Đóng', 'Close')}
           </button>
         </div>
       </div>
