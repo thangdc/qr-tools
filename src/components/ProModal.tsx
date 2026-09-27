@@ -29,6 +29,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [activePanel, setActivePanel] = useState<'active' | 'checkout' | 'license'>('active');
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
 
@@ -47,6 +48,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     try {
       const savedExpiry = localStorage.getItem('qr_tools_pro_expires_at');
       if (savedExpiry) setExpiresAt(savedExpiry);
+      setActivePanel(isPro ? 'active' : 'checkout');
       const raw = localStorage.getItem(ORDER_SESSION_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw) as {
@@ -65,7 +67,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     } catch {
       clearOrderSession();
     }
-  }, [isOpen]);
+  }, [isOpen, isPro]);
 
   useEffect(() => {
     if (!isOpen || !orderCode || !email || isPro) return;
@@ -104,6 +106,11 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
             setExpiresAt(activation.expiresAt);
             try { localStorage.setItem('qr_tools_pro_expires_at', activation.expiresAt); } catch { /* ignore storage errors */ }
           }
+          try {
+            localStorage.setItem('qr_tools_license_email', email.trim());
+            localStorage.setItem('qr_tools_license_key', result.licenseKey);
+            if (activation.activationToken) localStorage.setItem('qr_tools_activation_token', activation.activationToken);
+          } catch { /* ignore storage errors */ }
 
           if (!activation.success) {
             setMessage(tx(
@@ -145,6 +152,26 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
   if (!isOpen) return null;
 
+  const openCheckout = () => {
+    setMessage(null);
+    setPaymentStarted(false);
+    setOrderCode('');
+    setAmount(0);
+    clearOrderSession();
+    setActivePanel('checkout');
+  };
+
+  const openLicense = () => {
+    setMessage(null);
+    setActivePanel('license');
+    try {
+      const savedEmail = localStorage.getItem('qr_tools_license_email');
+      const savedKey = localStorage.getItem('qr_tools_license_key');
+      if (savedEmail) setEmail(savedEmail);
+      if (savedKey) setLicenseKey(savedKey);
+    } catch { /* ignore storage errors */ }
+  };
+
   const startCheckout = async () => {
     if (!email.trim()) {
       setMessage(tx('Vui lòng nhập email nhận License.', 'Enter the email for your license.'));
@@ -172,6 +199,10 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       const paymentWindow = submitSePayCheckout(result.checkoutEndpoint, result.checkoutFields);
 
       if (!paymentWindow) {
+        clearOrderSession();
+        setPaymentStarted(false);
+        setOrderCode('');
+        setAmount(0);
         setMessage(tx(
           'Trình duyệt đã chặn cửa sổ thanh toán. Hãy cho phép popup rồi bấm thanh toán lại.',
           'Your browser blocked the payment window. Allow popups and try again.',
@@ -200,13 +231,21 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     setLoading(true);
     setMessage(null);
     try {
-      const result = await activateProLicense(email.trim(), licenseKey.trim(), getDeviceId());
+      const normalizedEmail = email.trim();
+      const normalizedLicenseKey = licenseKey.trim();
+      const result = await activateProLicense(normalizedEmail, normalizedLicenseKey, getDeviceId());
       if (!result.success) throw new Error(result.message || 'Kích hoạt thất bại.');
       if (result.expiresAt) {
         setExpiresAt(result.expiresAt);
         try { localStorage.setItem('qr_tools_pro_expires_at', result.expiresAt); } catch { /* ignore storage errors */ }
       }
+      try {
+        localStorage.setItem('qr_tools_license_email', normalizedEmail);
+        localStorage.setItem('qr_tools_license_key', normalizedLicenseKey);
+        if (result.activationToken) localStorage.setItem('qr_tools_activation_token', result.activationToken);
+      } catch { /* ignore storage errors */ }
       onTogglePro(true);
+      setActivePanel('active');
       setMessage(tx('Pro đã được kích hoạt trên thiết bị này.', 'Pro is activated on this device.'));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Kích hoạt thất bại.');
@@ -229,41 +268,41 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
 
-        {isPro ? (
+        {isPro && activePanel === 'active' ? (
           <div className="p-5">
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center">
               <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                 <Check className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-semibold text-neutral-900">
-                {tx('Pro đang hoạt động', 'Pro is active')}
-              </h3>
+              <h3 className="text-base font-semibold text-neutral-900">{tx('Pro đang hoạt động', 'Pro is active')}</h3>
               <p className="mt-1 text-sm text-neutral-600">
-                {tx(
-                  'Bạn đã có đầy đủ tính năng Pro trên thiết bị này.',
-                  'You already have access to all Pro features on this device.',
-                )}
+                {tx('Bạn đã có đầy đủ tính năng Pro trên thiết bị này.', 'You already have access to all Pro features on this device.')}
               </p>
-              {expiresAt && (
-                <div className="mt-3 text-sm text-neutral-700">
-                  <span className="text-neutral-500">{tx('Hết hạn', 'Expires')}:</span>{' '}
-                  <span className="font-semibold">{new Date(expiresAt).toLocaleDateString(
-                    tx('vi-VN', 'en-US'),
-                    { day: '2-digit', month: '2-digit', year: 'numeric' },
-                  )}</span>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={onClose}
-                className="mt-4 w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold"
-              >
+              <div className="mt-3 text-sm text-neutral-700">
+                <span className="text-neutral-500">{tx('Hết hạn', 'Expires')}:</span>{' '}
+                <span className="font-semibold">
+                  {expiresAt
+                    ? new Date(expiresAt).toLocaleDateString(tx('vi-VN', 'en-US'), { day: '2-digit', month: '2-digit', year: 'numeric' })
+                    : tx('Đang kiểm tra…', 'Checking…')}
+                </span>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button type="button" onClick={openCheckout} className="h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold">
+                  {tx('Gia hạn Pro', 'Renew Pro')}
+                </button>
+                <button type="button" onClick={openLicense} className="h-10 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 text-neutral-800 text-sm font-semibold">
+                  {tx('Nhập License Key', 'Enter License Key')}
+                </button>
+              </div>
+              <button type="button" onClick={onClose} className="mt-2 w-full h-9 rounded-lg text-neutral-600 hover:bg-white text-xs font-medium">
                 {tx('Đóng', 'Close')}
               </button>
             </div>
           </div>
         ) : (
 <div className="p-5 space-y-4">
+          {activePanel === 'checkout' && (
+          <>
           <div className="grid grid-cols-2 gap-2">
             {([['monthly', '59.000 ₫ / tháng'], ['yearly', '499.000 ₫ / năm']] as const).map(([id, label]) => (
               <button
@@ -331,10 +370,13 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           )}
 
           <div className="pt-2 border-t border-neutral-100">
-            <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5">
               <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
               {tx('Kích hoạt License', 'Activate license')}
-            </label>
+              </label>
+              {isPro && <button type="button" onClick={() => setActivePanel('active')} className="text-xs text-neutral-500 hover:text-neutral-900">{tx('Quay lại', 'Back')}</button>}
+            </div>
             <div className="flex gap-2">
               <input
                 value={licenseKey}
