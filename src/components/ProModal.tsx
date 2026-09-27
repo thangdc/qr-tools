@@ -29,11 +29,38 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
 
+  const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
+
+  const clearOrderSession = () => {
+    try { localStorage.removeItem(ORDER_SESSION_KEY); } catch { /* ignore storage errors */ }
+  };
+
   useEffect(() => {
     if (!isOpen) {
       setMessage(null);
       setLoading(false);
       setChecking(false);
+      return;
+    }
+
+    try {
+      const raw = localStorage.getItem(ORDER_SESSION_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as {
+        email?: string;
+        orderCode?: string;
+        amount?: number;
+        plan?: ProPlan;
+      };
+      if (saved.email && saved.orderCode) {
+        setEmail(saved.email);
+        setOrderCode(saved.orderCode);
+        setAmount(saved.amount || 0);
+        if (saved.plan) setPlan(saved.plan);
+        setPaymentStarted(true);
+      }
+    } catch {
+      clearOrderSession();
     }
   }, [isOpen]);
 
@@ -46,7 +73,17 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       setChecking(true);
       try {
         const result = await getOrderStatus(email, orderCode);
-        if (cancelled || result.status !== 'paid' || !result.licenseKey) return;
+        if (cancelled) return;
+
+        if (result.status === 'expired' || result.status === 'cancelled') {
+          clearOrderSession();
+          setPaymentStarted(false);
+          setOrderCode('');
+          setAmount(0);
+          return;
+        }
+
+        if (result.status !== 'paid' || !result.licenseKey) return;
 
         setLicenseKey(result.licenseKey);
         setLoading(true);
@@ -68,6 +105,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
             return;
           }
 
+          clearOrderSession();
           onTogglePro(true);
           setMessage(tx(
             'Thanh toán thành công. Pro đã được tự động kích hoạt trên thiết bị này.',
@@ -115,6 +153,14 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
       setOrderCode(result.orderCode);
       setAmount(result.amount || 0);
+      try {
+        localStorage.setItem(ORDER_SESSION_KEY, JSON.stringify({
+          email: email.trim(),
+          orderCode: result.orderCode,
+          amount: result.amount || 0,
+          plan,
+        }));
+      } catch { /* polling still works for the current tab */ }
       const paymentWindow = submitSePayCheckout(result.checkoutEndpoint, result.checkoutFields);
 
       if (!paymentWindow) {
@@ -229,6 +275,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                   setAmount(0);
                   setLicenseKey('');
                   setMessage(null);
+                  clearOrderSession();
                 }}
                 className="w-full h-9 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 disabled:opacity-50 text-neutral-800 text-xs font-semibold"
               >
