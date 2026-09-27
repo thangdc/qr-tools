@@ -723,7 +723,7 @@ export default function App() {
               Shortcuts (?)
             </button>
             <span>·</span>
-            <span>{t('supports')}</span>
+            <a href="mailto:thang@thangdc.com" className="hover:text-neutral-900 transition-colors">thang@thangdc.com</a>
             <span>·</span>
             <button
               onClick={() => setIsProModalOpen(true)}
