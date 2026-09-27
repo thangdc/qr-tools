@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../i18n';
 import { X, Check, Sparkles, KeyRound } from 'lucide-react';
 
 interface ProModalProps {
@@ -14,6 +15,7 @@ export const ProModal: React.FC<ProModalProps> = ({
   isPro,
   onTogglePro,
 }) => {
+  const { tx } = useLanguage();
   const [licenseKey, setLicenseKey] = useState('');
   const [keyMessage, setKeyMessage] = useState<string | null>(null);
 
@@ -62,31 +64,31 @@ export const ProModal: React.FC<ProModalProps> = ({
         <div className="p-5 space-y-4">
           <div className="border border-neutral-200 rounded-md overflow-hidden text-xs">
             <div className="grid grid-cols-3 bg-neutral-50 p-2.5 font-medium text-neutral-600 border-b border-neutral-200">
-              <span className="col-span-1">Feature</span>
-              <span className="text-center">Free Plan</span>
-              <span className="text-center font-semibold text-neutral-900">Pro Plan</span>
+              <span className="col-span-1">{tx('Tính năng', 'Feature')}</span>
+              <span className="text-center">{tx('Gói miễn phí', 'Free Plan')}</span>
+              <span className="text-center font-semibold text-neutral-900">{tx('Gói Pro', 'Pro Plan')}</span>
             </div>
 
             <div className="divide-y divide-neutral-100">
               <div className="grid grid-cols-3 p-2.5 items-center">
                 <span className="text-neutral-700">All 9 QR Types (incl. VietQR)</span>
-                <span className="text-center text-neutral-600">Unlimited</span>
-                <span className="text-center font-medium text-blue-600">Unlimited</span>
+                <span className="text-center text-neutral-600">{tx('Không giới hạn', 'Unlimited')}</span>
+                <span className="text-center font-medium text-blue-600">{tx('Không giới hạn', 'Unlimited')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center bg-neutral-50/40">
-                <span className="text-neutral-700">High-Res PNG & SVG Export</span>
+                <span className="text-neutral-700">{tx('Xuất PNG & SVG độ phân giải cao', 'High-Res PNG & SVG Export')}</span>
                 <span className="text-center text-neutral-600">Up to 2048px</span>
                 <span className="text-center font-medium text-blue-600">Up to 4096px</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center">
-                <span className="text-neutral-700">Excel / CSV Batch Import</span>
+                <span className="text-neutral-700">{tx('Nhập Excel / CSV hàng loạt', 'Excel / CSV Batch Import')}</span>
                 <span className="text-center text-neutral-400">—</span>
-                <span className="text-center font-medium text-emerald-600">Included</span>
+                <span className="text-center font-medium text-emerald-600">{tx('Có sẵn', 'Included')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center bg-neutral-50/40">
                 <span className="text-neutral-700">Bulk ZIP Archive Packaging</span>
                 <span className="text-center text-neutral-400">—</span>
-                <span className="text-center font-medium text-emerald-600">Included</span>
+                <span className="text-center font-medium text-emerald-600">{tx('Có sẵn', 'Included')}</span>
               </div>
               <div className="grid grid-cols-3 p-2.5 items-center">
                 <span className="text-neutral-700">Printable Sticker Sheets</span>
