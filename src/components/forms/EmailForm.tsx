@@ -19,7 +19,7 @@ export const EmailForm: React.FC<EmailFormProps> = ({ data, onChange }) => {
           type="email"
           value={data.email}
           onChange={(e) => onChange({ ...data, email: e.target.value })}
-          placeholder="support@company.com"
+          placeholder={tx('support@company.com', 'support@company.com')}
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
         />
       </div>
@@ -32,7 +32,7 @@ export const EmailForm: React.FC<EmailFormProps> = ({ data, onChange }) => {
           type="text"
           value={data.subject}
           onChange={(e) => onChange({ ...data, subject: e.target.value })}
-          placeholder="Inquiry / Feedback"
+          placeholder={tx('Hỏi đáp / Phản hồi', 'Inquiry / Feedback')}
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
         />
       </div>
@@ -45,7 +45,7 @@ export const EmailForm: React.FC<EmailFormProps> = ({ data, onChange }) => {
           rows={3}
           value={data.message}
           onChange={(e) => onChange({ ...data, message: e.target.value })}
-          placeholder="Pre-filled email message..."
+          placeholder={tx('Nội dung email mẫu...', 'Pre-filled email message...')}
           className="w-full p-3 bg-white text-neutral-900 border border-neutral-300 rounded-md text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors resize-y"
         />
         <p className="mt-1.5 text-xs text-neutral-500">
