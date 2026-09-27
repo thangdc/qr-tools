@@ -6,10 +6,54 @@ import { VIETNAM_BANKS } from './vietqr';
  * Scan imageData using jsQR
  */
 export function scanImageData(imageData: ImageData): string | null {
-  const code = jsQR(imageData.data, imageData.width, imageData.height, {
-    inversionAttempts: 'attemptBoth',
-  });
-  return code ? code.data : null;
+  const decode = (data: ImageData) =>
+    jsQR(data.data, data.width, data.height, {
+      inversionAttempts: 'attemptBoth',
+      // More reliable for uploaded screenshots/photos with uneven lighting.
+      minCodeVersion: 1,
+      maxCodeVersion: 40,
+    })?.data ?? null;
+
+  // First try the source image unchanged.
+  const direct = decode(imageData);
+  if (direct) return direct;
+
+  // QR codes embedded in screenshots/photos can be too small for jsQR.
+  // Upscale and retry with grayscale + contrast normalization.
+  const scale = imageData.width < 800 || imageData.height < 800 ? 3 : 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = imageData.width * scale;
+  canvas.height = imageData.height * scale;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const sourceCanvas = document.createElement('canvas');
+  sourceCanvas.width = imageData.width;
+  sourceCanvas.height = imageData.height;
+  const sourceCtx = sourceCanvas.getContext('2d');
+  if (!sourceCtx) return null;
+
+  sourceCtx.putImageData(imageData, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sourceCanvas, 0, 0, canvas.width, canvas.height);
+
+  const upscaled = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const upscaledResult = decode(upscaled);
+  if (upscaledResult) return upscaledResult;
+
+  // Normalize luminance and contrast for compressed/low-contrast images.
+  const pixels = upscaled.data;
+  for (let i = 0; i < pixels.length; i += 4) {
+    const luminance = Math.round(
+      pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114
+    );
+    const value = luminance < 128 ? 0 : 255;
+    pixels[i] = value;
+    pixels[i + 1] = value;
+    pixels[i + 2] = value;
+  }
+
+  return decode(upscaled);
 }
 
 /**
