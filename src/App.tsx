@@ -357,7 +357,7 @@ export default function App() {
 
   // Save current QR code to history
   const handleSaveToHistory = () => {
-    if (!currentPayload) return;
+    if (!currentPayload) return false;
 
     const designKey = JSON.stringify(activeTemplate.design);
     const alreadySaved = history.some(
@@ -367,7 +367,7 @@ export default function App() {
         JSON.stringify(item.design) === designKey
     );
 
-    if (alreadySaved) return;
+    if (alreadySaved) return false;
 
     const newItem: QRHistoryItem = {
       id: `hist-${Date.now()}`,
@@ -382,6 +382,7 @@ export default function App() {
     };
 
     setHistory((prev) => [newItem, ...prev]);
+    return true;
   };
 
   const handleDeleteHistory = (id: string) => {
