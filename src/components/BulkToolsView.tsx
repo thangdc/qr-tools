@@ -350,7 +350,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             type="button"
             onClick={() => setShowSequencer(!showSequencer)}
             className="h-9 px-3.5 text-xs sm:text-sm font-semibold text-neutral-900 bg-amber-50 hover:bg-amber-100/80 border border-amber-300 rounded-lg transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
-            title="Generate tables sequentially e.g. Table 01 to 30"
+            title={tx('Tạo số bàn tuần tự, ví dụ Bàn 01 đến 30', 'Generate tables sequentially e.g. Table 01 to 30')}
           >
             <Utensils className="w-4 h-4 text-amber-700" />
             <span>{tx('Tự động đánh số bàn', 'Auto-Sequence Tables')}</span>
@@ -361,7 +361,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             onClick={handlePrint}
             disabled={selectedCount === 0}
             className="h-9 px-4 text-xs sm:text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-lg transition-all inline-flex items-center gap-2 disabled:opacity-40 cursor-pointer shadow-2xs hover:border-neutral-400 active:scale-[0.99]"
-            title="Open print dialog with templates and layout options"
+            title={tx('Mở hộp thoại in với các mẫu và tùy chọn bố cục', 'Open print dialog with templates and layout options')}
           >
             <Printer className="w-4 h-4 text-neutral-700" />
             <span>Print Sheets ({selectedCount})</span>
@@ -372,7 +372,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             onClick={handleExportZIP}
             disabled={selectedCount === 0 || isZipping}
             className="h-9 px-4 text-xs sm:text-sm font-semibold bg-neutral-900 hover:bg-black text-white rounded-lg transition-all inline-flex items-center gap-2 cursor-pointer disabled:opacity-40 shadow-xs active:scale-[0.99]"
-            title="Export all selected QR codes as individual 1024px PNGs inside a ZIP"
+            title={tx('Xuất các mã QR đã chọn thành PNG 1024px trong một file ZIP', 'Export all selected QR codes as individual 1024px PNGs inside a ZIP')}
           >
             <FileArchive className="w-4 h-4" />
             <span>{isZipping ? zipProgress : `Export ZIP (${selectedCount})`}</span>
