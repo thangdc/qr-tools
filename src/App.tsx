@@ -710,6 +710,8 @@ export default function App() {
             </button>
           </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1 text-neutral-500">
+            <a href="/guide.html" className="hover:text-neutral-900 transition-colors">Hướng dẫn</a>
+            <span>·</span>
             <a href="/terms.html" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
             <span>·</span>
             <a href="/privacy.html" className="hover:text-neutral-900 transition-colors">Bảo mật</a>
