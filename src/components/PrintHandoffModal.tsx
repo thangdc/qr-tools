@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../i18n';
 import { QRDesignOptions } from '../types/qr';
 import { renderCustomQRCode } from '../utils/qrRenderer';
 import { X, Ruler, Download, Printer, Check } from 'lucide-react';
@@ -24,6 +25,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
   payload,
   design,
 }) => {
+  const { tx } = useLanguage();
   const [selectedMm, setSelectedMm] = useState<number>(60);
   const [customMm, setCustomMm] = useState<string>('60');
   const [addCropMarks, setAddCropMarks] = useState<boolean>(true);

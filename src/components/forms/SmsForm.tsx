@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { SmsData } from '../../types/qr';
 
 interface SmsFormProps {
@@ -7,6 +8,7 @@ interface SmsFormProps {
 }
 
 export const SmsForm: React.FC<SmsFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   return (
     <div className="space-y-3.5">
       <div>

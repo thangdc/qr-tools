@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useLanguage } from '../i18n';
 import { QRHistoryItem, QRType } from '../types/qr';
 import {
   Search,
@@ -37,6 +38,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   onBackToGenerator,
   onOpenBulk,
 }) => {
+  const { tx } = useLanguage();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | QRType>('all');
 
@@ -99,13 +101,13 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 mb-2 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Generator</span>
+            <span>{tx('Quay lại trình tạo', 'Back to Generator')}</span>
           </button>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
-            QR Generation History
+            {tx('Lịch sử tạo mã QR', 'QR Generation History')}
           </h1>
           <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-            Previously generated codes stored securely in your browser. Click any item to restore.
+            {tx('Các mã đã tạo được lưu an toàn trong trình duyệt. Nhấn vào một mục để khôi phục.','Previously generated codes stored securely in your browser. Click any item to restore.')}
           </p>
         </div>
 
@@ -119,7 +121,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                 title="Export history to CSV"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-neutral-500" />
-                <span>Export CSV</span>
+                <span>{tx('Xuất CSV', 'Export CSV')}</span>
               </button>
 
               <button
@@ -129,14 +131,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                 title="Open batch manager"
               >
                 <Layers className="w-3.5 h-3.5 text-neutral-500" />
-                <span>Batch Tools</span>
+                <span>{tx('Công cụ hàng loạt', 'Batch Tools')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={onClearAll}
                 className="h-8 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-                title="Delete all history"
+                title={tx('Xóa toàn bộ lịch sử', 'Delete all history')}
               >
                 Clear all
               </button>
@@ -153,7 +155,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search history by title, URL or text..."
+            placeholder={tx('Tìm lịch sử theo tiêu đề, URL hoặc văn bản...', 'Search history by title, URL or text...')}
             className="w-full h-9 pl-9 pr-3 text-xs sm:text-sm bg-white border border-neutral-300 rounded-md placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
         </div>
@@ -243,7 +245,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   type="button"
                   onClick={() => onRestore(item)}
                   className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer"
-                  title="Restore into generator"
+                  title={tx('Khôi phục vào trình tạo', 'Restore into generator')}
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -265,7 +267,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   type="button"
                   onClick={() => onDelete(item.id)}
                   className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                  title="Delete from history"
+                  title={tx('Xóa khỏi lịch sử', 'Delete from history')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useLanguage } from '../i18n';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { BulkQRItem, QRType } from '../types/qr';
@@ -89,6 +90,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   onBackToGenerator,
   onPrintBatch,
 }) => {
+  const { tx } = useLanguage();
   const [items, setItems] = useState<BulkQRItem[]>(DEFAULT_BATCH_ITEMS);
   const [importText, setImportText] = useState('');
   const [isZipping, setIsZipping] = useState(false);
@@ -321,7 +323,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 mb-1.5 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Generator</span>
+            <span>{tx('Quay lại trình tạo', 'Back to Generator')}</span>
           </button>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
@@ -351,7 +353,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             title="Generate tables sequentially e.g. Table 01 to 30"
           >
             <Utensils className="w-4 h-4 text-amber-700" />
-            <span>Auto-Sequence Tables</span>
+            <span>{tx('Tự động đánh số bàn', 'Auto-Sequence Tables')}</span>
           </button>
 
           <button
@@ -385,7 +387,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
               <Utensils className="w-4 h-4 text-amber-700" />
-              <span>Table Number Auto-Sequencer (Cafe / Restaurant)</span>
+              <span>{tx('Tự động đánh số bàn (Café / Nhà hàng)', 'Table Number Auto-Sequencer (Cafe / Restaurant)')}</span>
             </span>
             <button
               type="button"
@@ -460,7 +462,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
                   onChange={(e) => setSeqPadZeros(e.target.checked)}
                   className="w-3.5 h-3.5 rounded border-neutral-300 text-neutral-900"
                 />
-                <span>Zero-pad (01, 02)</span>
+                <span>{tx('Thêm số 0 (01, 02)', 'Zero-pad (01, 02)')}</span>
               </label>
             </div>
           </div>
@@ -499,7 +501,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-neutral-900 uppercase tracking-wider flex items-center gap-1.5">
             <LayoutTemplate className="w-3.5 h-3.5 text-blue-600" />
-            <span>Print Output Formats</span>
+            <span>{tx('Định dạng đầu ra khi in', 'Print Output Formats')}</span>
           </span>
           <span className="text-[11px] text-neutral-400">
             Click any format below to preview in that template:
@@ -577,7 +579,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-white border border-neutral-200/90 rounded-xl text-xs shadow-2xs">
         <span className="font-semibold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
           <FileSpreadsheet className="w-4 h-4 text-neutral-400" />
-          <span>Quick Starter CSV Templates:</span>
+          <span>{tx('Mẫu CSV khởi đầu nhanh:', 'Quick Starter CSV Templates:')}</span>
         </span>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -609,7 +611,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
             <Upload className="w-3.5 h-3.5 text-neutral-400" />
-            <span>CSV / Excel Import</span>
+            <span>{tx('Nhập CSV / Excel', 'CSV / Excel Import')}</span>
           </label>
           <button
             type="button"
@@ -680,7 +682,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             className="inline-flex items-center gap-1 text-xs font-medium text-neutral-700 hover:text-neutral-900 px-2 py-1 rounded-md hover:bg-neutral-200/60 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Single Item</span>
+            <span>{tx('Thêm một mục', 'Add Single Item')}</span>
           </button>
         </div>
 

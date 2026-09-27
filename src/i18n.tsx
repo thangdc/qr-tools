@@ -61,6 +61,7 @@ interface LanguageContextValue {
   setLanguage: (language: Language) => void;
   toggleLanguage: () => void;
   t: (key: TranslationKey) => string;
+  tx: (vi: string, en: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -94,6 +95,7 @@ export const LanguageProvider: React.FC<React.PropsWithChildren> = ({children}) 
       setLanguage,
       toggleLanguage,
       t: (key: TranslationKey) => translations[language][key],
+      tx: (vi: string, en: string) => (language === 'vi' ? vi : en),
     }),
     [language]
   );

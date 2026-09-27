@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../i18n';
 import { WifiData } from '../../types/qr';
 import { Wifi, Eye, EyeOff, KeyRound, Shield } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface WifiFormProps {
 }
 
 export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
 
   const generateSimplePassword = () => {
@@ -24,7 +26,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <Wifi className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Network Name (SSID)</span>
+          <span>{tx('Tên mạng (SSID)', 'Network Name (SSID)')}</span>
         </label>
         <input
           type="text"
@@ -62,7 +64,7 @@ export const WifiForm: React.FC<WifiFormProps> = ({ data, onChange }) => {
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
                 <KeyRound className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Password</span>
+                <span>{tx('Mật khẩu', 'Password')}</span>
               </label>
               <button
                 type="button"

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '../i18n';
 import QRCode from 'qrcode';
 import { QRDesignOptions, QRType, QRTemplate } from '../types/qr';
 import {
@@ -70,6 +71,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   onPrintSingle,
   onOpenMetricHandoff,
 }) => {
+  const { tx } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dataUrl, setDataUrl] = useState<string>('');
@@ -685,7 +687,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
               title="Download PNG with active template (⌘S)"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download PNG</span>
+              <span>{tx('Tải PNG', 'Download PNG')}</span>
               <span className="text-neutral-400 font-mono text-[11px] font-normal">
                 {downloadRes}px
               </span>
@@ -735,12 +737,12 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             {copiedImg ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-medium">Copied</span>
+                <span className="text-emerald-700 font-medium">{tx('Đã sao chép', 'Copied')}</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Copy</span>
+                <span>{tx('Sao chép', 'Copy')}</span>
               </>
             )}
           </button>
@@ -798,7 +800,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             title="Print (⌘P)"
           >
             <Printer className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Print</span>
+            <span>{tx('In', 'Print')}</span>
           </button>
 
           <button
@@ -813,7 +815,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             ) : (
               <>
                 <Bookmark className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Save</span>
+                <span>{tx('Lưu', 'Save')}</span>
               </>
             )}
           </button>

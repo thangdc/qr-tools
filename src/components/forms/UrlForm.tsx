@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { UrlData } from '../../types/qr';
 import { Link2, X, ClipboardPaste, BarChart3, Sparkles } from 'lucide-react';
 
@@ -9,6 +10,7 @@ interface UrlFormProps {
 }
 
 export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytics }) => {
+  const { tx } = useLanguage();
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();

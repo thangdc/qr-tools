@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../i18n';
 import { LocationData } from '../../types/qr';
 import { MapPin, Navigation } from 'lucide-react';
 
@@ -14,6 +15,7 @@ const PRESET_LOCATIONS = [
 ];
 
 export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const [detecting, setDetecting] = useState(false);
 
   const handleGetCurrentLocation = () => {

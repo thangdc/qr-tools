@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../i18n';
 import { X, ShieldCheck, Lock, WifiOff, EyeOff } from 'lucide-react';
 
 interface PrivacyModalProps {
@@ -7,6 +8,7 @@ interface PrivacyModalProps {
 }
 
 export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) => {
+  const { tx } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -18,7 +20,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
               <ShieldCheck className="w-4 h-4" />
             </span>
             <h2 className="text-sm font-semibold text-neutral-900">
-              100% Client-Side & Private Guarantee
+              {tx('100% Xử lý trên máy & Riêng tư', '100% Client-Side & Private Guarantee')}
             </h2>
           </div>
           <button
@@ -36,10 +38,10 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
             </div>
             <div>
               <span className="font-semibold text-neutral-900 block mb-0.5">
-                Zero Cloud Storage
+                {tx('Không lưu trữ đám mây', 'Zero Cloud Storage')}
               </span>
               <p className="text-neutral-500 leading-relaxed">
-                All QR codes, bank accounts, Wi-Fi credentials, and contact details are generated locally on your computer's browser using HTML5 Canvas. Nothing is ever sent to a remote database.
+                {tx('Mọi mã QR, tài khoản ngân hàng, thông tin Wi-Fi và danh bạ đều được tạo ngay trên trình duyệt bằng HTML5 Canvas. Không có dữ liệu nào được gửi đến cơ sở dữ liệu từ xa.', 'All QR codes, bank accounts, Wi-Fi credentials, and contact details are generated locally on your computer\'s browser using HTML5 Canvas. Nothing is ever sent to a remote database.')}
               </p>
             </div>
           </div>
@@ -50,10 +52,10 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
             </div>
             <div>
               <span className="font-semibold text-neutral-900 block mb-0.5">
-                Offline Capable
+                {tx('Có thể dùng ngoại tuyến', 'Offline Capable')}
               </span>
               <p className="text-neutral-500 leading-relaxed">
-                You can disconnect your internet and continue creating, customizing, and exporting high-resolution QR codes without interruption.
+                {tx('Bạn có thể ngắt Internet và vẫn tạo, tùy chỉnh, xuất mã QR độ phân giải cao mà không bị gián đoạn.', 'You can disconnect your internet and continue creating, customizing, and exporting high-resolution QR codes without interruption.')}
               </p>
             </div>
           </div>
@@ -64,10 +66,10 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
             </div>
             <div>
               <span className="font-semibold text-neutral-900 block mb-0.5">
-                Zero Analytics & Telemetry Tracking
+                {tx('Không Analytics & theo dõi', 'Zero Analytics & Telemetry Tracking')}
               </span>
               <p className="text-neutral-500 leading-relaxed">
-                We do not log user activities, scan queries, or payload contents. History is saved exclusively in your browser's private localStorage.
+                {tx('Chúng tôi không ghi lại hoạt động, nội dung quét hoặc payload. Lịch sử chỉ được lưu trong localStorage riêng của trình duyệt.', 'We do not log user activities, scan queries, or payload contents. History is saved exclusively in your browser\'s private localStorage.')}
               </p>
             </div>
           </div>
@@ -79,7 +81,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
             onClick={onClose}
             className="px-3.5 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded text-xs font-medium transition-colors cursor-pointer"
           >
-            Understood
+            {tx('Đã hiểu', 'Understood')}
           </button>
         </div>
       </div>

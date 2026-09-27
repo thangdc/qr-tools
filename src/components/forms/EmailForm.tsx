@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { EmailData } from '../../types/qr';
 
 interface EmailFormProps {
@@ -7,6 +8,7 @@ interface EmailFormProps {
 }
 
 export const EmailForm: React.FC<EmailFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   return (
     <div className="space-y-3.5">
       <div>

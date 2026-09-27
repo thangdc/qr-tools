@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../i18n';
 import { X, Command, Keyboard } from 'lucide-react';
 
 interface ShortcutsModalProps {
@@ -16,6 +17,7 @@ const SHORTCUTS = [
 ];
 
 export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose }) => {
+  const { tx } = useLanguage();
   if (!isOpen) return null;
 
   return (
