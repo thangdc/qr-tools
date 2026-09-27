@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, KeyRound, Loader2, ExternalLink, Sparkles, X } from 'lucide-react';
+import { Check, Copy, KeyRound, Loader2, ExternalLink, Sparkles, X } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import {
   activateProLicense,
@@ -31,6 +31,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [checking, setChecking] = useState(false);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<'active' | 'checkout' | 'license'>('active');
+  const [copied, setCopied] = useState(false);
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
 
@@ -38,17 +39,33 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     try { localStorage.removeItem(ORDER_SESSION_KEY); } catch { /* ignore storage errors */ }
   };
 
+  const copyLicenseKey = async () => {
+    if (!licenseKey) return;
+    try {
+      await navigator.clipboard.writeText(licenseKey);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setMessage(tx('Không thể sao chép License Key.', 'Unable to copy the License Key.'));
+    }
+  };
+
   useEffect(() => {
     if (!isOpen) {
       setMessage(null);
       setLoading(false);
       setChecking(false);
+      setCopied(false);
       return;
     }
 
     try {
       const savedExpiry = localStorage.getItem('qr_tools_pro_expires_at');
       if (savedExpiry) setExpiresAt(savedExpiry);
+      const savedKey = localStorage.getItem('qr_tools_license_key');
+      if (savedKey) setLicenseKey(savedKey);
+      const savedEmail = localStorage.getItem('qr_tools_license_email');
+      if (savedEmail) setEmail(savedEmail);
       setActivePanel(isPro ? 'active' : 'checkout');
       const raw = localStorage.getItem(ORDER_SESSION_KEY);
       if (!raw) return;
@@ -155,6 +172,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
           clearOrderSession();
           onTogglePro(true);
+          setActivePanel('active');
           setMessage(tx(
             'Thanh toán thành công. Pro đã được tự động kích hoạt trên thiết bị này.',
             'Payment received. Pro has been activated automatically on this device.',
@@ -319,6 +337,27 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                     : tx('Chưa có thông tin', 'Not available')}
                 </span>
               </div>
+              {licenseKey && (
+                <div className="mt-4 text-left">
+                  <label className="text-xs font-semibold text-neutral-700">{tx('License Key', 'License Key')}</label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <input
+                      value={licenseKey}
+                      readOnly
+                      aria-label="License Key"
+                      className="min-w-0 flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={copyLicenseKey}
+                      className="shrink-0 h-9 px-3 rounded-md border border-neutral-300 bg-white hover:bg-neutral-100 text-neutral-800 text-xs font-medium flex items-center gap-1.5"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      {copied ? tx('Đã sao chép', 'Copied') : tx('Sao chép', 'Copy')}
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <button type="button" onClick={openCheckout} className="h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold">
                   {tx('Gia hạn Pro', 'Renew Pro')}
