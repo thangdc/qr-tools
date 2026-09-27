@@ -136,7 +136,7 @@ export const ProModal: React.FC<ProModalProps> = ({
             }}
             className="text-xs font-medium text-neutral-600 hover:text-neutral-900 underline cursor-pointer"
           >
-            {isPro ? '{tx('Tắt Pro (Chuyển về miễn phí)', 'Deactivate Pro (Switch to Free)')}' : '{tx('Dùng thử Pro 1 chạm', 'Instant 1-Click Pro Trial')}'}
+            {isPro ? tx('Tắt Pro (Chuyển về miễn phí)', 'Deactivate Pro (Switch to Free)') : tx('Dùng thử Pro 1 chạm', 'Instant 1-Click Pro Trial')}
           </button>
 
           <button
