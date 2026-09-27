@@ -19,6 +19,26 @@ export interface OrderStatusResult {
   message?: string;
 }
 
+export interface InvoiceResult {
+  success: boolean;
+  invoice?: {
+    invoice_number: string;
+    document_type: string;
+    product_name: string;
+    plan: ProPlan;
+    customer_email: string;
+    subtotal: number;
+    tax_rate: number | null;
+    tax_amount: number;
+    total: number;
+    currency: string;
+    payment_method: string;
+    payment_reference?: string | null;
+    issued_at: string;
+  };
+  message?: string;
+}
+
 const SUPABASE_URL =
   import.meta.env.VITE_SUPABASE_URL ||
   'https://yatmdgjkljmaohdkvzkd.supabase.co';
@@ -51,6 +71,10 @@ export async function createProOrder(email: string, plan: ProPlan): Promise<Crea
 
 export async function getOrderStatus(email: string, orderCode: string): Promise<OrderStatusResult> {
   return callFunction<OrderStatusResult>('order-status', { email, orderCode });
+}
+
+export async function getInvoice(email: string, orderCode: string): Promise<InvoiceResult> {
+  return callFunction<InvoiceResult>('get-invoice', { email, orderCode });
 }
 
 export async function activateProLicense(email: string, licenseKey: string, deviceId: string) {
