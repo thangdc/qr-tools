@@ -153,7 +153,7 @@ const QR_TYPE_LIST: QRType[] = [
 ];
 
 export default function App() {
-  const { t } = useLanguage();
+  const { t, tx } = useLanguage();
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>('generator');
   const [selectedType, setSelectedType] = useState<QRType>('url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
@@ -374,7 +374,7 @@ export default function App() {
   };
 
   const handleClearHistory = () => {
-    if (confirm('Are you sure you want to clear your generation history?')) {
+    if (confirm(tx('Bạn có chắc muốn xóa toàn bộ lịch sử tạo mã không?', 'Are you sure you want to clear your generation history?'))) {
       setHistory([]);
     }
   };
@@ -696,7 +696,7 @@ export default function App() {
               onClick={() => setIsPrivacyOpen(true)}
               className="text-neutral-500 hover:text-emerald-700 transition-colors cursor-pointer"
             >
-              100% Client-Side & Private
+              {tx('100% Xử lý trên máy & Riêng tư', '100% Client-Side & Private')}
             </button>
           </div>
           <div className="flex items-center gap-3 text-neutral-500">
@@ -704,7 +704,7 @@ export default function App() {
               onClick={() => setIsShortcutsOpen(true)}
               className="hover:text-neutral-900 transition-colors cursor-pointer font-mono"
             >
-              Shortcuts (?)
+              {tx('Phím tắt (?)', 'Shortcuts (?)')}
             </button>
             <span>·</span>
             <span>{t('supports')}</span>
