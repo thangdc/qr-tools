@@ -12,11 +12,11 @@ interface PrintHandoffModalProps {
 }
 
 const PRESET_SIZES = [
-  { name: 'Business Card', mm: 25, useCase: 'Danh thiếp / Thẻ nhân viên' },
-  { name: 'Standard Sticker', mm: 40, useCase: 'Tem dán ly / Bao bì' },
-  { name: 'Table Stand / Coaster', mm: 60, useCase: 'Bàn ăn / Đế lót ly' },
-  { name: 'Counter Sign', mm: 100, useCase: 'Quầy thu ngân / Bảng mica' },
-  { name: 'Large Poster', mm: 150, useCase: 'Áp phích cửa kính' },
+  { name: 'Danh thiếp', mm: 25, useCase: 'Danh thiếp / Thẻ nhân viên' },
+  { name: 'Tem dán tiêu chuẩn', mm: 40, useCase: 'Tem dán ly / Bao bì' },
+  { name: 'Đế bàn / Đế lót ly', mm: 60, useCase: 'Bàn ăn / Đế lót ly' },
+  { name: 'Bảng quầy', mm: 100, useCase: 'Quầy thu ngân / Bảng mica' },
+  { name: 'Áp phích lớn', mm: 150, useCase: 'Áp phích cửa kính' },
 ];
 
 export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
