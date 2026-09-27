@@ -248,8 +248,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   if (!isOpen) return null;
 
   const printInvoice = async () => {
-    if (!lastPaidOrderCode || !email.trim()) {
-      setMessage(tx('Không tìm thấy mã đơn hàng đã thanh toán.', 'No paid order was found for this device.'));
+    if (!email.trim()) {
+      setMessage(tx('Vui lòng nhập email đã dùng để thanh toán.', 'Enter the email used for payment.'));
       return;
     }
 
