@@ -701,17 +701,8 @@ export default function App() {
             <span className="font-semibold text-neutral-900">QR Tools</span>
             <span>·</span>
             <span>{t('brandTagline')}</span>
-            <span>·</span>
-            <button
-              onClick={() => setIsPrivacyOpen(true)}
-              className="text-neutral-500 hover:text-emerald-700 transition-colors cursor-pointer"
-            >
-              100% Client-Side & Private
-            </button>
           </div>
-          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1 text-neutral-500">
-            <a href="/guide.html" className="hover:text-neutral-900 transition-colors">Hướng dẫn</a>
-            <span>·</span>
+          <div className="flex flex-wrap/ items-center justify-center sm:justify-end gap-x-3 gap-y-1 text-neutral-500">
             <a href="/terms.html" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
             <span>·</span>
             <a href="/privacy.html" className="hover:text-neutral-900 transition-colors">Bảo mật</a>
