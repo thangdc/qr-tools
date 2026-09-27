@@ -1,6 +1,7 @@
 import React from 'react';
 import { ContactData } from '../../types/qr';
 import { Download, FileText } from 'lucide-react';
+import { useLanguage } from '../../i18n';
 
 interface ContactFormProps {
   data: ContactData;
@@ -8,6 +9,7 @@ interface ContactFormProps {
 }
 
 export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const updateField = (field: keyof ContactData, value: string) => {
     onChange({ ...data, [field]: value });
   };
@@ -46,17 +48,17 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
     <div className="space-y-3.5">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-          Contact Details
+          {tx('Thông tin liên hệ', 'Contact Details')}
         </label>
         {hasContactInfo && (
           <button
             type="button"
             onClick={handleDownloadVCF}
             className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
-            title="Download standard .vcf file"
+            title="{tx('Tải tệp .vcf chuẩn', 'Download standard .vcf file')}"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Download .vcf Card</span>
+            <span>{tx('Tải danh bạ .vcf', 'Download .vcf Card')}</span>
           </button>
         )}
       </div>
@@ -64,7 +66,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            First Name
+            {tx('Tên', 'First Name')}
           </label>
           <input
             type="text"
@@ -76,7 +78,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
         </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Last Name
+            {tx('Họ', 'Last Name')}
           </label>
           <input
             type="text"
@@ -91,7 +93,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Phone Number
+            {tx('Số điện thoại', 'Phone Number')}
           </label>
           <input
             type="tel"
@@ -118,7 +120,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Organization / Company
+            {tx('Tổ chức', 'Organization')} / Company
           </label>
           <input
             type="text"
@@ -130,7 +132,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
         </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Website
+            {tx('Website', 'Website')}
           </label>
           <input
             type="url"
@@ -144,7 +146,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
 
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Address
+          {tx('Địa chỉ', 'Address')}
         </label>
         <input
           type="text"
