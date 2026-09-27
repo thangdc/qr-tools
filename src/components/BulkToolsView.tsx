@@ -134,6 +134,10 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   };
 
   const handleGenerateSequence = () => {
+    if (!isPro) {
+      onOpenPro();
+      return;
+    }
     const from = Math.max(1, seqFrom);
     const to = Math.max(from, Math.min(100, seqTo));
     const newItems: BulkQRItem[] = [];
@@ -187,6 +191,11 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   };
 
   const handleFileDrop = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isPro) {
+      onOpenPro();
+      e.target.value = '';
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -305,6 +314,10 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   };
 
   const handlePrint = () => {
+    if (!isPro) {
+      onOpenPro();
+      return;
+    }
     const selected = items.filter((i) => i.selected);
     if (selected.length === 0) return;
     onPrintBatch(selected);
