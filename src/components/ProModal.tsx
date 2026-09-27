@@ -38,6 +38,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [deactivating, setDeactivating] = useState(false);
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
+  const ORDER_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
   const clearOrderSession = () => {
     try { localStorage.removeItem(ORDER_SESSION_KEY); } catch { /* ignore storage errors */ }
@@ -78,12 +79,17 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
         orderCode?: string;
         amount?: number;
         plan?: ProPlan;
+        startedAt?: number;
       };
       if (saved.email && saved.orderCode) {
         setEmail(saved.email);
         setOrderCode(saved.orderCode);
         setAmount(saved.amount || 0);
         if (saved.plan) setPlan(saved.plan);
+        if (saved.startedAt && Date.now() - saved.startedAt > ORDER_POLL_TIMEOUT_MS) {
+          clearOrderSession();
+          return;
+        }
         setPaymentStarted(true);
       }
     } catch {
@@ -201,11 +207,36 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       }
     };
 
+    const startedAt = (() => {
+      try {
+        const raw = localStorage.getItem(ORDER_SESSION_KEY);
+        return raw ? Number((JSON.parse(raw) as { startedAt?: number }).startedAt || 0) : 0;
+      } catch { return 0; }
+    })();
+    if (startedAt && Date.now() - startedAt > ORDER_POLL_TIMEOUT_MS) {
+      clearOrderSession();
+      setPaymentStarted(false);
+      setOrderCode('');
+      setAmount(0);
+      setChecking(false);
+      return;
+    }
+
     const timer = window.setInterval(check, 4000);
+    const timeout = window.setTimeout(() => {
+      if (cancelled) return;
+      clearOrderSession();
+      setPaymentStarted(false);
+      setOrderCode('');
+      setAmount(0);
+      setChecking(false);
+      setMessage(tx('Đã hết thời gian chờ thanh toán. Nếu bạn đã thanh toán, hãy mở lại hoặc kiểm tra đơn hàng sau.', 'Payment confirmation timed out. If you already paid, reopen the dialog or check the order again later.'));
+    }, Math.max(1000, ORDER_POLL_TIMEOUT_MS - (startedAt ? Date.now() - startedAt : 0)));
     void check();
     return () => {
       cancelled = true;
       window.clearInterval(timer);
+      window.clearTimeout(timeout);
     };
   }, [email, isOpen, isPro, onTogglePro, orderCode, tx]);
 
@@ -290,6 +321,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           orderCode: result.orderCode,
           amount: result.amount || 0,
           plan,
+          startedAt: Date.now(),
         }));
       } catch { /* polling still works for the current tab */ }
       const paymentWindow = submitSePayCheckout(result.checkoutEndpoint, result.checkoutFields);
