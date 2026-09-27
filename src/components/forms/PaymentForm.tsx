@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useLanguage } from '../../i18n';
 import { PaymentData } from '../../types/qr';
 import { VIETNAM_BANKS, removeVietnameseAccents } from '../../utils/vietqr';
 import { ShieldCheck, Search, ChevronDown, Check } from 'lucide-react';
@@ -17,6 +18,8 @@ const QUICK_AMOUNTS = [
 ];
 
 export const PaymentForm: React.FC<PaymentFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [bankSearch, setBankSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -92,7 +95,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({ data, onChange }) => {
         </label>
         <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>40+ Ngân hàng</span>
+          <span>{tx('40+ ngân hàng', '40+ Ngân hàng')}</span>
         </span>
       </div>
 
