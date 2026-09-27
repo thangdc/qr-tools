@@ -107,7 +107,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             {tx('Lịch sử tạo mã QR', 'QR Generation History')}
           </h1>
           <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-            {tx('Các mã đã tạo được lưu an toàn trong trình duyệt. Nhấn vào một mục để khôi phục.','Previously generated codes stored securely in your browser. Click any item to restore.')}
+            {tx('Các mã bạn chủ động lưu được giữ an toàn trong trình duyệt. Nhấn vào một mục để khôi phục.','QR codes you explicitly save are stored securely in your browser. Click any item to restore.')}
           </p>
         </div>
 
@@ -187,7 +187,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           </p>
           <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-4">
             {items.length === 0
-              ? 'Your generated QR codes will automatically appear here. Try creating your first QR code.'
+              ? 'QR codes you save from the generator will appear here. Create a QR code, then choose “Lưu vào lịch sử”.'
               : 'Try searching with a different term or clearing the type filter.'}
           </p>
           {items.length === 0 && (
@@ -196,7 +196,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               onClick={onBackToGenerator}
               className="px-4 py-2 text-xs font-medium text-white bg-neutral-900 hover:bg-neutral-800 rounded-md transition-colors cursor-pointer"
             >
-              Create QR Code
+              Quay lại trình tạo
             </button>
           )}
         </div>
