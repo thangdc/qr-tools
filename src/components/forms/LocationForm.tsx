@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LocationData } from '../../types/qr';
 import { MapPin, Navigation } from 'lucide-react';
+import { useLanguage } from '../../i18n';
 
 interface LocationFormProps {
   data: LocationData;
@@ -14,6 +15,7 @@ const PRESET_LOCATIONS = [
 ];
 
 export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const [detecting, setDetecting] = useState(false);
 
   const handleGetCurrentLocation = () => {
@@ -40,7 +42,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
     <div className="space-y-3.5">
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Location Name (Optional)
+          {tx('Tên vị trí (không bắt buộc)', 'Location Name (Optional)')}
         </label>
         <input
           type="text"
@@ -54,7 +56,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Latitude
+            {tx('Vĩ độ', 'Latitude')}
           </label>
           <input
             type="text"
@@ -67,7 +69,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
 
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Longitude
+            {tx('Kinh độ', 'Longitude')}
           </label>
           <input
             type="text"
@@ -87,12 +89,12 @@ export const LocationForm: React.FC<LocationFormProps> = ({ data, onChange }) =>
           className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-blue-600 transition-colors cursor-pointer"
         >
           <Navigation className={`w-3.5 h-3.5 ${detecting ? 'animate-spin' : ''}`} />
-          <span>{detecting ? 'Đang lấy vị trí...' : 'Use my current GPS'}</span>
+          <span>{detecting ? 'Đang lấy vị trí...' : '{tx('Dùng vị trí GPS hiện tại', 'Use my current GPS')}'}</span>
         </button>
       </div>
 
       <div className="pt-2 border-t border-neutral-100">
-        <span className="text-xs font-medium text-neutral-500">Popular presets:</span>
+        <span className="text-xs font-medium text-neutral-500">{tx('Vị trí phổ biến:', 'Popular presets:')}</span>
         <div className="flex flex-wrap gap-2 mt-1.5">
           {PRESET_LOCATIONS.map((loc) => (
             <button
