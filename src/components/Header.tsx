@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
             {language === 'vi' ? 'EN' : 'VI'}
           </button>
           <button
-            onClick={onOpenPro
+            onClick={onOpenPro}
             className={`px-2.5 sm:px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 border cursor-pointer ${
               isPro
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
