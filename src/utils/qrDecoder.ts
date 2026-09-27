@@ -2,6 +2,47 @@ import jsQR from 'jsqr';
 import { DecodedQRData, QRType, QRFormData } from '../types/qr';
 import { VIETNAM_BANKS } from './vietqr';
 
+interface NativeBarcodeDetector {
+  detect(source: ImageBitmap | HTMLImageElement | Blob): Promise<Array<{ rawValue?: string }>>;
+}
+
+declare global {
+  interface Window {
+    BarcodeDetector?: new (options?: { formats?: string[] }) => NativeBarcodeDetector;
+  }
+}
+
+export async function scanImageFile(file: File): Promise<string | null> {
+  // Prefer the browser's native QR detector when available. It is more
+  // tolerant of real screenshots/photos and styled QR codes than jsQR alone.
+  if (typeof window !== 'undefined' && window.BarcodeDetector) {
+    try {
+      const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+      const results = await detector.detect(file);
+      const value = results.find((result) => result.rawValue)?.rawValue;
+      if (value) return value;
+    } catch (error) {
+      console.warn('Native QR detection failed; falling back to jsQR.', error);
+    }
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = imageUrl;
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(image, 0, 0);
+    return scanImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
 /**
  * Scan imageData using jsQR
  */
