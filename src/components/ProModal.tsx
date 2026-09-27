@@ -270,7 +270,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       .replace(/'/g, '&#039;');
 
     try {
-      const result = await getInvoice(email.trim(), lastPaidOrderCode);
+      const result = await getInvoice(email.trim(), lastPaidOrderCode || undefined);
       if (!result.success || !result.invoice) throw new Error(result.message || tx('Không tìm thấy hóa đơn.', 'Invoice not found.'));
 
       const invoice = result.invoice;
@@ -513,7 +513,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
                 </div>
               )}
               <div className="mt-4 flex items-center justify-center gap-2">
-                {lastPaidOrderCode && (
+                {email.trim() && (
                   <button
                     type="button"
                     onClick={printInvoice}
