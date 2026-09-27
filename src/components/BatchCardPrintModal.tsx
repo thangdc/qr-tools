@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../i18n';
-import { useLanguage } from '../i18n';
 import JSZip from 'jszip';
 import { QRType, QRTemplate } from '../types/qr';
 import { renderTemplatedQR } from '../utils/templateRenderer';
@@ -36,7 +35,7 @@ interface BatchCardPrintModalProps {
   items: BatchPrintItem[];
   templates: QRTemplate[];
   activeTemplateId: string;
-  onSelect{tx('Mẫu:', 'Template:')} (templateId: string) => void;
+  onSelectTemplate: (templateId: string) => void;
 }
 
 export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
@@ -185,10 +184,10 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               onClick={handleExportZip}
               disabled={isZipping || isRendering}
               className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-40"
-              title="{tx('Tải tất cả thẻ dưới dạng PNG trong tệp ZIP', 'Download all cards as PNGs in a ZIP')}"
+              title={tx('Tải tất cả thẻ dưới dạng PNG trong tệp ZIP', 'Download all cards as PNGs in a ZIP')}
             >
               <FileArchive className="w-3.5 h-3.5 text-neutral-500" />
-              <span>{isZipping ? '{tx('Đang nén...', 'Zipping...')}' : '{tx('Xuất ZIP', 'Export ZIP')}'}</span>
+              <span>{isZipping ? tx('Đang nén...', 'Zipping...') : tx('Xuất ZIP', 'Export ZIP')}</span>
             </button>
 
             <button
@@ -347,7 +346,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
           <div className="max-w-[210mm] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm print:shadow-none print:p-0">
             {isRendering ? (
               <div className="p-12 text-center text-xs text-neutral-400">
-                {tx('Đang tạo', 'Rendering')} {items.length} {tx('mã QR...', 'QR items...')}
+                {tx('Đang tạo', 'Rendering')} {items.length} {tx('mã QR', 'QR items')}...
               </div>
             ) : printFormatMode === 'card' ? (
               /* Card Stands Layout */
@@ -386,7 +385,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 })}
               </div>
             ) : (
-              /* High-Density {tx('Lưới nhãn dán', 'Adhesive Sticker Grid')} Layout */
+              /* High-Density Adhesive Sticker Grid Layout */
               <div
                 className={`grid gap-3 print:gap-2 ${
                   stickersPerPage === 9
