@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { EventData } from '../../types/qr';
 import { Calendar, MapPin, Clock, AlignLeft, Sparkles } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface EventFormProps {
 }
 
 export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const setQuickPreset = (preset: {
     title: string;
     location: string;
@@ -38,7 +40,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Event Title</span>
+          <span>{tx('Tên sự kiện', 'Event Title')}</span>
         </label>
         <input
           type="text"
