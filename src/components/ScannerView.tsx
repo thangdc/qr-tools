@@ -86,8 +86,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     const video = videoRef.current;
     if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
       scanBusyRef.current = false;
-      scanBusyRef.current = false;
-    animationFrameRef.current = requestAnimationFrame(requestScan);
+      animationFrameRef.current = requestAnimationFrame(requestScan);
       return;
     }
 
@@ -108,6 +107,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
       }
     }
 
+    scanBusyRef.current = false;
     animationFrameRef.current = requestAnimationFrame(requestScan);
   };
 
