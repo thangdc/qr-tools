@@ -49,7 +49,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     const newTemplate: QRTemplate = {
       id: `tmpl-custom-${Date.now()}`,
       name: 'Custom Template',
-      description: '{tx('Tùy chỉnh', 'Customize')}d layout and branding for your QR displays.',
+      description: tx('Tùy chỉnh bố cục và nhận diện thương hiệu cho màn hình QR.', 'Customize layout and branding for your QR displays.'),
       isPredefined: false,
       isDefault: false,
       layout: 'table-tent',

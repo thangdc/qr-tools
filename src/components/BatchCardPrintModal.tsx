@@ -263,7 +263,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                           : 'bg-white border border-neutral-200 text-neutral-700'
                       }`}
                     >
-                      {num} {num === 2 ? '({tx('A5 lớn', 'A5 Large')})' : num === 4 ? '({tx('Thẻ A6', 'A6 Card')})' : '(Mini)'}
+                      {num} {num === 2 ? `(${tx('A5 lớn', 'A5 Large')})` : num === 4 ? `(${tx('Thẻ A6', 'A6 Card')})` : '(Mini)'}
                     </button>
                   ))}
                 </div>
