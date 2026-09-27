@@ -106,7 +106,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
           )}
         </span>
         <div className="flex items-center gap-1 text-[11px] text-neutral-400 font-normal normal-case">
-          <span>{isOpen ? 'Collapse' : 'Expand'}</span>
+          <span>{isOpen ? tx('Thu gọn', 'Collapse') : tx('Mở rộng', 'Expand')}</span>
           <ChevronDown
             className={`w-3.5 h-3.5 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
@@ -126,9 +126,9 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { id: 'square', label: 'Classic' },
-                  { id: 'dots', label: 'Rounded' },
-                  { id: 'squircle', label: 'Squircle' },
+                  { id: 'square', label: tx('Cổ điển', 'Classic') },
+                  { id: 'dots', label: tx('Bo tròn', 'Rounded') },
+                  { id: 'squircle', label: tx('Bo mềm', 'Squircle') },
                 ].map((m) => (
                   <button
                     key={m.id}
@@ -155,9 +155,9 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { id: 'square', label: 'Square' },
-                  { id: 'rounded', label: 'Rounded' },
-                  { id: 'circle', label: 'Circle' },
+                  { id: 'square', label: tx('Vuông', 'Square') },
+                  { id: 'rounded', label: tx('Bo tròn', 'Rounded') },
+                  { id: 'circle', label: tx('Tròn', 'Circle') },
                 ].map((e) => (
                   <button
                     key={e.id}
@@ -191,17 +191,17 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                   onClick={() => onChange({ ...design, frameStyle: 'none' })}
                   className="text-[10px] text-neutral-400 hover:text-red-600 cursor-pointer"
                 >
-                  Clear frame
+                  {tx('Xóa khung', 'Clear frame')}
                 </button>
               )}
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
               {[
-                { id: 'none', label: 'None' },
-                { id: 'bottom-bar', label: 'Bottom Bar' },
-                { id: 'top-bar', label: 'Top Bar' },
-                { id: 'badge', label: 'Pill Badge' },
+                { id: 'none', label: tx('Không có', 'None') },
+                { id: 'bottom-bar', label: tx('Thanh dưới', 'Bottom Bar') },
+                { id: 'top-bar', label: tx('Thanh trên', 'Top Bar') },
+                { id: 'badge', label: tx('Nhãn viên thuốc', 'Pill Badge') },
               ].map((f) => (
                 <button
                   key={f.id}
@@ -426,7 +426,7 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
                     : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                 }`}
               >
-                None
+                {tx('Không có', 'None')}
               </button>
 
               {isPaymentType && (
