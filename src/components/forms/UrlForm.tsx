@@ -32,7 +32,7 @@ export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytic
             type="button"
             onClick={handlePaste}
             className="inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
-            title="{tx('Dán', 'Paste')} từ bộ nhớ tạm"
+            title={tx('Dán từ bộ nhớ tạm', 'Paste from clipboard')}
           >
             <ClipboardPaste className="w-3.5 h-3.5" />
             <span>{tx('Dán', 'Paste')}</span>
@@ -71,7 +71,7 @@ export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytic
               className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-700 cursor-pointer"
             >
               <BarChart3 className="w-3 h-3" />
-              <span>Theo dõi lượt quét</span>
+              <span>Track scans (Analytics)</span>
             </button>
           )}
         </div>
