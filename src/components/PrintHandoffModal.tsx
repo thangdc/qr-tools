@@ -236,7 +236,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting ? '{tx('Đang tạo...', 'Generating...')}' : `{tx(`Xuất ${selectedMm}mm (300 DPI)`, `Export ${selectedMm}mm (300 DPI)`)}`}</span>
+            <span>{isExporting ? tx('Đang tạo...', 'Generating...') : tx(`Xuất ${selectedMm}mm (300 DPI)`, `Export ${selectedMm}mm (300 DPI)`)}</span>
           </button>
         </div>
       </div>
