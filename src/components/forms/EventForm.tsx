@@ -46,7 +46,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
           type="text"
           value={data.title}
           onChange={(e) => onChange({ ...data, title: e.target.value })}
-          placeholder="e.g. Grand Opening Cafe & Workshop"
+          placeholder={tx('VD: Khai trương quán cà phê & workshop', 'e.g. Grand Opening Cafe & Workshop')}
           className="w-full h-10 px-3 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors font-medium"
         />
       </div>
@@ -84,7 +84,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-          <span>{tx('Địa điểm', 'Venue / Location')}</span>
+          <span>Venue / Location</span>
         </label>
         <input
           type="text"
@@ -99,13 +99,13 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <AlignLeft className="w-3.5 h-3.5 text-neutral-400" />
-          <span>{tx('Mô tả & lịch trình', 'Description & Agenda')}</span>
+          <span>Description & Agenda</span>
         </label>
         <textarea
           rows={3}
           value={data.description}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
-          placeholder="{tx('Lịch trình, trang phục, diễn giả hoặc ghi chú đặc biệt...', 'Event agenda, dress code, speaker line-up, or special notes...')}"
+          placeholder={tx('Lịch trình, trang phục, diễn giả hoặc ghi chú đặc biệt...', 'Event agenda, dress code, speaker line-up, or special notes...')}
           className="w-full p-3 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-xs placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors resize-y leading-relaxed"
         />
       </div>
@@ -153,7 +153,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       </div>
 
       <p className="text-xs text-neutral-500">
-        Khi người tham dự quét mã QR này, iPhone và Android sẽ hiển thị <strong>"Thêm vào lịch"</strong> với địa điểm, ngày và lời nhắc đã điền sẵn.
+        {tx('Khi người tham dự quét mã QR này, iPhone và Android sẽ hiển thị "Thêm vào lịch" với địa điểm, ngày và lời nhắc đã điền sẵn.', 'When attendees scan this QR code, iPhone and Android immediately prompt "Add to Calendar" with pre-filled venue, date, and reminder.')}
       </p>
     </div>
   );
