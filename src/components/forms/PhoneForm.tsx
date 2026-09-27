@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../i18n';
 import { PhoneData } from '../../types/qr';
 
 interface PhoneFormProps {
@@ -7,6 +8,7 @@ interface PhoneFormProps {
 }
 
 export const PhoneForm: React.FC<PhoneFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   return (
     <div className="space-y-4">
       <div>
