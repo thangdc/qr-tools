@@ -166,25 +166,3 @@ export interface DecodedQRData {
   parsedData: Partial<QRFormData[QRType]>;
 }
 
-export interface ScanEvent {
-  id: string;
-  timestamp: number;
-  device: 'iOS' | 'Android' | 'Desktop' | 'Other';
-  city: string;
-  source: string;
-}
-
-export interface TrackedUrlItem {
-  id: string;
-  title: string;
-  destinationUrl: string;
-  trackingSlug: string;
-  shortUrl: string;
-  totalScans: number;
-  uniqueScans: number;
-  createdAt: number;
-  lastScannedAt?: number;
-  status: 'active' | 'paused';
-  recentScans: ScanEvent[];
-  dailyStats: { date: string; scans: number }[];
-}
