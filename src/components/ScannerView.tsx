@@ -218,7 +218,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
               className="flex-1 h-9 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>Upload Image...</span>
+              <span>{tx('Tải ảnh lên...', 'Upload Image...')}</span>
             </button>
             <input
               ref={fileInputRef}
@@ -246,7 +246,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
           {!scanResult ? (
             <div className="py-12 text-center text-neutral-400">
               <p className="text-sm font-medium text-neutral-600 mb-1">
-                Waiting for scan
+                {tx('Đang chờ quét', 'Waiting for scan')}
               </p>
               <p className="text-xs">
                 Position a QR code in the camera frame or choose an image file to analyze.
@@ -283,7 +283,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
                     ) : (
                       <>
                         <Copy className="w-3 h-3" />
-                        <span>Copy string</span>
+                        <span>{tx('Sao chép chuỗi', 'Copy string')}</span>
                       </>
                     )}
                   </button>
