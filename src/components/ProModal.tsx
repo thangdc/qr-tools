@@ -6,6 +6,7 @@ import {
   createProOrder,
   getDeviceId,
   getOrderStatus,
+  getInvoice,
   submitSePayCheckout,
   validateProLicense,
   deactivateProLicense,
@@ -36,6 +37,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [activeDevices, setActiveDevices] = useState<number | null>(null);
   const [maxDevices, setMaxDevices] = useState<number | null>(null);
   const [deactivating, setDeactivating] = useState(false);
+  const [lastPaidOrderCode, setLastPaidOrderCode] = useState('');
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
   const ORDER_POLL_TIMEOUT_MS = 10 * 60 * 1000;
@@ -69,6 +72,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       if (savedExpiry) setExpiresAt(savedExpiry);
       const savedKey = localStorage.getItem('qr_tools_license_key');
       if (savedKey) setLicenseKey(savedKey);
+      const savedOrderCode = localStorage.getItem('qr_tools_last_paid_order_code');
+      if (savedOrderCode) setLastPaidOrderCode(savedOrderCode);
       const savedEmail = localStorage.getItem('qr_tools_license_email');
       if (savedEmail) setEmail(savedEmail);
       setActivePanel(isPro ? 'active' : 'checkout');
@@ -242,6 +247,68 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
   if (!isOpen) return null;
 
+  const printInvoice = async () => {
+    if (!lastPaidOrderCode || !email.trim()) {
+      setMessage(tx('Không tìm thấy mã đơn hàng đã thanh toán.', 'No paid order was found for this device.'));
+      return;
+    }
+
+    setInvoiceLoading(true);
+    setMessage(null);
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    if (!printWindow) {
+      setInvoiceLoading(false);
+      setMessage(tx('Trình duyệt đã chặn cửa sổ hóa đơn. Hãy cho phép popup rồi thử lại.', 'Your browser blocked the invoice window. Allow popups and try again.'));
+      return;
+    }
+
+    const escapeHtml = (value: unknown) => String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    try {
+      const result = await getInvoice(email.trim(), lastPaidOrderCode);
+      if (!result.success || !result.invoice) throw new Error(result.message || tx('Không tìm thấy hóa đơn.', 'Invoice not found.'));
+
+      const invoice = result.invoice;
+      const issuedAt = new Date(invoice.issued_at).toLocaleString(tx('vi-VN', 'en-US'));
+      const planLabel = invoice.plan === 'yearly' ? tx('Pro — Gói năm', 'Pro — Yearly') : tx('Pro — Gói tháng', 'Pro — Monthly');
+      const paymentLabel = invoice.payment_method === 'sepay_gateway' ? 'SePay' : invoice.payment_method;
+
+      printWindow.document.write(`<!doctype html>
+<html><head><meta charset="utf-8"><title>${escapeHtml(invoice.invoice_number)}</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:40px;color:#171717;background:#f5f5f5}
+.sheet{max-width:760px;margin:0 auto;background:#fff;padding:44px;border:1px solid #e5e5e5}
+.header{display:flex;justify-content:space-between;gap:30px;border-bottom:2px solid #171717;padding-bottom:22px}
+h1{font-size:24px;margin:0 0 6px}.muted{color:#737373;font-size:13px}.meta{text-align:right;font-size:13px;line-height:1.7}
+.section{margin-top:28px}.section-title{font-size:12px;font-weight:700;text-transform:uppercase;color:#737373;margin-bottom:10px}
+table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px solid #e5e5e5;text-align:left;font-size:14px}th:last-child,td:last-child{text-align:right}
+.total{display:flex;justify-content:flex-end;margin-top:18px;font-size:20px;font-weight:700}.note{margin-top:30px;padding:12px;background:#f5f5f5;color:#737373;font-size:12px;line-height:1.5}
+@media print{body{background:#fff;padding:0}.sheet{border:0;max-width:none;padding:20px}}
+</style></head><body>
+<div class="sheet">
+<div class="header"><div><h1>${escapeHtml(invoice.product_name)}</h1><div class="muted">Biên nhận thanh toán</div></div>
+<div class="meta"><strong>${escapeHtml(invoice.invoice_number)}</strong><br>${escapeHtml(issuedAt)}</div></div>
+<div class="section"><div class="section-title">Khách hàng</div><div>${escapeHtml(invoice.customer_email)}</div></div>
+<div class="section"><table><thead><tr><th>Sản phẩm</th><th>Thành tiền</th></tr></thead>
+<tbody><tr><td>${escapeHtml(planLabel)}</td><td>${Number(invoice.subtotal).toLocaleString('vi-VN')} ₫</td></tr></tbody></table>
+<div class="total">Tổng thanh toán: ${Number(invoice.total).toLocaleString('vi-VN')} ₫</div></div>
+<div class="section"><div class="section-title">Thanh toán</div><div>Phương thức: ${escapeHtml(paymentLabel)}</div><div>Mã giao dịch: ${escapeHtml(invoice.payment_reference || '')}</div></div>
+<div class="note">Đây là biên nhận thanh toán cho QR Tools Pro. Tài liệu này không thay thế hóa đơn điện tử VAT theo quy định pháp luật.</div>
+</div><script>window.onload=function(){window.print();}</script></body></html>`);
+      printWindow.document.close();
+    } catch (error) {
+      printWindow.close();
+      setMessage(error instanceof Error ? error.message : tx('Không thể tải hóa đơn.', 'Unable to load invoice.'));
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
   const deactivateCurrentDevice = async () => {
     const savedEmail = localStorage.getItem('qr_tools_license_email') || email.trim();
     const activationToken = localStorage.getItem('qr_tools_activation_token');
@@ -265,7 +332,9 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       localStorage.removeItem('qr_tools_pro_expires_at');
       localStorage.removeItem('qr_tools_license_key');
       localStorage.removeItem('qr_tools_license_email');
+      localStorage.removeItem('qr_tools_last_paid_order_code');
       setLicenseKey('');
+      setLastPaidOrderCode('');
       setExpiresAt(null);
       setActiveDevices(result.activeDevices ?? null);
       setMaxDevices(result.maxDevices ?? null);
@@ -444,6 +513,16 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                 </div>
               )}
               <div className="mt-4 flex items-center justify-center gap-2">
+                {lastPaidOrderCode && (
+                  <button
+                    type="button"
+                    onClick={printInvoice}
+                    disabled={invoiceLoading}
+                    className="h-8 rounded-md border border-neutral-300 bg-white hover:bg-neutral-50 disabled:opacity-50 px-3 text-xs font-medium text-neutral-700"
+                  >
+                    {invoiceLoading ? tx('Đang tải…', 'Loading…') : tx('Xem / In hóa đơn', 'View / Print invoice')}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={openCheckout}
