@@ -823,7 +823,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             ) : (
               <>
                 <Bookmark className="w-3.5 h-3.5 text-neutral-400" />
-                <span>{tx('Lưu', 'Save')}</span>
+                <span>{tx('Lưu vào lịch sử', 'Save to history')}</span>
               </>
             )}
           </button>
