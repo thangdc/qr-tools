@@ -175,9 +175,14 @@ export default function App() {
     return defaultTemplate.id;
   });
 
+  const [historyDesignOverride, setHistoryDesignOverride] = useState<QRDesignOptions | null>(null);
+
   const activeTemplate = useMemo(() => {
-    return templates.find((t) => t.id === activeTemplateId) || defaultTemplate;
-  }, [templates, activeTemplateId, defaultTemplate]);
+    const template = templates.find((t) => t.id === activeTemplateId) || defaultTemplate;
+    return historyDesignOverride
+      ? { ...template, design: historyDesignOverride, frameStyle: historyDesignOverride.frameStyle, frameText: historyDesignOverride.frameText }
+      : template;
+  }, [templates, activeTemplateId, defaultTemplate, historyDesignOverride]);
 
   // History State
   const [history, setHistory] = useState<QRHistoryItem[]>(() => {
@@ -240,6 +245,7 @@ export default function App() {
         isDefault: t.id === templateId,
       }))
     );
+    setHistoryDesignOverride(null);
     setActiveTemplateId(templateId);
   };
 
@@ -265,9 +271,10 @@ export default function App() {
 
   // Update design of active template directly from CustomizePanel
   const handleUpdateDesign = (design: QRDesignOptions) => {
+    setHistoryDesignOverride(null);
     setTemplates((prev) =>
       prev.map((t) =>
-        t.id === activeTemplate.id
+        t.id === activeTemplateId
           ? {
               ...t,
               design,
@@ -328,6 +335,7 @@ export default function App() {
       ...prev,
       [item.type]: item.data,
     }));
+    setHistoryDesignOverride(item.design || null);
     if (item.templateId) {
       setActiveTemplateId(item.templateId);
     }
@@ -351,22 +359,29 @@ export default function App() {
   const handleSaveToHistory = () => {
     if (!currentPayload) return;
 
+    const designKey = JSON.stringify(activeTemplate.design);
+    const alreadySaved = history.some(
+      (item) =>
+        item.type === selectedType &&
+        item.rawPayload === currentPayload &&
+        JSON.stringify(item.design) === designKey
+    );
+
+    if (alreadySaved) return;
+
     const newItem: QRHistoryItem = {
       id: `hist-${Date.now()}`,
       type: selectedType,
       title: summary.title,
       subtitle: summary.subtitle,
       data: formData[selectedType],
-      design: activeTemplate.design,
-      templateId: activeTemplate.id,
+      design: { ...activeTemplate.design },
+      templateId: activeTemplateId,
       rawPayload: currentPayload,
       createdAt: Date.now(),
     };
 
-    setHistory((prev) => [
-      newItem,
-      ...prev.filter((i) => i.rawPayload !== currentPayload),
-    ]);
+    setHistory((prev) => [newItem, ...prev]);
   };
 
   const handleDeleteHistory = (id: string) => {
@@ -648,7 +663,10 @@ export default function App() {
                   subtitle={summary.subtitle}
                   templates={templates}
                   activeTemplate={activeTemplate}
-                  onSelectTemplate={setActiveTemplateId}
+                  onSelectTemplate={(templateId) => {
+                  setHistoryDesignOverride(null);
+                  setActiveTemplateId(templateId);
+                }}
                   isGenerating={isPending}
                   extraTemplateInfo={extraTemplateInfo}
                   onOpenTemplateStudio={() => setIsTemplatesModalOpen(true)}
