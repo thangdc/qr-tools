@@ -217,7 +217,32 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"><X className="w-4 h-4" /></button>
         </div>
 
-        <div className="p-5 space-y-4">
+        {isPro ? (
+          <div className="p-5">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <Check className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-semibold text-neutral-900">
+                {tx('Pro đang hoạt động', 'Pro is active')}
+              </h3>
+              <p className="mt-1 text-sm text-neutral-600">
+                {tx(
+                  'Bạn đã có đầy đủ tính năng Pro trên thiết bị này.',
+                  'You already have access to all Pro features on this device.',
+                )}
+              </p>
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-4 w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold"
+              >
+                {tx('Đóng', 'Close')}
+              </button>
+            </div>
+          </div>
+        ) : (
+<div className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-2">
             {([['monthly', '59.000 ₫ / tháng'], ['yearly', '499.000 ₫ / năm']] as const).map(([id, label]) => (
               <button
@@ -316,6 +341,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
           {message && <div className="rounded-lg bg-neutral-50 border border-neutral-200 px-3 py-2 text-xs text-neutral-700">{message}</div>}
         </div>
+        )}
       </div>
     </div>
   );
