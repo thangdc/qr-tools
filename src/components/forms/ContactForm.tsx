@@ -55,7 +55,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
             type="button"
             onClick={handleDownloadVCF}
             className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
-            title="{tx('Tải tệp .vcf chuẩn', 'Download standard .vcf file')}"
+            title={tx('Tải tệp .vcf chuẩn', 'Download standard .vcf file')}
           >
             <Download className="w-3.5 h-3.5" />
             <span>{tx('Tải danh thiếp .vcf', 'Download .vcf Card')}</span>
@@ -105,7 +105,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
         </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Email
+            {tx('Email', 'Email')}
           </label>
           <input
             type="email"
@@ -132,7 +132,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
         </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-            Website
+            {tx('Website', 'Website')}
           </label>
           <input
             type="url"
@@ -146,7 +146,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ data, onChange }) => {
 
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1">
-          Address
+          {tx('Địa chỉ', 'Address')}
         </label>
         <input
           type="text"
