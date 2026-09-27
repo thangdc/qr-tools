@@ -73,8 +73,8 @@ export async function getOrderStatus(email: string, orderCode: string): Promise<
   return callFunction<OrderStatusResult>('order-status', { email, orderCode });
 }
 
-export async function getInvoice(email: string, orderCode: string): Promise<InvoiceResult> {
-  return callFunction<InvoiceResult>('get-invoice', { email, orderCode });
+export async function getInvoice(email: string, orderCode?: string): Promise<InvoiceResult> {
+  return callFunction<InvoiceResult>('get-invoice', { email, ...(orderCode ? { orderCode } : {}) });
 }
 
 export async function activateProLicense(email: string, licenseKey: string, deviceId: string) {
