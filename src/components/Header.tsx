@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
             }`}
           >
-            Generator
+            {t('generator')}
           </button>
 
           <button
