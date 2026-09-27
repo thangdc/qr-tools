@@ -1,6 +1,7 @@
 import React from 'react';
 import { EventData } from '../../types/qr';
 import { Calendar, MapPin, Clock, AlignLeft, Sparkles } from 'lucide-react';
+import { useLanguage } from '../../i18n';
 
 interface EventFormProps {
   data: EventData;
@@ -8,6 +9,7 @@ interface EventFormProps {
 }
 
 export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   const setQuickPreset = (preset: {
     title: string;
     location: string;
@@ -34,11 +36,11 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
 
   return (
     <div className="space-y-4">
-      {/* Event Title */}
+      {/* {tx('Tên sự kiện', 'Event Title')} */}
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Event Title</span>
+          <span>{tx('Tên sự kiện', 'Event Title')}</span>
         </label>
         <input
           type="text"
@@ -54,7 +56,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Start Date & Time</span>
+            <span>{tx('Ngày & giờ bắt đầu', 'Start Date & Time')}</span>
           </label>
           <input
             type="datetime-local"
@@ -67,7 +69,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
         <div>
           <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-neutral-400" />
-            <span>End Date & Time</span>
+            <span>{tx('Ngày & giờ kết thúc', 'End Date & Time')}</span>
           </label>
           <input
             type="datetime-local"
@@ -82,7 +84,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Venue / Location</span>
+          <span>{tx('Địa điểm', 'Venue / Location')}</span>
         </label>
         <input
           type="text"
@@ -97,7 +99,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div>
         <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
           <AlignLeft className="w-3.5 h-3.5 text-neutral-400" />
-          <span>Description & Agenda</span>
+          <span>{tx('Mô tả & chương trình', 'Description & Agenda')}</span>
         </label>
         <textarea
           rows={3}
@@ -112,7 +114,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       <div className="pt-1">
         <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-amber-500" />
-          <span>Quick Presets:</span>
+          <span>{tx('Mẫu nhanh:', 'Quick Presets:')}</span>
         </span>
         <div className="flex flex-wrap gap-1.5">
           {[
@@ -151,7 +153,7 @@ export const EventForm: React.FC<EventFormProps> = ({ data, onChange }) => {
       </div>
 
       <p className="text-xs text-neutral-500">
-        When attendees scan this QR code, iPhone and Android immediately prompt <strong>"Add to Calendar"</strong> with pre-filled venue, date, and reminder.
+        When attendees scan this QR code, iPhone and Android immediately prompt <strong>"{tx('Thêm vào lịch', 'Add to Calendar')}"</strong> with pre-filled venue, date, and reminder.
       </p>
     </div>
   );
