@@ -96,6 +96,13 @@ export function submitSePayCheckout(endpoint: string, fields: Record<string, str
 }
 
 
+export async function deactivateProLicense(email: string, deviceId: string, activationToken: string) {
+  return callFunction<{ success: boolean; activeDevices?: number; maxDevices?: number; message?: string }>(
+    'deactivate-license',
+    { email, deviceId, activationToken },
+  );
+}
+
 export async function validateProLicense(
   email: string,
   deviceId: string,
