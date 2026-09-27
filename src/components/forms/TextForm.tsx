@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextData } from '../../types/qr';
 import { FileText, X } from 'lucide-react';
+import { useLanguage } from '../../i18n';
 
 interface TextFormProps {
   data: TextData;
@@ -8,6 +9,7 @@ interface TextFormProps {
 }
 
 export const TextForm: React.FC<TextFormProps> = ({ data, onChange }) => {
+  const { tx } = useLanguage();
   return (
     <div className="space-y-4">
       <div>
@@ -17,7 +19,7 @@ export const TextForm: React.FC<TextFormProps> = ({ data, onChange }) => {
             className="text-xs font-semibold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5"
           >
             <FileText className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Plain Text & Notes</span>
+            <span>{tx('Văn bản & ghi chú', 'Plain Text & Notes')}</span>
           </label>
           <div className="flex items-center gap-2">
             {data.text && (
@@ -26,11 +28,11 @@ export const TextForm: React.FC<TextFormProps> = ({ data, onChange }) => {
                 onClick={() => onChange({ text: '' })}
                 className="text-[11px] text-neutral-400 hover:text-neutral-700 cursor-pointer"
               >
-                Clear
+                {tx('Xóa', 'Clear')}
               </button>
             )}
             <span className="text-[10px] text-neutral-500 font-mono px-1.5 py-0.5 rounded bg-neutral-100 tabular-nums">
-              {data.text.length} chars
+              {data.text.length} {tx('ký tự', 'chars')}
             </span>
           </div>
         </div>
@@ -44,13 +46,13 @@ export const TextForm: React.FC<TextFormProps> = ({ data, onChange }) => {
           className="w-full p-3 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-xs sm:text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors resize-y leading-relaxed font-mono"
         />
         <p className="mt-1.5 text-xs text-neutral-500">
-          Scanned by any standard camera app. Displays offline without requiring an active internet connection.
+          {tx('Có thể quét bằng mọi ứng dụng camera tiêu chuẩn. Hiển thị ngoại tuyến, không cần Internet.', 'Scanned by any standard camera app. Displays offline without requiring an active internet connection.')}
         </p>
       </div>
 
       <div className="pt-1">
         <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider block mb-1.5">
-          Quick Prompts:
+          {tx('Gợi ý nhanh:', 'Quick Prompts:')}
         </span>
         <div className="flex flex-wrap gap-1.5">
           {[
