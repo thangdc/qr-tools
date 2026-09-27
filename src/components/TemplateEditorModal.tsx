@@ -15,28 +15,28 @@ import {
   Wifi,
   Type,
   Grid,
-  Upload,
+  Tải lên,
 } from 'lucide-react';
 
 interface TemplateEditorModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onĐóng: () => void;
   templates: QRTemplate[];
   activeTemplateId: string;
   onSelectTemplate: (templateId: string) => void;
   onSetDefaultTemplate: (templateId: string) => void;
-  onSaveTemplate: (template: QRTemplate) => void;
+  onLưuTemplate: (template: QRTemplate) => void;
   onDeleteTemplate: (templateId: string) => void;
 }
 
 export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   isOpen,
-  onClose,
+  onĐóng,
   templates,
   activeTemplateId,
   onSelectTemplate,
   onSetDefaultTemplate,
-  onSaveTemplate,
+  onLưuTemplate,
   onDeleteTemplate,
 }) => {
   const [editingTemplate, setEditingTemplate] = useState<QRTemplate | null>(null);
@@ -47,7 +47,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     const newTemplate: QRTemplate = {
       id: `tmpl-custom-${Date.now()}`,
       name: 'Custom Template',
-      description: 'Customized layout and branding for your QR displays.',
+      description: 'Tùy chỉnhd layout and branding for your QR displays.',
       isPredefined: false,
       isDefault: false,
       layout: 'table-tent',
@@ -87,9 +87,9 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     setEditingTemplate(copy);
   };
 
-  const handleSaveEdit = () => {
+  const handleLưuEdit = () => {
     if (!editingTemplate) return;
-    onSaveTemplate(editingTemplate);
+    onLưuTemplate(editingTemplate);
     setEditingTemplate(null);
   };
 
@@ -126,7 +126,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             <button
               onClick={() => {
                 if (editingTemplate) setEditingTemplate(null);
-                else onClose();
+                else onĐóng();
               }}
               className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer"
             >
@@ -149,7 +149,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   onClick={() => setEditingTemplate(null)}
                   className="text-neutral-500 hover:text-neutral-800 underline cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
               </div>
 
@@ -281,8 +281,8 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         </div>
                       ) : (
                         <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-neutral-300 rounded-md text-xs font-medium cursor-pointer hover:bg-neutral-50 shadow-2xs">
-                          <Upload className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>Upload Store Logo (.png, .svg)</span>
+                          <Tải lên className="w-3.5 h-3.5 text-neutral-500" />
+                          <span>Tải lên Store Logo (.png, .svg)</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -381,11 +381,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                 </div>
               )}
 
-              {/* QR Pattern & Eye Styling in Template */}
+              {/* QR Họa tiết & Eye Styling in Template */}
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div>
                   <label className="block font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">
-                    Module Pattern
+                    Module Họa tiết
                   </label>
                   <div className="grid grid-cols-3 gap-1">
                     {[
@@ -419,13 +419,13 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
 
                 <div>
                   <label className="block font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">
-                    Corner Eyes
+                    Góc định vị
                   </label>
                   <div className="grid grid-cols-3 gap-1">
                     {[
-                      { id: 'square', label: 'Square' },
-                      { id: 'rounded', label: 'Rounded' },
-                      { id: 'circle', label: 'Circle' },
+                      { id: 'square', label: 'Vuông' },
+                      { id: 'rounded', label: 'Bo tròn' },
+                      { id: 'circle', label: 'Tròn' },
                     ].map((e) => (
                       <button
                         key={e.id}
@@ -459,14 +459,14 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   onClick={() => setEditingTemplate(null)}
                   className="px-3 py-1.5 rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-50 cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="button"
-                  onClick={handleSaveEdit}
+                  onClick={handleLưuEdit}
                   className="px-4 py-1.5 bg-neutral-900 hover:bg-black text-white rounded-lg font-medium transition-colors cursor-pointer shadow-xs"
                 >
-                  Save Template
+                  Lưu mẫu
                 </button>
               </div>
             </div>
@@ -496,16 +496,16 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                           {isDefault ? (
                             <span className="inline-flex items-center gap-0.5 text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200/60">
                               <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                              <span>DEFAULT</span>
+                              <span>MẶC ĐỊNH</span>
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => onSetDefaultTemplate(tmpl.id)}
                               className="text-[10px] font-medium text-neutral-400 hover:text-amber-600 px-1.5 py-0.5 rounded hover:bg-neutral-100 transition-colors cursor-pointer"
-                              title="Set as default for all QR codes, downloads, and batch"
+                              title="Đặt làm mặc định cho mọi mã QR, lượt tải và tạo hàng loạt"
                             >
-                              Set Default
+                              Đặt làm mặc định
                             </button>
                           )}
                         </div>
@@ -519,8 +519,8 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         <span className="uppercase font-semibold px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600">
                           {tmpl.layout}
                         </span>
-                        {tmpl.includeWifi && <span>· Wi-Fi badge</span>}
-                        {tmpl.frameStyle !== 'none' && <span>· Frame caption</span>}
+                        {tmpl.includeWifi && <span>· Nhãn Wi-Fi</span>}
+                        {tmpl.frameStyle !== 'none' && <span>· Tiêu đề khung</span>}
                       </div>
                     </div>
 
@@ -529,7 +529,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         type="button"
                         onClick={() => {
                           onSelectTemplate(tmpl.id);
-                          onClose();
+                          onĐóng();
                         }}
                         className={`px-3 py-1 rounded-md font-medium text-xs transition-colors cursor-pointer ${
                           isActive
@@ -537,7 +537,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                             : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800'
                         }`}
                       >
-                        {isActive ? 'Active Template ✓' : 'Use Template'}
+                        {isActive ? 'Mẫu đang dùng ✓' : 'Dùng mẫu'}
                       </button>
 
                       <div className="flex items-center gap-1">
@@ -545,7 +545,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                           type="button"
                           onClick={() => handleDuplicate(tmpl)}
                           className="p-1 text-neutral-400 hover:text-neutral-700 rounded cursor-pointer"
-                          title="Duplicate as new custom template"
+                          title="Nhân bản thành mẫu tùy chỉnh mới"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
@@ -556,7 +556,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                               type="button"
                               onClick={() => setEditingTemplate(tmpl)}
                               className="p-1 text-neutral-400 hover:text-neutral-700 rounded cursor-pointer"
-                              title="Edit custom template"
+                              title="Chỉnh sửa mẫu tùy chỉnh"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
@@ -564,7 +564,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                               type="button"
                               onClick={() => onDeleteTemplate(tmpl.id)}
                               className="p-1 text-neutral-400 hover:text-red-600 rounded cursor-pointer"
-                              title="Delete custom template"
+                              title="Xóa mẫu tùy chỉnh"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -575,7 +575,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                             onClick={() => handleDuplicate(tmpl)}
                             className="text-[11px] text-neutral-400 hover:text-neutral-700 underline ml-1 cursor-pointer"
                           >
-                            Customize
+                            Tùy chỉnh
                           </button>
                         )}
                       </div>
