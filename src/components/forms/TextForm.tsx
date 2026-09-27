@@ -42,7 +42,7 @@ export const TextForm: React.FC<TextFormProps> = ({ data, onChange }) => {
           rows={5}
           value={data.text}
           onChange={(e) => onChange({ text: e.target.value })}
-          placeholder="{tx('Nhập văn bản, thông báo khuyến mãi, địa chỉ sự kiện hoặc hướng dẫn...', 'Enter plain text, promotional notice, event address, or instructions...')}"
+          placeholder={tx('Nhập văn bản, thông báo khuyến mãi, địa chỉ sự kiện hoặc hướng dẫn...', 'Enter plain text, promotional notice, event address, or instructions...')}
           className="w-full p-3 bg-white text-neutral-900 border border-neutral-300 rounded-lg text-xs sm:text-sm placeholder:text-neutral-400 focus:outline-hidden focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors resize-y leading-relaxed font-mono"
         />
         <p className="mt-1.5 text-xs text-neutral-500">
