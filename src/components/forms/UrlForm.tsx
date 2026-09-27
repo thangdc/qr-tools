@@ -8,7 +8,7 @@ interface UrlFormProps {
   onChange: (data: UrlData) => void;
 }
 
-export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytics }) => {
+export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange }) => {
   const { tx } = useLanguage();
   const handlePaste = async () => {
     try {

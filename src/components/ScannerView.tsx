@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '../i18n';
 import { scanImageData, parseRawQRPayload } from '../utils/qrDecoder';
 import { DecodedQRData } from '../types/qr';
 import {
@@ -23,6 +24,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   onBackToGenerator,
   onLoadIntoGenerator,
 }) => {
+  const { tx } = useLanguage();
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<DecodedQRData | null>(null);
