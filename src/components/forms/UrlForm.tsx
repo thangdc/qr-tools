@@ -26,16 +26,16 @@ export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytic
             htmlFor="url-input"
             className="text-xs font-semibold text-neutral-800 uppercase tracking-wider"
           >
-            Destination Web URL
+            URL đích
           </label>
           <button
             type="button"
             onClick={handlePaste}
             className="inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
-            title="Paste from clipboard"
+            title="Dán từ bộ nhớ tạm"
           >
             <ClipboardPaste className="w-3.5 h-3.5" />
-            <span>Paste</span>
+            <span>Dán</span>
           </button>
         </div>
 
@@ -62,7 +62,7 @@ export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytic
         </div>
         <div className="mt-1.5 flex items-center justify-between">
           <p className="text-xs text-neutral-500">
-            Enter any web link. Supports https://, domain links, or deep app links.
+            Nhập liên kết web. Hỗ trợ https://, liên kết tên miền hoặc liên kết ứng dụng.
           </p>
           {onOpenAnalytics && (
             <button
@@ -71,7 +71,7 @@ export const UrlForm: React.FC<UrlFormProps> = ({ data, onChange, onOpenAnalytic
               className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-700 cursor-pointer"
             >
               <BarChart3 className="w-3 h-3" />
-              <span>Track scans (Analytics)</span>
+              <span>Theo dõi lượt quét</span>
             </button>
           )}
         </div>
