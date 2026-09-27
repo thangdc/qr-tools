@@ -29,6 +29,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<DecodedQRData | null>(null);
   const [copied, setCopied] = useState(false);
+  const scanBusyRef = useRef(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -80,9 +81,13 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   };
 
   const requestScan = () => {
+    if (scanBusyRef.current) return;
+    scanBusyRef.current = true;
     const video = videoRef.current;
     if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
-      animationFrameRef.current = requestAnimationFrame(requestScan);
+      scanBusyRef.current = false;
+      scanBusyRef.current = false;
+    animationFrameRef.current = requestAnimationFrame(requestScan);
       return;
     }
 
@@ -98,6 +103,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         const parsed = parseRawQRPayload(decodedRaw);
         setScanResult(parsed);
         stopCamera();
+        scanBusyRef.current = false;
         return;
       }
     }
