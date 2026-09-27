@@ -7,6 +7,7 @@ import {
   getDeviceId,
   getOrderStatus,
   submitSePayCheckout,
+  validateProLicense,
   type ProPlan,
 } from '../services/revenueService';
 
@@ -68,6 +69,38 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       clearOrderSession();
     }
   }, [isOpen, isPro]);
+
+  useEffect(() => {
+    if (!isOpen || !isPro) return;
+    let cancelled = false;
+
+    const restoreLicenseStatus = async () => {
+      try {
+        const savedEmail = localStorage.getItem('qr_tools_license_email');
+        const activationToken = localStorage.getItem('qr_tools_activation_token');
+        if (!savedEmail || !activationToken) return;
+
+        const result = await validateProLicense(savedEmail, getDeviceId(), activationToken);
+        if (cancelled) return;
+
+        if (result.success && result.expiresAt) {
+          setExpiresAt(result.expiresAt);
+          localStorage.setItem('qr_tools_pro_expires_at', result.expiresAt);
+          return;
+        }
+
+        localStorage.removeItem('qr_tools_pro_expires_at');
+        onTogglePro(false);
+        setActivePanel('checkout');
+        setMessage(tx('License đã hết hạn hoặc không còn hợp lệ. Bạn có thể gia hạn hoặc nhập License Key khác.', 'The license has expired or is no longer valid. You can renew or enter another License Key.'));
+      } catch {
+        // Keep the locally cached Pro state when validation is temporarily unavailable.
+      }
+    };
+
+    void restoreLicenseStatus();
+    return () => { cancelled = true; };
+  }, [isOpen, isPro, onTogglePro, tx]);
 
   useEffect(() => {
     if (!isOpen || !orderCode || !email || isPro) return;
