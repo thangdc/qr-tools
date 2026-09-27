@@ -333,114 +333,116 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
             </div>
           </div>
         ) : (
-<div className="p-5 space-y-4">
-          {activePanel === 'checkout' && (
-          <>
-          <div className="grid grid-cols-2 gap-2">
-            {([['monthly', '59.000 ₫ / tháng'], ['yearly', '499.000 ₫ / năm']] as const).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setPlan(id)}
-                className={`rounded-lg border p-3 text-left ${plan === id ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 hover:border-neutral-300'}`}
-              >
-                <div className="text-sm font-semibold text-neutral-900">{label}</div>
-                <div className="text-xs text-neutral-500 mt-1">
-                  {id === 'yearly' ? tx('Dành cho người dùng thường xuyên', 'For regular users') : tx('Gói tháng linh hoạt', 'Flexible monthly plan')}
+          <div className="p-5 space-y-4">
+            {activePanel === 'checkout' && (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  {([['monthly', '59.000 ₫ / tháng'], ['yearly', '499.000 ₫ / năm']] as const).map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setPlan(id)}
+                      className={`rounded-lg border p-3 text-left ${plan === id ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 hover:border-neutral-300'}`}
+                    >
+                      <div className="text-sm font-semibold text-neutral-900">{label}</div>
+                      <div className="text-xs text-neutral-500 mt-1">
+                        {id === 'yearly' ? tx('Dành cho người dùng thường xuyên', 'For regular users') : tx('Gói tháng linh hoạt', 'Flexible monthly plan')}
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              </button>
-            ))}
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-neutral-700">{tx('Email nhận License', 'License email')}</label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="you@example.com"
-              className="w-full h-10 px-3 text-sm border border-neutral-300 rounded-lg focus:outline-hidden focus:border-blue-600"
-            />
-          </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-neutral-700">{tx('Email nhận License', 'License email')}</label>
+                  <input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full h-10 px-3 text-sm border border-neutral-300 rounded-lg focus:outline-hidden focus:border-blue-600"
+                  />
+                </div>
 
-          {!paymentStarted ? (
-            <button
-              type="button"
-              disabled={loading}
-              onClick={startCheckout}
-              className="w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {tx('Thanh toán qua SePay', 'Pay with SePay')}
-              <ExternalLink className="w-4 h-4" />
-            </button>
-          ) : (
-            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-neutral-900">{tx('Đơn hàng', 'Order')}</span>
-                <span className="font-mono text-xs text-neutral-700">{orderCode}</span>
-              </div>
-              <div className="text-sm text-neutral-700">{amount.toLocaleString('vi-VN')} ₫</div>
-              <div className="text-xs text-neutral-500">
-                {checking ? tx('Đang chờ SePay xác nhận thanh toán…', 'Waiting for SePay payment confirmation…') : tx('Đang tự động kiểm tra trạng thái.', 'Payment status is checked automatically.')}
-              </div>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => {
-                  setPaymentStarted(false);
-                  setOrderCode('');
-                  setAmount(0);
-                  setLicenseKey('');
-                  setMessage(null);
-                  clearOrderSession();
-                }}
-                className="w-full h-9 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 disabled:opacity-50 text-neutral-800 text-xs font-semibold"
-              >
-                {tx('Tạo đơn hàng mới / Thanh toán lại', 'Create new order / Pay again')}
-              </button>
-            </div>
-          )}
-
-          </div>
-          </>
-          )}
-
-          <div className="pt-2 border-t border-neutral-100">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-semibold text-neutral-800 mb-1.5 flex items-center gap-1.5">
-              <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
-              {tx('Kích hoạt License', 'Activate license')}
-              </label>
-              {isPro && <button type="button" onClick={() => setActivePanel('active')} className="text-xs text-neutral-500 hover:text-neutral-900">{tx('Quay lại', 'Back')}</button>}
-            </div>
-            <div className="flex gap-2">
-              <input
-                value={licenseKey}
-                onChange={(e) => setLicenseKey(e.target.value)}
-                placeholder="License Key"
-                className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600"
-              />
-              <button
-                type="button"
-                onClick={activate}
-                disabled={loading}
-                className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5"
-              >
-                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                {tx('Kích hoạt', 'Activate')}
-              </button>
-            </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-2 text-xs text-neutral-600">
-            {[tx('Batch Import Excel/CSV', 'Excel/CSV batch import'), tx('Xuất ZIP hàng loạt', 'Bulk ZIP export'), tx('In nhiều QR A4', 'Multi-QR A4 printing'), tx('Export độ phân giải cao', 'High-resolution export')].map((item) =>
-              <div key={item} className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" />{item}</div>
+                {!paymentStarted ? (
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={startCheckout}
+                    className="w-full h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white text-sm font-semibold flex items-center justify-center gap-2"
+                  >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {tx('Thanh toán qua SePay', 'Pay with SePay')}
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-neutral-900">{tx('Đơn hàng', 'Order')}</span>
+                      <span className="font-mono text-xs text-neutral-700">{orderCode}</span>
+                    </div>
+                    <div className="text-sm text-neutral-700">{amount.toLocaleString('vi-VN')} ₫</div>
+                    <div className="text-xs text-neutral-500">
+                      {checking ? tx('Đang chờ SePay xác nhận thanh toán…', 'Waiting for SePay payment confirmation…') : tx('Đang tự động kiểm tra trạng thái.', 'Payment status is checked automatically.')}
+                    </div>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        setPaymentStarted(false);
+                        setOrderCode('');
+                        setAmount(0);
+                        setLicenseKey('');
+                        setMessage(null);
+                        clearOrderSession();
+                      }}
+                      className="w-full h-9 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 disabled:opacity-50 text-neutral-800 text-xs font-semibold"
+                    >
+                      {tx('Tạo đơn hàng mới / Thanh toán lại', 'Create new order / Pay again')}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
-          </div>
 
-          {message && <div className="rounded-lg bg-neutral-50 border border-neutral-200 px-3 py-2 text-xs text-neutral-700">{message}</div>}
-        </div>
+            <div className="pt-2 border-t border-neutral-100">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold text-neutral-800 flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
+                  {tx('Kích hoạt License', 'Activate license')}
+                </label>
+                {isPro && (
+                  <button type="button" onClick={() => setActivePanel('active')} className="text-xs text-neutral-500 hover:text-neutral-900">
+                    {tx('Quay lại', 'Back')}
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  value={licenseKey}
+                  onChange={(e) => setLicenseKey(e.target.value)}
+                  placeholder="License Key"
+                  className="flex-1 h-9 px-3 text-xs bg-white border border-neutral-300 rounded-md font-mono focus:outline-hidden focus:border-blue-600"
+                />
+                <button
+                  type="button"
+                  onClick={activate}
+                  disabled={loading}
+                  className="px-3.5 h-9 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 text-white rounded-md text-xs font-medium flex items-center gap-1.5"
+                >
+                  {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  {tx('Kích hoạt', 'Activate')}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-2 text-xs text-neutral-600">
+              {[tx('Batch Import Excel/CSV', 'Excel/CSV batch import'), tx('Xuất ZIP hàng loạt', 'Bulk ZIP export'), tx('In nhiều QR A4', 'Multi-QR A4 printing'), tx('Export độ phân giải cao', 'High-resolution export')].map((item) =>
+                <div key={item} className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-600" />{item}</div>
+              )}
+            </div>
+
+            {message && <div className="rounded-lg bg-neutral-50 border border-neutral-200 px-3 py-2 text-xs text-neutral-700">{message}</div>}
+          </div>
         )}
       </div>
     </div>
