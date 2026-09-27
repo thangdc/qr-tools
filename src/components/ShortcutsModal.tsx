@@ -3,19 +3,19 @@ import { X, Command, Keyboard } from 'lucide-react';
 
 interface ShortcutsModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onĐóng: () => void;
 }
 
 const SHORTCUTS = [
-  { keys: ['⌘ / Ctrl', 'S'], description: 'Download High-Resolution PNG (1024px)' },
+  { keys: ['⌘ / Ctrl', 'S'], description: 'Tải xuống High-Resolution PNG (1024px)' },
   { keys: ['⌘ / Ctrl', 'C'], description: 'Copy PNG Image to Clipboard' },
   { keys: ['⌘ / Ctrl', 'Shift', 'C'], description: 'Copy Vector SVG Code (for Figma / Illustrator)' },
   { keys: ['⌘ / Ctrl', 'P'], description: 'Open Print Preview' },
   { keys: ['1', '–', '9'], description: 'Quick-switch QR Type (URL, Text, Contact, WiFi, etc.)' },
-  { keys: ['?'], description: 'Toggle this Keyboard Shortcuts Cheatsheet' },
+  { keys: ['?'], description: 'Toggle this Phím tắt bàn phím Cheatsheet' },
 ];
 
-export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose }) => {
+export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onĐóng }) => {
   if (!isOpen) return null;
 
   return (
@@ -27,11 +27,11 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
               <Keyboard className="w-4 h-4" />
             </span>
             <h2 className="text-sm font-semibold text-neutral-900">
-              Keyboard Shortcuts
+              Phím tắt bàn phím
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={onĐóng}
             className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
