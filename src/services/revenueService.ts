@@ -5,10 +5,9 @@ export interface CreateOrderResult {
   orderCode?: string;
   amount?: number;
   plan?: ProPlan;
-  paymentQrUrl?: string;
-  paymentAccountName?: string;
-  paymentAccountNumber?: string;
-  paymentBankName?: string;
+  checkoutEndpoint?: string;
+  checkoutFields?: Record<string, string>;
+  expiresAt?: string;
   message?: string;
 }
 
@@ -72,4 +71,26 @@ export function getDeviceId(): string {
   } catch {
     return `qr-tools-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
+}
+
+export function submitSePayCheckout(endpoint: string, fields: Record<string, string>): Window | null {
+  const target = window.open('', '_blank');
+  if (!target) return null;
+
+  const form = target.document.createElement('form');
+  form.method = 'POST';
+  form.action = endpoint;
+  form.style.display = 'none';
+
+  for (const [name, value] of Object.entries(fields)) {
+    const input = target.document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
+
+  target.document.body.appendChild(form);
+  form.submit();
+  return target;
 }
