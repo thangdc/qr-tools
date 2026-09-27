@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../i18n';
-import { scanImageData, parseRawQRPayload } from '../utils/qrDecoder';
+import { scanImageData, scanImageFile, parseRawQRPayload } from '../utils/qrDecoder';
 import { DecodedQRData } from '../types/qr';
 import {
   Camera,
@@ -121,29 +121,19 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     animationFrameRef.current = requestAnimationFrame(requestScan);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
-        const decodedRaw = scanImageData(imageData);
-        if (decodedRaw) {
-          const parsed = parseRawQRPayload(decodedRaw);
-          setScanResult(parsed);
-        } else {
-          alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn.');
-        }
-      }
-    };
-    img.src = URL.createObjectURL(file);
+    const decodedRaw = await scanImageFile(file);
+    if (decodedRaw) {
+      setScanResult(parseRawQRPayload(decodedRaw));
+    } else {
+      alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn.');
+    }
+
+    // Allow selecting the same file again.
+    e.target.value = '';
   };
 
   const handleCopyRaw = () => {
