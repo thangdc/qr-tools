@@ -340,7 +340,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                                 wifiSsid: e.target.value,
                               })
                             }
-                            placeholder="Wi-Fi SSID"
+                            placeholder={tx('Tên Wi-Fi (SSID)', 'Wi-Fi SSID')}
                             className="h-8 px-2.5 bg-white border border-neutral-300 rounded-md"
                           />
                           <input
@@ -352,7 +352,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                                 wifiPass: e.target.value,
                               })
                             }
-                            placeholder="Wi-Fi Password"
+                            placeholder={tx('Mật khẩu Wi-Fi', 'Wi-Fi Password')}
                             className="h-8 px-2.5 bg-white border border-neutral-300 rounded-md font-mono"
                           />
                         </div>
