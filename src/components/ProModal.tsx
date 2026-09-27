@@ -28,6 +28,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
 
   const ORDER_SESSION_KEY = 'qr_tools_checkout_session';
 
@@ -44,6 +45,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     }
 
     try {
+      const savedExpiry = localStorage.getItem('qr_tools_pro_expires_at');
+      if (savedExpiry) setExpiresAt(savedExpiry);
       const raw = localStorage.getItem(ORDER_SESSION_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw) as {
@@ -96,6 +99,11 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           );
 
           if (cancelled) return;
+
+          if (activation.expiresAt) {
+            setExpiresAt(activation.expiresAt);
+            try { localStorage.setItem('qr_tools_pro_expires_at', activation.expiresAt); } catch { /* ignore storage errors */ }
+          }
 
           if (!activation.success) {
             setMessage(tx(
@@ -194,6 +202,10 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     try {
       const result = await activateProLicense(email.trim(), licenseKey.trim(), getDeviceId());
       if (!result.success) throw new Error(result.message || 'Kích hoạt thất bại.');
+      if (result.expiresAt) {
+        setExpiresAt(result.expiresAt);
+        try { localStorage.setItem('qr_tools_pro_expires_at', result.expiresAt); } catch { /* ignore storage errors */ }
+      }
       onTogglePro(true);
       setMessage(tx('Pro đã được kích hoạt trên thiết bị này.', 'Pro is activated on this device.'));
     } catch (error) {
@@ -232,6 +244,15 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                   'You already have access to all Pro features on this device.',
                 )}
               </p>
+              {expiresAt && (
+                <div className="mt-3 text-sm text-neutral-700">
+                  <span className="text-neutral-500">{tx('Hết hạn', 'Expires')}:</span>{' '}
+                  <span className="font-semibold">{new Date(expiresAt).toLocaleDateString(
+                    tx('vi-VN', 'en-US'),
+                    { day: '2-digit', month: '2-digit', year: 'numeric' },
+                  )}</span>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={onClose}
