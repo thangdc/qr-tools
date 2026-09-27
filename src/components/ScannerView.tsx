@@ -53,12 +53,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
         video: { facingMode: 'environment' },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setIsCameraActive(true);
-        requestScan();
-      }
+      setIsCameraActive(true);
     } catch (err: any) {
       console.error(err);
       setCameraError(
@@ -67,6 +62,21 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
       setIsCameraActive(false);
     }
   };
+
+  useEffect(() => {
+    if (!isCameraActive || !streamRef.current || !videoRef.current) return;
+
+    const video = videoRef.current;
+    video.srcObject = streamRef.current;
+
+    video.play()
+      .then(() => requestScan())
+      .catch((err) => {
+        console.error(err);
+        setCameraError('Không thể phát camera. Hãy thử cho phép camera và bấm quét lại.');
+        stopCamera();
+      });
+  }, [isCameraActive]);
 
   const stopCamera = () => {
     if (streamRef.current) {
