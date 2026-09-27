@@ -361,7 +361,13 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => setShowSequencer(!showSequencer)}
+            onClick={() => {
+              if (!isPro) {
+                onOpenPro();
+                return;
+              }
+              setShowSequencer(!showSequencer);
+            }}
             className="h-9 px-3.5 text-xs sm:text-sm font-semibold text-neutral-900 bg-amber-50 hover:bg-amber-100/80 border border-amber-300 rounded-lg transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
             title={tx('Tạo số bàn tuần tự, ví dụ Bàn 01 đến 30', 'Generate tables sequentially e.g. Table 01 to 30')}
           >
@@ -657,6 +663,10 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
           <button
             type="button"
             onClick={() => {
+              if (!isPro) {
+                onOpenPro();
+                return;
+              }
               parseAndAddLines(importText);
               setImportText('');
             }}
