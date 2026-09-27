@@ -3,10 +3,11 @@ import { X, ShieldCheck, Lock, WifiOff, EyeOff } from 'lucide-react';
 
 interface PrivacyModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  on{tx('Đóng', 'Close')}: () => void;
 }
 
-export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) => {
+export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, on{tx('Đóng', 'Close')} }) => {
+  const { tx } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -22,7 +23,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={on{tx('Đóng', 'Close')}}
             className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -76,7 +77,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
         <div className="p-3 bg-neutral-50 border-t border-neutral-100 flex justify-end">
           <button
             type="button"
-            onClick={onClose}
+            onClick={on{tx('Đóng', 'Close')}}
             className="px-3.5 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded text-xs font-medium transition-colors cursor-pointer"
           >
             Understood
