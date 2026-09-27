@@ -14,15 +14,15 @@ import {
 
 interface HistoryViewProps {
   items: QRHistoryItem[];
-  on{tx('Khôi phục', 'Restore')}: (item: QRHistoryItem) => void;
-  on{tx('Xóa', 'Delete')}: (id: string) => void;
-  onClear{tx('Tất cả', 'All')}: () => void;
+  onRestore: (item: QRHistoryItem) => void;
+  onDelete: (id: string) => void;
+  onClearAll: () => void;
   onBackToGenerator: () => void;
   onOpenBulk: () => void;
 }
 
 const FILTER_TYPES: { label: string; value: 'all' | QRType }[] = [
-  { label: '{tx('Tất cả', 'All')}', value: 'all' },
+  { label: 'All', value: 'all' },
   { label: 'URL', value: 'url' },
   { label: 'VietQR', value: 'payment' },
   { label: 'WiFi', value: 'wifi' },
@@ -32,9 +32,9 @@ const FILTER_TYPES: { label: string; value: 'all' | QRType }[] = [
 
 export const HistoryView: React.FC<HistoryViewProps> = ({
   items,
-  on{tx('Khôi phục', 'Restore')},
-  on{tx('Xóa', 'Delete')},
-  onClear{tx('Tất cả', 'All')},
+  onRestore,
+  onDelete,
+  onClearAll,
   onBackToGenerator,
   onOpenBulk,
 }) => {
@@ -107,7 +107,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             {tx('Lịch sử tạo mã QR', 'QR Generation History')}
           </h1>
           <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
-            {tx('Các mã đã tạo được lưu an toàn trong trình duyệt. Nhấn vào một mục để khôi phục.', 'Previously generated codes stored securely in your browser. Click any item to restore.')}
+            {tx('Các mã đã tạo được lưu an toàn trong trình duyệt. Nhấn vào một mục để khôi phục.','Previously generated codes stored securely in your browser. Click any item to restore.')}
           </p>
         </div>
 
@@ -136,11 +136,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
               <button
                 type="button"
-                onClick={onClear{tx('Tất cả', 'All')}}
+                onClick={onClearAll}
                 className="h-8 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-                title="{tx('Xóa', 'Delete')} all history"
+                title={tx('Xóa toàn bộ lịch sử', 'Delete all history')}
               >
-                {tx('Xóa tất cả', 'Clear all')}
+                Clear all
               </button>
             </>
           )}
@@ -155,7 +155,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="{tx('Tìm lịch sử theo tiêu đề, URL hoặc văn bản...', 'Search history by title, URL or text...')}"
+            placeholder={tx('Tìm lịch sử theo tiêu đề, URL hoặc văn bản...', 'Search history by title, URL or text...')}
             className="w-full h-9 pl-9 pr-3 text-xs sm:text-sm bg-white border border-neutral-300 rounded-md placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
         </div>
@@ -209,7 +209,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             >
               {/* Thumbnail + Details */}
               <div
-                onClick={() => on{tx('Khôi phục', 'Restore')}(item)}
+                onClick={() => onRestore(item)}
                 className="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer"
                 title="Click to restore into generator"
               >
@@ -243,9 +243,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => on{tx('Khôi phục', 'Restore')}(item)}
+                  onClick={() => onRestore(item)}
                   className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer"
-                  title="{tx('Khôi phục', 'Restore')} into generator"
+                  title={tx('Khôi phục vào trình tạo', 'Restore into generator')}
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -255,7 +255,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   onClick={() => {
                     const a = document.createElement('a');
                     // quick fallback
-                    on{tx('Khôi phục', 'Restore')}(item);
+                    onRestore(item);
                   }}
                   className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer hidden sm:inline-flex"
                   title="Open in editor"
@@ -265,9 +265,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => on{tx('Xóa', 'Delete')}(item.id)}
+                  onClick={() => onDelete(item.id)}
                   className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                  title="{tx('Xóa', 'Delete')} from history"
+                  title={tx('Xóa khỏi lịch sử', 'Delete from history')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
