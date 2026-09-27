@@ -45,12 +45,11 @@ const FRAME_PRESETS = [
 ];
 
 export const CustomizePanel: React.FC<CustomizePanelProps> = ({
-  const { tx } = useLanguage();
-
   design,
   onChange,
   isPaymentType,
 }) => {
+  const { tx } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
