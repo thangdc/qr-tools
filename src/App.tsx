@@ -709,7 +709,13 @@ export default function App() {
               100% Client-Side & Private
             </button>
           </div>
-          <div className="flex items-center gap-3 text-neutral-500">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1 text-neutral-500">
+            <a href="/terms.html" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
+            <span>·</span>
+            <a href="/privacy.html" className="hover:text-neutral-900 transition-colors">Bảo mật</a>
+            <span>·</span>
+            <a href="/refund.html" className="hover:text-neutral-900 transition-colors">Hoàn tiền</a>
+            <span>·</span>
             <button
               onClick={() => setIsShortcutsOpen(true)}
               className="hover:text-neutral-900 transition-colors cursor-pointer font-mono"
