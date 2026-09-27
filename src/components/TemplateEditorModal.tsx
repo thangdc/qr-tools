@@ -186,12 +186,12 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                     }
                     className="w-full h-9 px-3 border border-neutral-300 rounded-lg text-xs bg-white"
                   >
-                    <option value="bare">Clean Bare QR (No card wrapper)</option>
-                    <option value="framed">Callout Banner (Bottom/Top Frame)</option>
-                    <option value="table-tent">Table Tent (Restaurant & Cafe)</option>
-                    <option value="bank-stand">VietQR Counter Stand</option>
-                    <option value="minimal-card">Minimal Desk Plaque</option>
-                    <option value="dark-card">Dark Slate Studio Card</option>
+                    <option value="bare">{tx('QR thuần (không khung)', 'Clean Bare QR (No card wrapper)')}</option>
+                    <option value="framed">{tx('Banner nổi bật (khung trên/dưới)', 'Callout Banner (Bottom/Top Frame)')}</option>
+                    <option value="table-tent">{tx('Bảng để bàn (Nhà hàng & Café)', 'Table Tent (Restaurant & Cafe)')}</option>
+                    <option value="bank-stand">{tx('Bảng VietQR quầy thu ngân', 'VietQR Counter Stand')}</option>
+                    <option value="minimal-card">{tx('Bảng để bàn tối giản', 'Minimal Desk Plaque')}</option>
+                    <option value="dark-card">{tx('Thẻ studio nền tối', 'Dark Slate Studio Card')}</option>
                   </select>
                 </div>
               </div>
@@ -284,7 +284,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       ) : (
                         <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-neutral-300 rounded-md text-xs font-medium cursor-pointer hover:bg-neutral-50 shadow-2xs">
                           <Upload className="w-3.5 h-3.5 text-neutral-500" />
-                          <span>Upload Store Logo (.png, .svg)</span>
+                          <span>{tx('Tải logo cửa hàng (.png, .svg)', 'Upload Store Logo (.png, .svg)')}</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -326,7 +326,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                           }
                           className="w-4 h-4 rounded text-neutral-900 border-neutral-300"
                         />
-                        <span>Include Guest Wi-Fi block on card</span>
+                        <span>{tx('Hiển thị Wi-Fi khách trên thẻ', 'Include Guest Wi-Fi block on card')}</span>
                       </label>
 
                       {editingTemplate.includeWifi && (
