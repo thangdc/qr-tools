@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../i18n';
 import { X, Command, Keyboard } from 'lucide-react';
 
 interface ShortcutsModalProps {
