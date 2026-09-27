@@ -1,0 +1,63 @@
+name: Deploy Supabase Functions
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "SePay environment to deploy"
+        required: true
+        type: choice
+        options:
+          - sandbox
+          - prod
+        default: sandbox
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 10
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: yatmdgjkljmaohdkvzkd
+      SEPAY_MERCHANT_ID: ${{ secrets.MERCHANT_ID }}
+      SEPAY_SECRET_KEY: ${{ secrets.SECRET }}
+      SEPAY_ENVIRONMENT: ${{ inputs.environment == 'prod' && 'production' || 'sandbox' }}
+      SEPAY_SUCCESS_URL: https://qr.thangdc.com/?payment=success
+      SEPAY_ERROR_URL: https://qr.thangdc.com/?payment=error
+      SEPAY_CANCEL_URL: https://qr.thangdc.com/?payment=cancel
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        shell: bash
+        run: |
+          test -n "${SUPABASE_ACCESS_TOKEN}" || { echo "Missing SUPABASE_ACCESS_TOKEN in GitHub Environment."; exit 1; }
+          test -n "${SEPAY_MERCHANT_ID}" || { echo "Missing MERCHANT_ID in GitHub Environment."; exit 1; }
+          test -n "${SEPAY_SECRET_KEY}" || { echo "Missing SECRET in GitHub Environment."; exit 1; }
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Sync SePay secrets to Supabase
+        shell: bash
+        run: |
+          printf 'SEPAY_MERCHANT_ID=%s\nSEPAY_SECRET_KEY=%s\nSEPAY_ENVIRONMENT=%s\nSEPAY_SUCCESS_URL=%s\nSEPAY_ERROR_URL=%s\nSEPAY_CANCEL_URL=%s\n'             "${SEPAY_MERCHANT_ID}"             "${SEPAY_SECRET_KEY}"             "${SEPAY_ENVIRONMENT}"             "${SEPAY_SUCCESS_URL}"             "${SEPAY_ERROR_URL}"             "${SEPAY_CANCEL_URL}" > /tmp/sepay.env
+          supabase secrets set --env-file /tmp/sepay.env --project-ref "${SUPABASE_PROJECT_ID}"
+
+      - name: Deploy payment functions
+        run: |
+          supabase functions deploy create-order --project-ref "${SUPABASE_PROJECT_ID}" --use-api
+          supabase functions deploy order-status --project-ref "${SUPABASE_PROJECT_ID}" --use-api
+          supabase functions deploy sepay-ipn --project-ref "${SUPABASE_PROJECT_ID}" --use-api
+
+      - name: Verify deployed secrets
+        run: supabase secrets list --project-ref "${SUPABASE_PROJECT_ID}"
