@@ -411,30 +411,38 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
                   </div>
                 </div>
               )}
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={openCheckout}
+                  className="h-8 rounded-md bg-neutral-900 hover:bg-neutral-800 px-3 text-xs font-medium text-white"
+                >
+                  {tx('Gia hạn Pro', 'Renew Pro')}
+                </button>
+                <button
+                  type="button"
+                  onClick={openLicense}
+                  className="h-8 rounded-md border border-neutral-300 bg-white hover:bg-neutral-50 px-3 text-xs font-medium text-neutral-700"
+                >
+                  {tx('Nhập License Key', 'Enter License Key')}
+                </button>
+              </div>
+              <div className="mt-2 flex items-center justify-center gap-3 text-xs">
                 <button
                   type="button"
                   onClick={deactivateCurrentDevice}
                   disabled={deactivating}
-                  className="h-9 rounded-lg border border-red-200 bg-white hover:bg-red-50 disabled:opacity-50 text-red-700 text-xs font-medium"
+                  className="text-red-600 hover:text-red-700 disabled:opacity-50"
                 >
                   {deactivating ? tx('Đang xóa…', 'Removing…') : tx('Xóa thiết bị này', 'Remove this device')}
                 </button>
+                <span className="text-neutral-300">·</span>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="h-9 rounded-lg text-neutral-600 hover:bg-white text-xs font-medium"
+                  className="text-neutral-500 hover:text-neutral-800"
                 >
                   {tx('Đóng', 'Close')}
-                </button>
-              </div>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-
-                <button type="button" onClick={openCheckout} className="h-10 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold">
-                  {tx('Gia hạn Pro', 'Renew Pro')}
-                </button>
-                <button type="button" onClick={openLicense} className="h-10 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 text-neutral-800 text-sm font-semibold">
-                  {tx('Nhập License Key', 'Enter License Key')}
                 </button>
               </div>
 
