@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../i18n';
-import { scanImageData, parseRawQRPayload } from '../utils/qrBộ giải mã';
+import { scanImageData, parseRawQRPayload } from '../utils/qrDecoder';
 import { DecodedQRData } from '../types/qr';
 import {
   Camera,
@@ -28,7 +28,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<DecodedQRData | null>(null);
-  const [copied, setĐã sao chép] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -133,8 +133,8 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   const handleCopyRaw = () => {
     if (!scanResult) return;
     navigator.clipboard.writeText(scanResult.raw);
-    setĐã sao chép(true);
-    setTimeout(() => setĐã sao chép(false), 2000);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
