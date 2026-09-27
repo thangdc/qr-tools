@@ -12,12 +12,12 @@ import {
 } from 'lucide-react';
 
 interface HistoryViewProps {
-  items: QRHistoryItem[];
-  onRestore: (item: QRHistoryItem) => void;
-  onDelete: (id: string) => void;
+  {tx('mục', 'items')}: QRHistoryItem[];
+  on{tx('Khôi phục', 'Restore')}: (item: QRHistoryItem) => void;
+  on{tx('Xóa', 'Delete')}: (id: string) => void;
   onClearAll: () => void;
   onBackToGenerator: () => void;
-  onOpenBulk: () => void;
+  onOpen{tx('Hàng loạt', 'Bulk')}: () => void;
 }
 
 const FILTER_TYPES: { label: string; value: 'all' | QRType }[] = [
@@ -30,18 +30,19 @@ const FILTER_TYPES: { label: string; value: 'all' | QRType }[] = [
 ];
 
 export const HistoryView: React.FC<HistoryViewProps> = ({
-  items,
-  onRestore,
-  onDelete,
+  {tx('mục', 'items')},
+  on{tx('Khôi phục', 'Restore')},
+  on{tx('Xóa', 'Delete')},
   onClearAll,
   onBackToGenerator,
-  onOpenBulk,
+  onOpen{tx('Hàng loạt', 'Bulk')},
 }) => {
+  const { tx } = useLanguage();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | QRType>('all');
 
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
+    return {tx('mục', 'items')}.filter((item) => {
       const matchType = filterType === 'all' || item.type === filterType;
       const q = search.toLowerCase().trim();
       const matchSearch =
@@ -51,12 +52,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         item.rawPayload.toLowerCase().includes(q);
       return matchType && matchSearch;
     });
-  }, [items, filterType, search]);
+  }, [{tx('mục', 'items')}, filterType, search]);
 
   const exportCSV = () => {
-    if (items.length === 0) return;
-    const headers = ['ID', 'Type', 'Title', 'Subtitle', 'Payload', 'Created Date'];
-    const rows = items.map((i) => [
+    if ({tx('mục', 'items')}.length === 0) return;
+    const headers = ['ID', 'Type', 'Title', 'Subtitle', 'Payload', '{tx('Tạo lúc', 'Created')} Date'];
+    const rows = {tx('mục', 'items')}.map((i) => [
       i.id,
       i.type,
       `"${(i.title || '').replace(/"/g, '""')}"`,
@@ -91,31 +92,31 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Top Bar for History */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
+      <div className="flex flex-col sm:flex-row sm:{tx('mục', 'items')}-center justify-between gap-4 pb-4 border-b border-neutral-200">
         <div>
           <button
             type="button"
             onClick={onBackToGenerator}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 mb-2 cursor-pointer transition-colors"
+            className="inline-flex {tx('mục', 'items')}-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 mb-2 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Generator</span>
+            <span>{tx('Quay lại trình tạo', 'Back to Generator')}</span>
           </button>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">
-            QR Generation History
+            QR {tx('Lịch sử tạo mã', 'Generation History')}
           </h1>
           <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">
             Previously generated codes stored securely in your browser. Click any item to restore.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {items.length > 0 && (
+        <div className="flex {tx('mục', 'items')}-center gap-2">
+          {{tx('mục', 'items')}.length > 0 && (
             <>
               <button
                 type="button"
                 onClick={exportCSV}
-                className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-100 border border-neutral-300 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-100 border border-neutral-300 rounded-md transition-colors inline-flex {tx('mục', 'items')}-center gap-1.5 cursor-pointer"
                 title="Export history to CSV"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-neutral-500" />
@@ -124,8 +125,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
               <button
                 type="button"
-                onClick={onOpenBulk}
-                className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-100 border border-neutral-300 rounded-md transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                onClick={onOpen{tx('Hàng loạt', 'Bulk')}}
+                className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-100 border border-neutral-300 rounded-md transition-colors inline-flex {tx('mục', 'items')}-center gap-1.5 cursor-pointer"
                 title="Open batch manager"
               >
                 <Layers className="w-3.5 h-3.5 text-neutral-500" />
@@ -136,7 +137,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                 type="button"
                 onClick={onClearAll}
                 className="h-8 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-                title="Delete all history"
+                title="{tx('Xóa', 'Delete')} all history"
               >
                 Clear all
               </button>
@@ -146,7 +147,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       </div>
 
       {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row {tx('mục', 'items')}-stretch sm:{tx('mục', 'items')}-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -159,7 +160,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         </div>
 
         {/* Segmented Filter */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex {tx('mục', 'items')}-center gap-1 overflow-x-auto pb-1 sm:pb-0">
           {FILTER_TYPES.map((ft) => (
             <button
               key={ft.value}
@@ -181,14 +182,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       {filteredItems.length === 0 ? (
         <div className="border border-dashed border-neutral-300 rounded-lg p-12 text-center bg-white/50">
           <p className="text-sm font-medium text-neutral-700 mb-1">
-            {items.length === 0 ? 'No saved QR codes yet.' : 'No matching results found.'}
+            {{tx('mục', 'items')}.length === 0 ? 'No saved QR codes yet.' : 'No matching results found.'}
           </p>
           <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-4">
-            {items.length === 0
+            {{tx('mục', 'items')}.length === 0
               ? 'Your generated QR codes will automatically appear here. Try creating your first QR code.'
               : 'Try searching with a different term or clearing the type filter.'}
           </p>
-          {items.length === 0 && (
+          {{tx('mục', 'items')}.length === 0 && (
             <button
               type="button"
               onClick={onBackToGenerator}
@@ -203,23 +204,23 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="p-3 sm:p-4 hover:bg-neutral-50/80 transition-colors flex items-center justify-between gap-4 group"
+              className="p-3 sm:p-4 hover:bg-neutral-50/80 transition-colors flex {tx('mục', 'items')}-center justify-between gap-4 group"
             >
               {/* Thumbnail + Details */}
               <div
-                onClick={() => onRestore(item)}
-                className="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer"
+                onClick={() => on{tx('Khôi phục', 'Restore')}(item)}
+                className="flex {tx('mục', 'items')}-center gap-3.5 min-w-0 flex-1 cursor-pointer"
                 title="Click to restore into generator"
               >
                 {/* Visual Thumbnail */}
-                <div className="w-12 h-12 bg-neutral-50 border border-neutral-200 rounded p-1 shrink-0 flex items-center justify-center overflow-hidden group-hover:border-neutral-400 transition-colors">
-                  <div className="w-full h-full bg-neutral-900 rounded-xs flex items-center justify-center text-[10px] font-mono text-white">
+                <div className="w-12 h-12 bg-neutral-50 border border-neutral-200 rounded p-1 shrink-0 flex {tx('mục', 'items')}-center justify-center overflow-hidden group-hover:border-neutral-400 transition-colors">
+                  <div className="w-full h-full bg-neutral-900 rounded-xs flex {tx('mục', 'items')}-center justify-center text-[10px] font-mono text-white">
                     QR
                   </div>
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex {tx('mục', 'items')}-center gap-2">
                     <span className="text-sm font-semibold text-neutral-900 truncate">
                       {item.title}
                     </span>
@@ -234,16 +235,16 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               </div>
 
               {/* Timestamp & Actions */}
-              <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              <div className="flex {tx('mục', 'items')}-center gap-2 sm:gap-4 shrink-0">
                 <span className="text-xs text-neutral-400 font-mono tabular-nums hidden sm:inline">
                   {formatTime(item.createdAt)}
                 </span>
 
                 <button
                   type="button"
-                  onClick={() => onRestore(item)}
+                  onClick={() => on{tx('Khôi phục', 'Restore')}(item)}
                   className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer"
-                  title="Restore into generator"
+                  title="{tx('Khôi phục', 'Restore')} into generator"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -253,7 +254,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
                   onClick={() => {
                     const a = document.createElement('a');
                     // quick fallback
-                    onRestore(item);
+                    on{tx('Khôi phục', 'Restore')}(item);
                   }}
                   className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer hidden sm:inline-flex"
                   title="Open in editor"
@@ -263,9 +264,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => onDelete(item.id)}
+                  onClick={() => on{tx('Xóa', 'Delete')}(item.id)}
                   className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                  title="Delete from history"
+                  title="{tx('Xóa', 'Delete')} from history"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
