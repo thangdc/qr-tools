@@ -1,0 +1,54 @@
+name: Capture landing screenshots
+
+on:
+  push:
+    branches:
+      - feat/landing-playwright-screenshots
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm install --package-lock=false --legacy-peer-deps
+
+      - name: Install Playwright
+        run: npm install --no-save --package-lock=false --legacy-peer-deps playwright@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture screenshots and update landing pages
+        run: node scripts/capture-landing-screenshots.mjs
+
+      - name: Commit generated screenshots and landing updates
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/screenshots/landing public/tao-ma-qr-vietqr-online/index.html public/tao-ma-qr-wifi/index.html public/tao-ma-qr-tu-excel/index.html public/in-nhieu-ma-qr-tu-excel/index.html public/tao-ma-qr-hang-loat/index.html
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git commit -m "docs: add real QR Tools screenshots to SEO landings"
+          git pull --rebase origin "${BRANCH}"
+          git push origin HEAD:"${BRANCH}"
