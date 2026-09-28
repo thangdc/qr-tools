@@ -193,9 +193,11 @@ async function dismissBlockingOverlays(page) {
     await overlay.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
   }
 
-  const visibleOverlay = page.locator('div.fixed.inset-0.z-50').filter({ visible: true }).first();
-  if (await visibleOverlay.isVisible().catch(() => false)) {
-    throw new Error('A blocking modal overlay is still visible before the next interaction.');
+  const remaining = page.locator('div.fixed.inset-0.z-50');
+  for (let index = 0; index < await remaining.count(); index += 1) {
+    if (await remaining.nth(index).isVisible().catch(() => false)) {
+      throw new Error('A blocking modal overlay is still visible before the next interaction.');
+    }
   }
 }
 
