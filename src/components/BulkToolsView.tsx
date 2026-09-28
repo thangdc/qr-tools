@@ -369,7 +369,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             type="button"
             onClick={() => {
               if (!isPro) {
-                onOpenPro();
+                onOpenPro('bulk_sequencer');
                 return;
               }
               setShowSequencer(!showSequencer);
@@ -670,7 +670,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
             type="button"
             onClick={() => {
               if (!isPro) {
-                onOpenPro();
+                onOpenPro('bulk_import_paste');
                 return;
               }
               parseAndAddLines(importText);
