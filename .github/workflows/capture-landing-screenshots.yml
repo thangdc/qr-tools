@@ -37,6 +37,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Capture screenshots and update landing pages
+        env:
+          QR_PRO_EMAIL: thang@thangdc.com
+          QR_PRO_KEY: ${{ secrets.QR_PRO_KEY }}
         run: node scripts/capture-landing-screenshots.mjs
 
       - name: Commit generated screenshots and landing updates
