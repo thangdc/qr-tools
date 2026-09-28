@@ -111,7 +111,7 @@ const guideCaptures = [
     image: 'history.png', url: `${baseUrl}/?type=payment&source=guide-history`,
     alt: 'QR Tools lịch sử QR', caption: 'History — tìm kiếm, lọc và khôi phục QR',
     prepare: async (page) => {
-      await page.getByRole('button', { name: 'Lịch sử', exact: true }).click();
+      await page.getByText('Lịch sử', { exact: true }).click();
       await page.waitForTimeout(500);
     },
   },
