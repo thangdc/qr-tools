@@ -5,6 +5,13 @@ import path from 'node:path';
 const root = process.cwd();
 const outputDir = path.join(root, 'public', 'screenshots', 'landing');
 const baseUrl = 'https://qr.thangdc.com';
+const proEmail = process.env.QR_PRO_EMAIL || '';
+const proKey = process.env.QR_PRO_KEY || '';
+const proDeviceId = 'qr-tools-github-actions-landing-screenshots';
+
+if (!proEmail || !proKey) {
+  throw new Error('QR_PRO_EMAIL and QR_PRO_KEY must be configured for landing screenshot capture.');
+}
 
 const captures = [
   {
@@ -25,22 +32,41 @@ const captures = [
     slug: 'tao-ma-qr-tu-excel',
     url: `${baseUrl}/?view=bulk&source=landing-excel`,
     image: 'excel.png',
-    alt: 'Giao diện Hàng loạt và Xuất của QR Tools cho workflow Excel',
-    caption: 'Workflow Hàng loạt & Xuất dành cho dữ liệu Excel/CSV',
+    alt: 'Giao diện QR Tools sau khi nhập dữ liệu từ Excel hoặc CSV',
+    caption: 'Nhập dữ liệu từ Excel/CSV và tạo danh sách QR hàng loạt',
+    prepare: async (page) => {
+      const textarea = page.locator('textarea').filter({ visible: true }).first();
+      await textarea.fill([
+        'Sản phẩm 001, https://shop.example.com/san-pham-001',
+        'Sản phẩm 002, https://shop.example.com/san-pham-002',
+        'Sản phẩm 003, https://shop.example.com/san-pham-003',
+        'Sản phẩm 004, https://shop.example.com/san-pham-004',
+      ].join('\\n'));
+      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.waitForTimeout(800);
+    },
   },
   {
     slug: 'in-nhieu-ma-qr-tu-excel',
     url: `${baseUrl}/?view=bulk&source=landing-print-excel`,
     image: 'print-excel.png',
-    alt: 'Giao diện QR Tools cho workflow in nhiều mã QR từ Excel',
-    caption: 'Workflow Hàng loạt & Xuất cho nhu cầu in nhiều QR',
+    alt: 'Giao diện QR Tools với định dạng in nhiều mã QR từ Excel',
+    caption: 'Chọn định dạng in cho nhiều mã QR từ dữ liệu Excel/CSV',
+    prepare: async (page) => {
+      await page.getByText('Lưới tem dán', { exact: true }).click();
+      await page.waitForTimeout(500);
+    },
   },
   {
     slug: 'tao-ma-qr-hang-loat',
     url: `${baseUrl}/?view=bulk&source=landing-bulk`,
     image: 'bulk.png',
-    alt: 'Giao diện tạo và quản lý QR hàng loạt trên QR Tools',
-    caption: 'Giao diện tạo và quản lý QR hàng loạt',
+    alt: 'Giao diện QR Tools tạo QR hàng loạt bằng đánh số tự động',
+    caption: 'Tạo QR hàng loạt với tính năng tự động đánh số',
+    prepare: async (page) => {
+      await page.getByRole('button', { name: 'Tự động đánh số bàn', exact: true }).click();
+      await page.waitForTimeout(800);
+    },
   },
 ];
 
@@ -65,6 +91,10 @@ async function capture(page, item) {
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(2_000);
   await page.keyboard.press('Escape').catch(() => {});
+
+  if (item.prepare) {
+    await item.prepare(page);
+  }
 
   await page.screenshot({
     path: path.join(outputDir, item.image),
@@ -103,10 +133,36 @@ const context = await browser.newContext({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 1,
 });
+await context.addInitScript(({ deviceId }) => {
+  localStorage.setItem('qr_tools_device_id', deviceId);
+}, { deviceId: proDeviceId });
 const page = await context.newPage();
+
+async function activatePro() {
+  console.log('Activating Pro for screenshot capture...');
+  await page.getByRole('button', { name: 'Pro', exact: true }).click();
+  const emailInput = page.locator('input[type="email"]').first();
+  await emailInput.fill(proEmail);
+  const licenseInput = page.getByPlaceholder('License Key', { exact: true });
+  await licenseInput.fill(proKey);
+  await page.getByRole('button', { name: 'Kích hoạt', exact: true }).click();
+
+  // Successful activation switches the modal to the active-Pro panel, so the
+  // transient success message is no longer rendered. Wait for persisted state.
+  await page.waitForFunction(() => {
+    return localStorage.getItem('qr_tools_pro') === 'true'
+      && Boolean(localStorage.getItem('qr_tools_activation_token'));
+  }, undefined, { timeout: 15_000 });
+  await page.getByText('Pro đang hoạt động', { exact: true }).waitFor({ state: 'visible', timeout: 5_000 });
+  console.log('Pro activation succeeded.');
+}
 
 try {
   await fs.mkdir(outputDir, { recursive: true });
+  await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+  await page.waitForTimeout(1_000);
+  await activatePro();
 
   for (const item of captures) {
     console.log(`Capturing ${item.slug}...`);

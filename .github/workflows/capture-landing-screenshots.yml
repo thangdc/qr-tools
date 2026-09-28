@@ -3,7 +3,7 @@ name: Capture landing screenshots
 on:
   push:
     branches:
-      - feat/landing-playwright-screenshots
+      - fix/distinct-landing-screenshots
   workflow_dispatch:
 
 permissions:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   capture:
     runs-on: ubuntu-latest
+    environment: prod
     timeout-minutes: 15
 
     steps:
@@ -37,6 +38,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Capture screenshots and update landing pages
+        env:
+          QR_PRO_EMAIL: thang@thangdc.com
+          QR_PRO_KEY: ${{ secrets.QR_PRO_KEY }}
         run: node scripts/capture-landing-screenshots.mjs
 
       - name: Commit generated screenshots and landing updates
@@ -49,6 +53,6 @@ jobs:
             echo "No generated changes to commit."
             exit 0
           fi
-          git commit -m "docs: add real QR Tools screenshots to SEO landings"
+          git commit -m "docs: refresh distinct QR landing screenshots"
           git pull --rebase origin "${BRANCH}"
           git push origin HEAD:"${BRANCH}"
