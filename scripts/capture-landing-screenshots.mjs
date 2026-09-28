@@ -183,7 +183,9 @@ async function dismissBlockingOverlays(page) {
     const overlay = overlays.nth(index);
     if (!(await overlay.isVisible().catch(() => false))) continue;
 
-    const closeButton = overlay.getByRole('button').filter({ hasText: /×|Đóng|Close/ }).first();
+    // The Pro modal's close control is an icon-only button with no accessible
+    // name/text/title, so a text-filtered role lookup cannot find it.
+    const closeButton = overlay.locator('button').first();
     if (await closeButton.isVisible().catch(() => false)) {
       await closeButton.click().catch(() => {});
     } else {
