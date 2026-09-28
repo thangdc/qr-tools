@@ -383,8 +383,11 @@ export default function App() {
     setActiveView('generator');
   };
 
-  const openProModal = () => {
-    trackEvent('pro_view', { source: activeView });
+  const openProModal = (source?: string) => {
+    trackEvent('pro_view', {
+      source: source || activeView,
+      view: activeView,
+    });
     setIsProModalOpen(true);
   };
 
@@ -500,6 +503,13 @@ export default function App() {
             1024
           );
           const url = offscreen.toDataURL('image/png');
+          trackEvent('qr_downloaded', {
+            qr_type: selectedType,
+            format: 'png',
+            resolution: 1024,
+            method: 'keyboard',
+            is_pro: isPro,
+          });
           const a = document.createElement('a');
           a.href = url;
           a.download = `qr-${activeTemplate.layout}-${selectedType}-${Date.now()}.png`;
