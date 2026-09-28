@@ -83,6 +83,95 @@ const captures = [
   },
 ];
 
+
+const guideCaptures = [
+  { image: 'generator-url.png', url: `${baseUrl}/?type=url&source=guide-url`, alt: 'QR Tools tạo mã QR URL', caption: 'Generator — tạo QR URL' },
+  { image: 'generator-wifi.png', url: `${baseUrl}/?type=wifi&source=guide-wifi`, alt: 'QR Tools tạo mã QR WiFi', caption: 'Generator — tạo QR WiFi' },
+  { image: 'generator-contact.png', url: `${baseUrl}/?type=contact&source=guide-contact`, alt: 'QR Tools tạo mã QR thông tin liên hệ', caption: 'Generator — tạo QR Contact / vCard' },
+  { image: 'generator-payment.png', url: `${baseUrl}/?type=payment&source=guide-payment`, alt: 'QR Tools tạo mã QR thanh toán VietQR', caption: 'Generator — tạo QR thanh toán VietQR' },
+  {
+    image: 'customize.png', url: `${baseUrl}/?type=url&source=guide-customize`,
+    alt: 'QR Tools tùy chỉnh thiết kế QR', caption: 'Tùy chỉnh — màu, hình dạng và khung',
+    prepare: async (page) => {
+      await page.getByText('Tùy chỉnh & Khung', { exact: true }).click();
+      await page.getByRole('button', { name: 'Bo tròn', exact: true }).first().click();
+      await page.getByRole('button', { name: 'Thanh dưới', exact: true }).click();
+      await page.getByRole('button', { name: 'VietQR Marine', exact: true }).click();
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    image: 'templates.png', url: `${baseUrl}/?type=url&source=guide-templates`,
+    alt: 'QR Tools quản lý template thiết kế', caption: 'Templates — lưu và tái sử dụng thiết kế',
+    prepare: async (page) => {
+      await page.getByRole('button', { name: /Mẫu/ }).first().click();
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    image: 'history.png', url: `${baseUrl}/?type=payment&source=guide-history`,
+    alt: 'QR Tools lịch sử QR', caption: 'History — tìm kiếm, lọc và khôi phục QR',
+    prepare: async (page) => {
+      await page.getByRole('button', { name: 'Lịch sử', exact: true }).click();
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    image: 'scanner.png', url: `${baseUrl}/?type=url&source=guide-scanner`,
+    alt: 'QR Tools Scanner', caption: 'Scanner — quét và giải mã QR',
+    prepare: async (page) => {
+      await page.getByRole('button', { name: 'Scanner', exact: true }).click();
+      await page.waitForTimeout(500);
+    },
+  },
+  { image: 'bulk-overview.png', url: `${baseUrl}/?view=bulk&source=guide-bulk`, alt: 'QR Tools tạo hàng loạt', caption: 'Batch — quản lý nhiều QR' },
+  {
+    image: 'bulk-import.png', url: `${baseUrl}/?view=bulk&source=guide-import`,
+    alt: 'QR Tools import Excel CSV', caption: 'Import — đưa dữ liệu Excel/CSV vào Batch',
+    prepare: async (page) => {
+      const textarea = page.locator('textarea').first();
+      await textarea.fill([
+        'Bàn 01 - Tầng 1, https://menu.cafe.vn/table/01',
+        'Bàn 02 - Tầng 1, https://menu.cafe.vn/table/02',
+        'Bàn 03 - Tầng 1, https://menu.cafe.vn/table/03',
+        'Bàn 04 - Tầng 1, https://menu.cafe.vn/table/04',
+        'Bàn 05 - Tầng 1, https://menu.cafe.vn/table/05',
+      ].join('\\n'));
+      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.waitForTimeout(700);
+    },
+  },
+  {
+    image: 'bulk-sequence.png', url: `${baseUrl}/?view=bulk&source=guide-sequence`,
+    alt: 'QR Tools tự động đánh số bàn', caption: 'Auto-sequencer — tạo QR bàn tự động',
+    prepare: async (page) => {
+      await page.getByRole('button', { name: 'Tự động đánh số bàn', exact: true }).click();
+      await page.waitForTimeout(500);
+    },
+  },
+  {
+    image: 'print-workshop.png', url: `${baseUrl}/?view=bulk&source=guide-print`,
+    alt: 'QR Tools Print Workshop A4', caption: 'Print Workshop — thẻ để bàn và lưới nhãn dán A4',
+    prepare: async (page) => {
+      const textarea = page.locator('textarea').first();
+      await textarea.fill([
+        'Bàn 01, https://menu.cafe.vn/table/01',
+        'Bàn 02, https://menu.cafe.vn/table/02',
+        'Bàn 03, https://menu.cafe.vn/table/03',
+        'Bàn 04, https://menu.cafe.vn/table/04',
+        'Bàn 05, https://menu.cafe.vn/table/05',
+        'Bàn 06, https://menu.cafe.vn/table/06',
+      ].join('\\n'));
+      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.waitForTimeout(700);
+      await page.getByRole('button', { name: /In trang/ }).click();
+      await page.waitForTimeout(1200);
+      await page.getByText('Lưới nhãn dán', { exact: true }).click();
+      await page.waitForTimeout(700);
+    },
+  },
+];
+
 function escapeHtml(value) {
   return value
     .replaceAll('&', '&amp;')
@@ -172,10 +261,30 @@ async function activatePro() {
 
 try {
   await fs.mkdir(outputDir, { recursive: true });
+  await fs.mkdir(path.join(root, 'public', 'screenshots', 'guide'), { recursive: true });
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(1_000);
+  // Capture the upgrade/pricing view before Pro activation.
+  await page.getByRole('button', { name: 'Pro', exact: true }).click();
+  await page.waitForTimeout(500);
+  await page.screenshot({
+    path: path.join(root, 'public', 'screenshots', 'guide', 'pro-pricing.png'),
+    fullPage: false,
+    animations: 'disabled',
+    scale: 'css',
+  });
+  await page.keyboard.press('Escape').catch(() => {});
+
   await activatePro();
+
+  for (const item of guideCaptures) {
+    console.log(`Capturing guide ${item.image}...`);
+    await capture(page, item);
+    const sourcePath = path.join(outputDir, item.image);
+    const guidePath = path.join(root, 'public', 'screenshots', 'guide', item.image);
+    await fs.rename(sourcePath, guidePath);
+  }
 
   for (const item of captures) {
     console.log(`Capturing ${item.slug}...`);
