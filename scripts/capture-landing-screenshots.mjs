@@ -53,8 +53,21 @@ const captures = [
     alt: 'Giao diện QR Tools với định dạng in nhiều mã QR từ Excel',
     caption: 'Chọn định dạng in cho nhiều mã QR từ dữ liệu Excel/CSV',
     prepare: async (page) => {
+      const textarea = page.locator('textarea').first();
+      await textarea.fill([
+        'Sản phẩm 001, https://shop.example.com/san-pham-001',
+        'Sản phẩm 002, https://shop.example.com/san-pham-002',
+        'Sản phẩm 003, https://shop.example.com/san-pham-003',
+        'Sản phẩm 004, https://shop.example.com/san-pham-004',
+        'Sản phẩm 005, https://shop.example.com/san-pham-005',
+        'Sản phẩm 006, https://shop.example.com/san-pham-006',
+      ].join('\\n'));
+      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.waitForTimeout(800);
       await page.getByText('Lưới tem dán', { exact: true }).click();
       await page.waitForTimeout(500);
+      await page.getByRole('button', { name: /In trang/ }).click();
+      await page.waitForTimeout(1_000);
     },
   },
   {
