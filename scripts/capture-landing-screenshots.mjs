@@ -103,7 +103,7 @@ const guideCaptures = [
     image: 'templates.png', url: `${baseUrl}/?type=url&source=guide-templates`,
     alt: 'QR Tools quản lý template thiết kế', caption: 'Templates — lưu và tái sử dụng thiết kế',
     prepare: async (page) => {
-      await page.getByRole('button', { name: /Mẫu/ }).first().click();
+      await page.getByTestId('nav-templates').click();
       await page.waitForTimeout(500);
     },
   },
@@ -111,7 +111,7 @@ const guideCaptures = [
     image: 'history.png', url: `${baseUrl}/?type=payment&source=guide-history`,
     alt: 'QR Tools lịch sử QR', caption: 'History — tìm kiếm, lọc và khôi phục QR',
     prepare: async (page) => {
-      await page.getByText('Lịch sử', { exact: true }).click();
+      await page.getByTestId('nav-history').click();
       await page.waitForTimeout(500);
     },
   },
@@ -119,7 +119,7 @@ const guideCaptures = [
     image: 'scanner.png', url: `${baseUrl}/?type=url&source=guide-scanner`,
     alt: 'QR Tools Scanner', caption: 'Scanner — quét và giải mã QR',
     prepare: async (page) => {
-      await page.getByText('Scanner', { exact: true }).click();
+      await page.getByTestId('nav-scanner').click();
       await page.waitForTimeout(500);
     },
   },
