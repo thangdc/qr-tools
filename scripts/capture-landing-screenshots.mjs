@@ -80,7 +80,15 @@ async function updateLandingPage(item) {
 
   const figure = `<figure class="landing-screenshot"><img src="/screenshots/landing/${item.image}" alt="${escapeHtml(item.alt)}" loading="lazy" width="1440" height="900"><figcaption>${escapeHtml(item.caption)}</figcaption></figure>`;
 
-  html = html.replace(/<figure class="landing-screenshot">[\\s\\S]*?<\\/figure>/, '');
+  const existingStart = html.indexOf('<figure class="landing-screenshot">');
+  if (existingStart !== -1) {
+    const existingEnd = html.indexOf('</figure>', existingStart);
+    if (existingEnd === -1) {
+      throw new Error(`Unclosed landing screenshot figure in ${filePath}`);
+    }
+    html = html.slice(0, existingStart) + html.slice(existingEnd + '</figure>'.length);
+  }
+
   const marker = '</section><section class="section">';
   if (!html.includes(marker)) {
     throw new Error(`Cannot find screenshot insertion point in ${filePath}`);
