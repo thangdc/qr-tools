@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../i18n';
+import { trackEvent } from '../utils/analytics';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { BulkQRItem, QRType } from '../types/qr';
@@ -26,7 +27,7 @@ import {
 
 interface BulkToolsViewProps {
   isPro: boolean;
-  onOpenPro: () => void;
+  onOpenPro: (source?: string) => void;
   onBackToGenerator: () => void;
   onPrintBatch: (items: BulkQRItem[]) => void;
 }
@@ -135,7 +136,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
 
   const handleGenerateSequence = () => {
     if (!isPro) {
-      onOpenPro();
+      onOpenPro('bulk_sequencer');
       return;
     }
     const from = Math.max(1, seqFrom);
@@ -157,6 +158,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
     }
 
     setItems((prev) => [...prev, ...newItems]);
+    trackEvent('bulk_sequence_generated', { count: newItems.length });
     setShowSequencer(false);
   };
 
@@ -188,11 +190,12 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
     });
 
     setItems((prev) => [...prev, ...parsed]);
+    trackEvent('bulk_import_completed', { count: parsed.length, method: 'paste' });
   };
 
   const handleFileDrop = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isPro) {
-      onOpenPro();
+      onOpenPro('bulk_file_import');
       e.target.value = '';
       return;
     }
@@ -202,6 +205,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
+      trackEvent('bulk_import_started', { method: 'file', file_type: file.name.split('.').pop()?.toLowerCase() || 'unknown' });
       parseAndAddLines(content);
     };
     reader.readAsText(file);
@@ -254,7 +258,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
   // ZIP Export using JSZip
   const handleExportZIP = async () => {
     if (!isPro) {
-      onOpenPro();
+      onOpenPro('bulk_zip_export');
       return;
     }
 
@@ -305,6 +309,7 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      trackEvent('bulk_zip_exported', { count: selectedItems.length, format: 'zip' });
     } catch (err) {
       console.error(err);
     } finally {
@@ -315,11 +320,12 @@ export const BulkToolsView: React.FC<BulkToolsViewProps> = ({
 
   const handlePrint = () => {
     if (!isPro) {
-      onOpenPro();
+      onOpenPro('bulk_print');
       return;
     }
     const selected = items.filter((i) => i.selected);
     if (selected.length === 0) return;
+    trackEvent('bulk_print_requested', { count: selected.length });
     onPrintBatch(selected);
   };
 
