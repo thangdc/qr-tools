@@ -25,22 +25,41 @@ const captures = [
     slug: 'tao-ma-qr-tu-excel',
     url: `${baseUrl}/?view=bulk&source=landing-excel`,
     image: 'excel.png',
-    alt: 'Giao diện Hàng loạt và Xuất của QR Tools cho workflow Excel',
-    caption: 'Workflow Hàng loạt & Xuất dành cho dữ liệu Excel/CSV',
+    alt: 'Giao diện QR Tools sau khi nhập dữ liệu từ Excel hoặc CSV',
+    caption: 'Nhập dữ liệu từ Excel/CSV và tạo danh sách QR hàng loạt',
+    prepare: async (page) => {
+      const textarea = page.locator('textarea').filter({ visible: true }).first();
+      await textarea.fill([
+        'Sản phẩm 001, https://shop.example.com/san-pham-001',
+        'Sản phẩm 002, https://shop.example.com/san-pham-002',
+        'Sản phẩm 003, https://shop.example.com/san-pham-003',
+        'Sản phẩm 004, https://shop.example.com/san-pham-004',
+      ].join('\\n'));
+      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.waitForTimeout(800);
+    },
   },
   {
     slug: 'in-nhieu-ma-qr-tu-excel',
     url: `${baseUrl}/?view=bulk&source=landing-print-excel`,
     image: 'print-excel.png',
-    alt: 'Giao diện QR Tools cho workflow in nhiều mã QR từ Excel',
-    caption: 'Workflow Hàng loạt & Xuất cho nhu cầu in nhiều QR',
+    alt: 'Giao diện QR Tools với định dạng in nhiều mã QR từ Excel',
+    caption: 'Chọn định dạng in cho nhiều mã QR từ dữ liệu Excel/CSV',
+    prepare: async (page) => {
+      await page.getByText('Lưới tem dán', { exact: true }).click();
+      await page.waitForTimeout(500);
+    },
   },
   {
     slug: 'tao-ma-qr-hang-loat',
     url: `${baseUrl}/?view=bulk&source=landing-bulk`,
     image: 'bulk.png',
-    alt: 'Giao diện tạo và quản lý QR hàng loạt trên QR Tools',
-    caption: 'Giao diện tạo và quản lý QR hàng loạt',
+    alt: 'Giao diện QR Tools tạo QR hàng loạt bằng đánh số tự động',
+    caption: 'Tạo QR hàng loạt với tính năng tự động đánh số',
+    prepare: async (page) => {
+      await page.getByRole('button', { name: 'Tự động đánh số bàn', exact: true }).click();
+      await page.waitForTimeout(800);
+    },
   },
 ];
 
@@ -65,6 +84,10 @@ async function capture(page, item) {
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(2_000);
   await page.keyboard.press('Escape').catch(() => {});
+
+  if (item.prepare) {
+    await item.prepare(page);
+  }
 
   await page.screenshot({
     path: path.join(outputDir, item.image),
