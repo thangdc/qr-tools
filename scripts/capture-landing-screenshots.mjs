@@ -289,6 +289,8 @@ try {
   });
   await page.keyboard.press('Escape').catch(() => {});
 
+  await page.keyboard.press('Escape').catch(() => {});
+  await page.waitForTimeout(300);
   await activatePro();
 
   for (const item of guideCaptures) {
