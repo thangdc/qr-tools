@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../i18n';
+import { trackEvent } from '../utils/analytics';
 import QRCode from 'qrcode';
 import { QRDesignOptions, QRType, QRTemplate } from '../types/qr';
 import {
@@ -54,7 +55,7 @@ interface QRPreviewProps {
   onSaveToHistory: (dataUrl: string) => boolean;
   onPrintSingle: (dataUrl: string) => void;
   isPro: boolean;
-  onOpenPro: () => void;
+  onOpenPro: (source?: string) => void;
   onOpenMetricHandoff: () => void;
 }
 
@@ -176,7 +177,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   const handleDownloadPNG = async (res = downloadRes) => {
     if (!payload) return;
     if (res >= 2048 && !isPro) {
-      onOpenPro();
+      onOpenPro('single_download_2048');
       return;
     }
 
@@ -193,6 +194,13 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         res
       );
 
+      trackEvent('qr_downloaded', {
+        qr_type: type,
+        format: 'png',
+        resolution: res,
+        method: 'button',
+        is_pro: isPro,
+      });
       const filename = `qr-${activeTemplate.layout}-${type}-${Date.now()}.png`;
       const a = document.createElement('a');
       a.href = highResUrl;
@@ -211,6 +219,12 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
+    trackEvent('qr_downloaded', {
+      qr_type: type,
+      format: 'svg',
+      method: 'button',
+      is_pro: isPro,
+    });
     a.download = `qr-${type}-${Date.now()}.svg`;
     document.body.appendChild(a);
     a.click();
