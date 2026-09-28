@@ -95,7 +95,7 @@ const guideCaptures = [
       await page.getByText('Tùy chỉnh & Khung', { exact: true }).click();
       await page.getByRole('button', { name: 'Bo tròn', exact: true }).first().click();
       await page.getByRole('button', { name: 'Thanh dưới', exact: true }).click();
-      await page.getByRole('button', { name: 'VietQR Marine', exact: true }).click();
+      await page.getByText('VietQR Marine', { exact: true }).click();
       await page.waitForTimeout(500);
     },
   },
