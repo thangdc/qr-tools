@@ -152,8 +152,8 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full max-h-[95vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs print:static print:block print:bg-white print:p-0">
+      <div className="bg-white rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full max-h-[95vh] flex flex-col overflow-hidden print:max-w-none print:w-auto print:max-h-none print:overflow-visible print:rounded-none print:border-0 print:shadow-none">
         {/* Top Control Bar - Hidden in print */}
         <div className="p-4 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3 bg-white print:hidden">
           <div className="flex items-center gap-2">
@@ -342,8 +342,8 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
         </div>
 
         {/* Printable Canvas Sheet Viewport */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-neutral-100 print:bg-white print:p-0">
-          <div className="max-w-[210mm] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm print:shadow-none print:p-0">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-neutral-100 print:flex-none print:overflow-visible print:bg-white print:p-0">
+          <div className="max-w-[210mm] mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-sm print:max-w-none print:mx-0 print:shadow-none print:p-0">
             {isRendering ? (
               <div className="p-12 text-center text-xs text-neutral-400">
                 {tx('Đang tạo', 'Đang tạo')} {items.length} {tx('mã QR', 'mã QR')}...
