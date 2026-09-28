@@ -790,7 +790,7 @@ export default function App() {
             <a href="mailto:thang@thangdc.com" className="hover:text-neutral-900 transition-colors">thang@thangdc.com</a>
             <span>·</span>
             <button
-              onClick={openProModal}
+              onClick={() => openProModal('footer')}
               className="hover:text-neutral-900 transition-colors cursor-pointer"
             >
               {isPro ? t('proActive') : t('upgradePro')}
