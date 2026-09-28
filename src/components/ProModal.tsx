@@ -313,9 +313,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
 
   const deactivateCurrentDevice = async () => {
     const savedEmail = localStorage.getItem('qr_tools_license_email') || email.trim();
+    const savedLicenseKey = localStorage.getItem('qr_tools_license_key') || licenseKey.trim();
     const activationToken = localStorage.getItem('qr_tools_activation_token');
-    if (!savedEmail || !activationToken) {
-      setMessage(tx('Không tìm thấy thông tin kích hoạt của thiết bị này.', 'This device activation information could not be found.'));
+    if (!savedEmail || !savedLicenseKey) {
+      setMessage(tx('Không tìm thấy thông tin License của thiết bị này.', 'This device license information could not be found.'));
       return;
     }
 
@@ -327,7 +328,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
     setDeactivating(true);
     setMessage(null);
     try {
-      const result = await deactivateProLicense(savedEmail, getDeviceId(), activationToken);
+      const result = await deactivateProLicense(savedEmail, getDeviceId(), activationToken || undefined, savedLicenseKey);
       if (!result.success) throw new Error(result.message || tx('Không thể xóa kích hoạt.', 'Unable to remove device activation.'));
       localStorage.removeItem('qr_tools_activation_token');
       localStorage.removeItem('qr_tools_pro');
