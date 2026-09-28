@@ -41,15 +41,15 @@ export const Header: React.FC<HeaderProps> = (props) => {
         </button>
 
         <nav className="hidden md:flex items-center gap-0.5 whitespace-nowrap">
-          <button onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
-          <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-1.5`}><ScanLine className="w-3.5 h-3.5 text-neutral-400" /><span>{t('scanner')}</span></button>
-          <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
-          <button onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-1.5`}><Layers className="w-3.5 h-3.5 text-neutral-400" /><span>{t('bulkExport')}</span></button>
+          <button data-testid="nav-generator" onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
+          <button data-testid="nav-scanner" onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-1.5`}><ScanLine className="w-3.5 h-3.5 text-neutral-400" /><span>{t('scanner')}</span></button>
+          <button data-testid="nav-history" onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
+          <button data-testid="nav-bulk" onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-1.5`}><Layers className="w-3.5 h-3.5 text-neutral-400" /><span>{t('bulkExport')}</span></button>
           <a href="/guide.html" className="px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5 text-neutral-400" /><span>Hướng dẫn</span></a>
         </nav>
 
         <div className="hidden md:flex items-center gap-1 shrink-0">
-          <button type="button" onClick={onOpenTemplates} className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1.5 rounded-md transition-colors cursor-pointer"><LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" /><span>{t('templates')}</span></button>
+          <button data-testid="nav-templates" type="button" onClick={onOpenTemplates} className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1.5 rounded-md transition-colors cursor-pointer"><LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" /><span>{t('templates')}</span></button>
           <button type="button" onClick={onOpenPrivacy} className="hidden xl:inline-flex items-center gap-1 text-[11px] text-neutral-500 hover:text-emerald-700 px-1.5 py-1 rounded transition-colors cursor-pointer"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /><span>{t('private')}</span></button>
           <button type="button" onClick={onOpenShortcuts} className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={t('shortcuts')}><Keyboard className="w-4 h-4" /></button>
           <button type="button" onClick={toggleLanguage} className="inline-flex items-center h-7 px-2 text-[10px] font-semibold rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-600 transition-colors cursor-pointer">{language === 'vi' ? 'EN' : 'VI'}</button>
