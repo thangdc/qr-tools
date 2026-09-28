@@ -146,10 +146,14 @@ async function activatePro() {
   const licenseInput = page.getByPlaceholder('License Key', { exact: true });
   await licenseInput.fill(proKey);
   await page.getByRole('button', { name: 'Kích hoạt', exact: true }).click();
-  await page.waitForTimeout(1_500);
 
-  const activationMessage = page.getByText('Pro đã được kích hoạt trên thiết bị này.', { exact: true });
-  await activationMessage.waitFor({ state: 'visible', timeout: 15_000 });
+  // Successful activation switches the modal to the active-Pro panel, so the
+  // transient success message is no longer rendered. Wait for persisted state.
+  await page.waitForFunction(() => {
+    return localStorage.getItem('qr_tools_pro') === 'true'
+      && Boolean(localStorage.getItem('qr_tools_activation_token'));
+  }, undefined, { timeout: 15_000 });
+  await page.getByText('Pro đang hoạt động', { exact: true }).waitFor({ state: 'visible', timeout: 5_000 });
   console.log('Pro activation succeeded.');
 }
 
