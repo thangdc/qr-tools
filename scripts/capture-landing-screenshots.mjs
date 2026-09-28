@@ -265,6 +265,19 @@ try {
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(1_000);
+  // Dismiss any restored modal/overlay before interacting with the header.
+  await page.keyboard.press('Escape').catch(() => {});
+  const blockingOverlay = page.locator('div.fixed.inset-0.z-50').first();
+  if (await blockingOverlay.isVisible().catch(() => false)) {
+    const closeButton = blockingOverlay.getByRole('button').filter({ hasText: /×|Đóng|Close/ }).first();
+    if (await closeButton.isVisible().catch(() => false)) {
+      await closeButton.click().catch(() => {});
+    } else {
+      await page.keyboard.press('Escape').catch(() => {});
+    }
+    await blockingOverlay.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+  }
+
   // Capture the upgrade/pricing view before Pro activation.
   await page.getByRole('button', { name: 'Pro', exact: true }).click();
   await page.waitForTimeout(500);
@@ -276,6 +289,8 @@ try {
   });
   await page.keyboard.press('Escape').catch(() => {});
 
+  await page.keyboard.press('Escape').catch(() => {});
+  await page.waitForTimeout(300);
   await activatePro();
 
   for (const item of guideCaptures) {
