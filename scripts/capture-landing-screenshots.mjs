@@ -119,7 +119,7 @@ const guideCaptures = [
     image: 'scanner.png', url: `${baseUrl}/?type=url&source=guide-scanner`,
     alt: 'QR Tools Scanner', caption: 'Scanner — quét và giải mã QR',
     prepare: async (page) => {
-      await page.getByRole('button', { name: 'Scanner', exact: true }).click();
+      await page.getByText('Scanner', { exact: true }).click();
       await page.waitForTimeout(500);
     },
   },
