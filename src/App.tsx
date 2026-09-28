@@ -232,6 +232,12 @@ export default function App() {
 
   // Modals state
   const [isProModalOpen, setIsProModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeView === 'bulk') {
+      trackEvent('bulk_opened', { is_pro: isPro });
+    }
+  }, [activeView, isPro]);
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
