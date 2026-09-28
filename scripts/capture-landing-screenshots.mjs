@@ -83,7 +83,6 @@ const captures = [
   },
 ];
 
-
 const guideCaptures = [
   { image: 'generator-url.png', url: `${baseUrl}/?type=url&source=guide-url`, alt: 'QR Tools tạo mã QR URL', caption: 'Generator — tạo QR URL' },
   { image: 'generator-wifi.png', url: `${baseUrl}/?type=wifi&source=guide-wifi`, alt: 'QR Tools tạo mã QR WiFi', caption: 'Generator — tạo QR WiFi' },
@@ -173,88 +172,76 @@ const guideCaptures = [
 ];
 
 function escapeHtml(value) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('"', '&quot;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+  return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
+async function dismissBlockingOverlays(page) {
+  await page.keyboard.press('Escape').catch(() => {});
+  const overlays = page.locator('div.fixed.inset-0.z-50');
+  const count = await overlays.count();
+  for (let index = count - 1; index >= 0; index -= 1) {
+    const overlay = overlays.nth(index);
+    if (!(await overlay.isVisible().catch(() => false))) continue;
+
+    const closeButton = overlay.getByRole('button').filter({ hasText: /×|Đóng|Close/ }).first();
+    if (await closeButton.isVisible().catch(() => false)) {
+      await closeButton.click().catch(() => {});
+    } else {
+      await page.keyboard.press('Escape').catch(() => {});
+    }
+
+    await overlay.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+  }
+
+  const visibleOverlay = page.locator('div.fixed.inset-0.z-50').filter({ visible: true }).first();
+  if (await visibleOverlay.isVisible().catch(() => false)) {
+    throw new Error('A blocking modal overlay is still visible before the next interaction.');
+  }
 }
 
 async function capture(page, item) {
-  const response = await page.goto(item.url, {
-    waitUntil: 'domcontentloaded',
-    timeout: 60_000,
-  });
-
-  if (!response || !response.ok()) {
-    throw new Error(`${item.url} returned HTTP ${response?.status() ?? 'unknown'}`);
-  }
-
+  const response = await page.goto(item.url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  if (!response || !response.ok()) throw new Error(`${item.url} returned HTTP ${response?.status() ?? 'unknown'}`);
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(2_000);
-  await page.keyboard.press('Escape').catch(() => {});
-
-  if (item.prepare) {
-    await item.prepare(page);
-  }
-
-  await page.screenshot({
-    path: path.join(outputDir, item.image),
-    fullPage: false,
-    animations: 'disabled',
-    scale: 'css',
-  });
+  await dismissBlockingOverlays(page);
+  if (item.prepare) await item.prepare(page);
+  await page.screenshot({ path: path.join(outputDir, item.image), fullPage: false, animations: 'disabled', scale: 'css' });
 }
 
 async function updateLandingPage(item) {
   const filePath = path.join(root, 'public', item.slug, 'index.html');
   let html = await fs.readFile(filePath, 'utf8');
-
   const figure = `<figure class="landing-screenshot"><img src="/screenshots/landing/${item.image}" alt="${escapeHtml(item.alt)}" loading="lazy" width="1440" height="900"><figcaption>${escapeHtml(item.caption)}</figcaption></figure>`;
-
   const existingStart = html.indexOf('<figure class="landing-screenshot">');
   if (existingStart !== -1) {
     const existingEnd = html.indexOf('</figure>', existingStart);
-    if (existingEnd === -1) {
-      throw new Error(`Unclosed landing screenshot figure in ${filePath}`);
-    }
+    if (existingEnd === -1) throw new Error(`Unclosed landing screenshot figure in ${filePath}`);
     html = html.slice(0, existingStart) + html.slice(existingEnd + '</figure>'.length);
   }
-
   const marker = '</section><section class="section">';
-  if (!html.includes(marker)) {
-    throw new Error(`Cannot find screenshot insertion point in ${filePath}`);
-  }
-
+  if (!html.includes(marker)) throw new Error(`Cannot find screenshot insertion point in ${filePath}`);
   html = html.replace(marker, `</section>${figure}<section class="section">`);
   await fs.writeFile(filePath, html);
 }
 
 const browser = await chromium.launch({ headless: true });
-const context = await browser.newContext({
-  viewport: { width: 1440, height: 900 },
-  deviceScaleFactor: 1,
-});
-await context.addInitScript(({ deviceId }) => {
-  localStorage.setItem('qr_tools_device_id', deviceId);
-}, { deviceId: proDeviceId });
+const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+await context.addInitScript(({ deviceId }) => { localStorage.setItem('qr_tools_device_id', deviceId); }, { deviceId: proDeviceId });
 const page = await context.newPage();
 
 async function activatePro() {
   console.log('Activating Pro for screenshot capture...');
-  await page.getByRole('button', { name: 'Pro', exact: true }).click();
+  await dismissBlockingOverlays(page);
+  const proButton = page.getByRole('button', { name: 'Pro', exact: true });
+  await proButton.waitFor({ state: 'visible', timeout: 10_000 });
+  await proButton.click();
   const emailInput = page.locator('input[type="email"]').first();
   await emailInput.fill(proEmail);
   const licenseInput = page.getByPlaceholder('License Key', { exact: true });
   await licenseInput.fill(proKey);
   await page.getByRole('button', { name: 'Kích hoạt', exact: true }).click();
-
-  // Successful activation switches the modal to the active-Pro panel, so the
-  // transient success message is no longer rendered. Wait for persisted state.
-  await page.waitForFunction(() => {
-    return localStorage.getItem('qr_tools_pro') === 'true'
-      && Boolean(localStorage.getItem('qr_tools_activation_token'));
-  }, undefined, { timeout: 15_000 });
+  await page.waitForFunction(() => localStorage.getItem('qr_tools_pro') === 'true' && Boolean(localStorage.getItem('qr_tools_activation_token')), undefined, { timeout: 15_000 });
   await page.getByText('Pro đang hoạt động', { exact: true }).waitFor({ state: 'visible', timeout: 5_000 });
   console.log('Pro activation succeeded.');
 }
@@ -265,40 +252,20 @@ try {
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(1_000);
-  // Dismiss any restored modal/overlay before interacting with the header.
-  await page.keyboard.press('Escape').catch(() => {});
-  const blockingOverlay = page.locator('div.fixed.inset-0.z-50').first();
-  if (await blockingOverlay.isVisible().catch(() => false)) {
-    const closeButton = blockingOverlay.getByRole('button').filter({ hasText: /×|Đóng|Close/ }).first();
-    if (await closeButton.isVisible().catch(() => false)) {
-      await closeButton.click().catch(() => {});
-    } else {
-      await page.keyboard.press('Escape').catch(() => {});
-    }
-    await blockingOverlay.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
-  }
+  await dismissBlockingOverlays(page);
 
-  // Capture the upgrade/pricing view before Pro activation.
   await page.getByRole('button', { name: 'Pro', exact: true }).click();
   await page.waitForTimeout(500);
-  await page.screenshot({
-    path: path.join(root, 'public', 'screenshots', 'guide', 'pro-pricing.png'),
-    fullPage: false,
-    animations: 'disabled',
-    scale: 'css',
-  });
-  await page.keyboard.press('Escape').catch(() => {});
-
+  await page.screenshot({ path: path.join(root, 'public', 'screenshots', 'guide', 'pro-pricing.png'), fullPage: false, animations: 'disabled', scale: 'css' });
   await page.keyboard.press('Escape').catch(() => {});
   await page.waitForTimeout(300);
-  await activatePro();
+  await dismissBlockingOverlays(page);
+  await activatePro(page);
 
   for (const item of guideCaptures) {
     console.log(`Capturing guide ${item.image}...`);
     await capture(page, item);
-    const sourcePath = path.join(outputDir, item.image);
-    const guidePath = path.join(root, 'public', 'screenshots', 'guide', item.image);
-    await fs.rename(sourcePath, guidePath);
+    await fs.rename(path.join(outputDir, item.image), path.join(root, 'public', 'screenshots', 'guide', item.image));
   }
 
   for (const item of captures) {
