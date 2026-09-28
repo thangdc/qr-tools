@@ -67,7 +67,7 @@ const captures = [
       // Open Print Workshop first; the layout selector is inside the print dialog.
       await page.getByRole('button', { name: /In trang/ }).click();
       await page.waitForTimeout(1_000);
-      await page.getByText('Lưới tem dán', { exact: true }).click();
+      await page.getByText('Lưới nhãn dán', { exact: true }).click();
       await page.waitForTimeout(500);
     },
   },
