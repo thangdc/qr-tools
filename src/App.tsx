@@ -425,7 +425,7 @@ export default function App() {
 
   const handleOpenMetricHandoff = () => {
     if (!isPro) {
-      setIsProModalOpen(true);
+      openProModal();
       return;
     }
     setIsMetricModalOpen(true);
@@ -751,7 +751,7 @@ export default function App() {
             <a href="mailto:thang@thangdc.com" className="hover:text-neutral-900 transition-colors">thang@thangdc.com</a>
             <span>·</span>
             <button
-              onClick={() => setIsProModalOpen(true)}
+              onClick={openProModal}
               className="hover:text-neutral-900 transition-colors cursor-pointer"
             >
               {isPro ? t('proActive') : t('upgradePro')}
