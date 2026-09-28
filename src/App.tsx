@@ -42,6 +42,7 @@ import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
 import { Ruler, ShieldCheck, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from './i18n';
+import { initAnalytics, trackEvent } from './utils/analytics';
 
 const INITIAL_FORM_DATA: QRFormData = {
   url: { url: 'https://example.com' },
@@ -154,6 +155,10 @@ const QR_TYPE_LIST: QRType[] = [
 
 export default function App() {
   const { t } = useLanguage();
+
+  useEffect(() => {
+    initAnalytics();
+  }, []);
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>('generator');
   const [selectedType, setSelectedType] = useState<QRType>('url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
@@ -355,6 +360,11 @@ export default function App() {
     setActiveView('generator');
   };
 
+  const openProModal = () => {
+    trackEvent('pro_view', { source: activeView });
+    setIsProModalOpen(true);
+  };
+
   // Save current QR code to history
   const handleSaveToHistory = () => {
     if (!currentPayload) return false;
@@ -382,6 +392,7 @@ export default function App() {
     };
 
     setHistory((prev) => [newItem, ...prev]);
+    trackEvent('qr_saved', { qr_type: selectedType });
     return true;
   };
 
@@ -397,6 +408,7 @@ export default function App() {
 
   const handlePrintSingle = () => {
     if (!currentPayload) return;
+    trackEvent('qr_print_started', { qr_type: selectedType, is_pro: isPro });
     setBatchPrintState({
       isOpen: true,
       items: [
@@ -413,7 +425,7 @@ export default function App() {
 
   const handleOpenMetricHandoff = () => {
     if (!isPro) {
-      setIsProModalOpen(true);
+      openProModal();
       return;
     }
     setIsMetricModalOpen(true);
@@ -421,6 +433,7 @@ export default function App() {
 
   // Open card template for multiple batch items from Batch & Export
   const handlePrintBatch = (batchItems: BulkQRItem[]) => {
+    trackEvent('bulk_print_started', { count: batchItems.length, is_pro: isPro });
     setBatchPrintState({
       isOpen: true,
       items: batchItems.map((b) => ({
@@ -518,7 +531,7 @@ export default function App() {
         setActiveView={setActiveView}
         historyCount={history.length}
         isPro={isPro}
-        onOpenPro={() => setIsProModalOpen(true)}
+        onOpenPro={openProModal}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
         onOpenTemplates={() => setIsTemplatesModalOpen(true)}
@@ -674,7 +687,7 @@ export default function App() {
                   onSaveToHistory={handleSaveToHistory}
                   onPrintSingle={handlePrintSingle}
                   isPro={isPro}
-                  onOpenPro={() => setIsProModalOpen(true)}
+                  onOpenPro={openProModal}
                   onOpenMetricHandoff={handleOpenMetricHandoff}
                 />
               </div>
@@ -706,7 +719,7 @@ export default function App() {
         {activeView === 'bulk' && (
           <BulkToolsView
             isPro={isPro}
-            onOpenPro={() => setIsProModalOpen(true)}
+            onOpenPro={openProModal}
             onBackToGenerator={() => setActiveView('generator')}
             onPrintBatch={handlePrintBatch}
           />
@@ -738,7 +751,7 @@ export default function App() {
             <a href="mailto:thang@thangdc.com" className="hover:text-neutral-900 transition-colors">thang@thangdc.com</a>
             <span>·</span>
             <button
-              onClick={() => setIsProModalOpen(true)}
+              onClick={openProModal}
               className="hover:text-neutral-900 transition-colors cursor-pointer"
             >
               {isPro ? t('proActive') : t('upgradePro')}

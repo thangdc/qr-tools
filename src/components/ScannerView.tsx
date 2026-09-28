@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../i18n';
 import { scanImageData, scanImageFile, parseRawQRPayload } from '../utils/qrDecoder';
 import { DecodedQRData } from '../types/qr';
+import { trackEvent } from '../utils/analytics';
 import {
   Camera,
   Upload,
@@ -111,6 +112,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
       if (decodedRaw) {
         const parsed = parseRawQRPayload(decodedRaw);
         setScanResult(parsed);
+        trackEvent('scanner_success', { source: 'camera', qr_type: parsed.type });
         stopCamera();
         scanBusyRef.current = false;
         return;
@@ -127,9 +129,12 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
 
     const decodedRaw = await scanImageFile(file);
     if (decodedRaw) {
-      setScanResult(parseRawQRPayload(decodedRaw));
+      const parsed = parseRawQRPayload(decodedRaw);
+      setScanResult(parsed);
+      trackEvent('scanner_success', { source: 'upload', qr_type: parsed.type });
     } else {
-      alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn.');
+      trackEvent('scanner_failure', { source: 'upload' });
+      alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn hoặc dùng ảnh QR gốc.');
     }
 
     // Allow selecting the same file again.

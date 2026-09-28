@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Copy, KeyRound, Loader2, ExternalLink, Sparkles, X } from 'lucide-react';
 import { useLanguage } from '../i18n';
+import { trackEvent } from '../utils/analytics';
 import {
   activateProLicense,
   createProOrder,
@@ -190,6 +191,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
           }
 
           clearOrderSession();
+          trackEvent('pro_payment_confirmed', { plan, amount });
           onTogglePro(true);
           setActivePanel('active');
           setMessage(tx(
@@ -349,6 +351,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
   };
 
   const openCheckout = () => {
+    trackEvent('pro_checkout_open', { source: isPro ? 'renew' : 'upgrade' });
     setMessage(null);
     setPaymentStarted(false);
     setOrderCode('');
@@ -382,6 +385,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
         throw new Error(result.message || 'Không thể tạo đơn hàng.');
       }
 
+      trackEvent('pro_checkout_started', { plan, amount: result.amount || 0 });
       setOrderCode(result.orderCode);
       setAmount(result.amount || 0);
       try {
@@ -443,6 +447,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
         localStorage.setItem('qr_tools_license_key', normalizedLicenseKey);
         if (result.activationToken) localStorage.setItem('qr_tools_activation_token', result.activationToken);
       } catch { /* ignore storage errors */ }
+      trackEvent('pro_license_activated');
       onTogglePro(true);
       setActivePanel('active');
       setMessage(tx('Pro đã được kích hoạt trên thiết bị này.', 'Pro is activated on this device.'));
@@ -568,7 +573,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
                     <button
                       key={id}
                       type="button"
-                      onClick={() => setPlan(id)}
+                      onClick={() => {
+                        setPlan(id);
+                        trackEvent('pro_plan_selected', { plan: id });
+                      }}
                       className={`rounded-lg border p-3 text-left ${plan === id ? 'border-blue-500 bg-blue-50' : 'border-neutral-200 hover:border-neutral-300'}`}
                     >
                       <div className="text-sm font-semibold text-neutral-900">{label}</div>
