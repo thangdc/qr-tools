@@ -266,6 +266,19 @@ try {
   await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
   await page.waitForTimeout(1_000);
   // Capture the upgrade/pricing view before Pro activation.
+  // The app may restore a persisted modal/state on page load, so explicitly
+  // dismiss any overlay before opening the Pro modal.
+  await page.keyboard.press('Escape').catch(() => {});
+  const blockingOverlay = page.locator('div.fixed.inset-0.z-50').first();
+  if (await blockingOverlay.isVisible().catch(() => false)) {
+    const closeButton = blockingOverlay.getByRole('button').filter({ hasText: /×|Đóng|Close/ }).first();
+    if (await closeButton.isVisible().catch(() => false)) {
+      await closeButton.click().catch(() => {});
+    } else {
+      await page.keyboard.press('Escape').catch(() => {});
+    }
+    await blockingOverlay.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+  }
   await page.getByRole('button', { name: 'Pro', exact: true }).click();
   await page.waitForTimeout(500);
   await page.screenshot({
