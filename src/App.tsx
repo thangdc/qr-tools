@@ -232,6 +232,12 @@ export default function App() {
 
   // Modals state
   const [isProModalOpen, setIsProModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeView === 'bulk') {
+      trackEvent('bulk_opened', { is_pro: isPro });
+    }
+  }, [activeView, isPro]);
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -383,8 +389,11 @@ export default function App() {
     setActiveView('generator');
   };
 
-  const openProModal = () => {
-    trackEvent('pro_view', { source: activeView });
+  const openProModal = (source?: string) => {
+    trackEvent('pro_view', {
+      source: source || activeView,
+      view: activeView,
+    });
     setIsProModalOpen(true);
   };
 
@@ -500,6 +509,13 @@ export default function App() {
             1024
           );
           const url = offscreen.toDataURL('image/png');
+          trackEvent('qr_downloaded', {
+            qr_type: selectedType,
+            format: 'png',
+            resolution: 1024,
+            method: 'keyboard',
+            is_pro: isPro,
+          });
           const a = document.createElement('a');
           a.href = url;
           a.download = `qr-${activeTemplate.layout}-${selectedType}-${Date.now()}.png`;
@@ -774,7 +790,7 @@ export default function App() {
             <a href="mailto:thang@thangdc.com" className="hover:text-neutral-900 transition-colors">thang@thangdc.com</a>
             <span>·</span>
             <button
-              onClick={openProModal}
+              onClick={() => openProModal('footer')}
               className="hover:text-neutral-900 transition-colors cursor-pointer"
             >
               {isPro ? t('proActive') : t('upgradePro')}
