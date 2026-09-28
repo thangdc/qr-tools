@@ -21,6 +21,17 @@ export async function scanImageFile(file: File): Promise<string | null> {
       const results = await detector.detect(file);
       const value = results.find((result) => result.rawValue)?.rawValue;
       if (value) return value;
+
+      if (typeof createImageBitmap === 'function') {
+        const bitmap = await createImageBitmap(file);
+        try {
+          const bitmapResults = await detector.detect(bitmap);
+          const bitmapValue = bitmapResults.find((result) => result.rawValue)?.rawValue;
+          if (bitmapValue) return bitmapValue;
+        } finally {
+          bitmap.close();
+        }
+      }
     } catch (error) {
       console.warn('Native QR detection failed; falling back to jsQR.', error);
     }
@@ -30,14 +41,39 @@ export async function scanImageFile(file: File): Promise<string | null> {
   try {
     const image = new Image();
     image.src = imageUrl;
-    await image.decode();
+    try {
+      await image.decode();
+    } catch {
+      return null;
+    }
+    const maxDimension = 1800;
+    const sourceWidth = image.naturalWidth;
+    const sourceHeight = image.naturalHeight;
+    const resize = Math.min(1, maxDimension / Math.max(sourceWidth, sourceHeight));
     const canvas = document.createElement('canvas');
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
+    canvas.width = Math.max(1, Math.round(sourceWidth * resize));
+    canvas.height = Math.max(1, Math.round(sourceHeight * resize));
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
-    ctx.drawImage(image, 0, 0);
-    return scanImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const fullResult = scanImageData(imageData);
+    if (fullResult) return fullResult;
+
+    // QR Tools templates can place the QR inside a card/frame. Scan the center
+    // regions separately so a relatively small QR is not lost in surrounding UI.
+    const regions = [0.82, 0.68, 0.55];
+    for (const ratio of regions) {
+      const cropWidth = Math.round(canvas.width * ratio);
+      const cropHeight = Math.round(canvas.height * ratio);
+      const cropX = Math.round((canvas.width - cropWidth) / 2);
+      const cropY = Math.round((canvas.height - cropHeight) / 2);
+      const crop = ctx.getImageData(cropX, cropY, cropWidth, cropHeight);
+      const result = scanImageData(crop);
+      if (result) return result;
+    }
+
+    return null;
   } finally {
     URL.revokeObjectURL(imageUrl);
   }
@@ -46,7 +82,7 @@ export async function scanImageFile(file: File): Promise<string | null> {
 /**
  * Scan imageData using jsQR
  */
-export function scanImageData(imageData: ImageData): string | null {
+export function scanImageData(imageData: ImageData, options: { enhanced?: boolean } = {}): string | null {
   const decode = (data: ImageData) =>
     jsQR(data.data, data.width, data.height, {
       inversionAttempts: 'attemptBoth',
@@ -55,6 +91,8 @@ export function scanImageData(imageData: ImageData): string | null {
   // First try the source image unchanged.
   const direct = decode(imageData);
   if (direct) return direct;
+
+  if (options.enhanced === false) return null;
 
   // QR codes embedded in screenshots/photos can be too small for jsQR.
   // Upscale and retry with grayscale + contrast normalization.
