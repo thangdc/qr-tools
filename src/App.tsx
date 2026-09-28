@@ -153,14 +153,37 @@ const QR_TYPE_LIST: QRType[] = [
   'location',
 ];
 
+const DEEP_LINK_TYPES: Partial<Record<QRType, true>> = {
+  url: true, payment: true, wifi: true, contact: true, text: true,
+  email: true, phone: true, sms: true, location: true, event: true,
+};
+
+function getDeepLinkConfig(): { view: 'generator' | 'bulk'; type?: QRType; source?: string } {
+  if (typeof window === 'undefined') return { view: 'generator' };
+  const params = new URLSearchParams(window.location.search);
+  const requestedType = params.get('type') as QRType | null;
+  return {
+    view: params.get('view') === 'bulk' ? 'bulk' : 'generator',
+    type: requestedType && DEEP_LINK_TYPES[requestedType] ? requestedType : undefined,
+    source: params.get('source') || undefined,
+  };
+}
+
 export default function App() {
   const { t } = useLanguage();
 
+  const deepLink = useMemo(getDeepLinkConfig, []);
   useEffect(() => {
     initAnalytics();
-  }, []);
-  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>('generator');
-  const [selectedType, setSelectedType] = useState<QRType>('url');
+    if (deepLink.source) {
+      trackEvent('landing_cta_opened', {
+        source: deepLink.source,
+        destination: deepLink.view === 'bulk' ? 'bulk' : deepLink.type || 'url',
+      });
+    }
+  }, [deepLink]);
+  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>(deepLink.view);
+  const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
 
   // Templates Management State
