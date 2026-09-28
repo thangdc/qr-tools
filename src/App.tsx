@@ -565,7 +565,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col selection:bg-neutral-900 selection:text-white font-sans text-neutral-900">
       {/* 3-Zone Top Bar Contract */}
-      <Header
+      <div className="print:hidden">
+        <Header
         activeView={activeView}
         setActiveView={setActiveView}
         historyCount={history.length}
@@ -576,8 +577,8 @@ export default function App() {
         onOpenTemplates={() => setIsTemplatesModalOpen(true)}
       />
 
-      {/* Main Content Workspace Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Main Content Workspace Area */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Generator View */}
         {activeView === 'generator' && (
           <div className="space-y-6">
@@ -763,10 +764,10 @@ export default function App() {
             onPrintBatch={handlePrintBatch}
           />
         )}
-      </main>
+        </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-neutral-200/80 bg-white py-4 print:hidden">
+        {/* Footer */}
+        <footer className="mt-auto border-t border-neutral-200/80 bg-white py-4 print:hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <span className="font-semibold text-neutral-900">QR Tools</span>
@@ -797,7 +798,8 @@ export default function App() {
             </button>
           </div>
         </div>
-      </footer>
+        </footer>
+      </div>
 
       {/* Unified Multi-QR & Card Print Modal */}
       <BatchCardPrintModal
