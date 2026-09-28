@@ -5,6 +5,13 @@ import path from 'node:path';
 const root = process.cwd();
 const outputDir = path.join(root, 'public', 'screenshots', 'landing');
 const baseUrl = 'https://qr.thangdc.com';
+const proEmail = process.env.QR_PRO_EMAIL || '';
+const proKey = process.env.QR_PRO_KEY || '';
+const proDeviceId = 'qr-tools-github-actions-landing-screenshots';
+
+if (!proEmail || !proKey) {
+  throw new Error('QR_PRO_EMAIL and QR_PRO_KEY must be configured for landing screenshot capture.');
+}
 
 const captures = [
   {
@@ -126,10 +133,32 @@ const context = await browser.newContext({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 1,
 });
+await context.addInitScript(({ deviceId }) => {
+  localStorage.setItem('qr_tools_device_id', deviceId);
+}, { deviceId: proDeviceId });
 const page = await context.newPage();
+
+async function activatePro() {
+  console.log('Activating Pro for screenshot capture...');
+  await page.getByRole('button', { name: 'Pro', exact: true }).click();
+  const emailInput = page.locator('input[type="email"]').first();
+  await emailInput.fill(proEmail);
+  const licenseInput = page.getByPlaceholder('License Key', { exact: true });
+  await licenseInput.fill(proKey);
+  await page.getByRole('button', { name: 'Kích hoạt', exact: true }).click();
+  await page.waitForTimeout(1_500);
+
+  const activationMessage = page.getByText('Pro đã được kích hoạt trên thiết bị này.', { exact: true });
+  await activationMessage.waitFor({ state: 'visible', timeout: 15_000 });
+  console.log('Pro activation succeeded.');
+}
 
 try {
   await fs.mkdir(outputDir, { recursive: true });
+  await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+  await page.waitForTimeout(1_000);
+  await activatePro();
 
   for (const item of captures) {
     console.log(`Capturing ${item.slug}...`);
