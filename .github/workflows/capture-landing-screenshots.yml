@@ -3,7 +3,7 @@ name: Capture landing screenshots
 on:
   push:
     branches:
-      - feat/landing-playwright-screenshots
+      - fix/distinct-landing-screenshots
   workflow_dispatch:
 
 permissions:
@@ -49,6 +49,6 @@ jobs:
             echo "No generated changes to commit."
             exit 0
           fi
-          git commit -m "docs: add real QR Tools screenshots to SEO landings"
+          git commit -m "docs: refresh distinct QR landing screenshots"
           git pull --rebase origin "${BRANCH}"
           git push origin HEAD:"${BRANCH}"
