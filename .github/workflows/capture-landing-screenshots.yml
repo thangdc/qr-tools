@@ -32,7 +32,7 @@ jobs:
           cache: npm
 
       - name: Install project dependencies
-        run: npm ci
+        run: npm install --package-lock=false --legacy-peer-deps
 
       - name: Install Playwright
         run: npm install --no-save --package-lock=false --legacy-peer-deps playwright@1.55.0
