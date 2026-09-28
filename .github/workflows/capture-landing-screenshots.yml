@@ -48,7 +48,7 @@ jobs:
           BRANCH="${GITHUB_REF_NAME}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/screenshots/landing public/tao-ma-qr-vietqr-online/index.html public/tao-ma-qr-wifi/index.html public/tao-ma-qr-tu-excel/index.html public/in-nhieu-ma-qr-tu-excel/index.html public/tao-ma-qr-hang-loat/index.html
+          git add public/screenshots/landing public/screenshots/guide public/guide.html public/tao-ma-qr-vietqr-online/index.html public/tao-ma-qr-wifi/index.html public/tao-ma-qr-tu-excel/index.html public/in-nhieu-ma-qr-tu-excel/index.html public/tao-ma-qr-hang-loat/index.html
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
             exit 0
