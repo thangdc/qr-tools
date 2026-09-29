@@ -286,8 +286,18 @@ export async function renderCustomQRCode(
       ctx.textBaseline = 'middle';
       ctx.fillText(text.toUpperCase(), targetWidth / 2, textY);
     } else if (design.frameStyle === 'badge') {
-      const badgeWidth = Math.min(targetWidth * 0.85, text.length * 14 + 32);
       const badgeHeight = Math.floor(frameHeight * 0.7);
+      const badgeFontSize = Math.max(11, Math.floor(badgeHeight * 0.48));
+      ctx.font = `bold ${badgeFontSize}px sans-serif`;
+      // Size the pill from the actual rendered text width so short/small embedded
+      // QR canvases never clip or shrink the caption. This keeps the live preview,
+      // batch preview, ZIP export, and print render visually identical.
+      const textWidth = ctx.measureText(text.toUpperCase()).width;
+      const horizontalPadding = Math.max(16, Math.floor(badgeHeight * 0.75));
+      const badgeWidth = Math.min(
+        targetWidth * 0.92,
+        Math.max(badgeHeight * 2.2, textWidth + horizontalPadding * 2)
+      );
       const badgeX = (targetWidth - badgeWidth) / 2;
       const badgeY = (frameTop ? 0 : targetWidth) + (frameHeight - badgeHeight) / 2;
 
@@ -297,7 +307,7 @@ export async function renderCustomQRCode(
       ctx.fill();
 
       ctx.fillStyle = design.bgColor;
-      ctx.font = `bold ${Math.max(11, Math.floor(badgeHeight * 0.48))}px sans-serif`;
+      ctx.font = `bold ${badgeFontSize}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(text.toUpperCase(), targetWidth / 2, badgeY + badgeHeight / 2);
