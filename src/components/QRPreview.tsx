@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../i18n';
 import { trackEvent } from '../utils/analytics';
 import QRCode from 'qrcode';
-import { QRDesignOptions, QRType, QRTemplate } from '../types/qr';
+import { QRType, QRTemplate, QROutputSettings } from '../types/qr';
 import {
   renderTemplatedQR,
   RenderTemplateOptions,
@@ -57,6 +57,7 @@ interface QRPreviewProps {
   isPro: boolean;
   onOpenPro: (source?: string) => void;
   onOpenMetricHandoff: () => void;
+  outputSettings: QROutputSettings;
 }
 
 export const QRPreview: React.FC<QRPreviewProps> = ({
@@ -75,6 +76,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   isPro,
   onOpenPro,
   onOpenMetricHandoff,
+  outputSettings,
 }) => {
   const { tx } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -84,8 +86,6 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   const [copiedImg, setCopiedImg] = useState(false);
   const [copiedSvg, setCopiedSvg] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [downloadRes, setDownloadRes] = useState<512 | 1024 | 2048>(1024);
-  const [resDropdownOpen, setResDropdownOpen] = useState(false);
   const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [diagnostics, setDiagnostics] = useState<QRDiagnostics | null>(null);
@@ -135,7 +135,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             type,
             ...extraTemplateInfo,
           },
-          380
+          Math.min(outputSettings.imageSize, 380)
         );
 
         if (isCancelled) return;
@@ -171,10 +171,10 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
     return () => {
       isCancelled = true;
     };
-  }, [payload, activeTemplate, title, subtitle, type, extraTemplateInfo]);
+  }, [payload, activeTemplate, title, subtitle, type, extraTemplateInfo, outputSettings.imageSize]);
 
   // High resolution download trigger with active template via centralized rendering service
-  const handleDownloadPNG = async (res = downloadRes) => {
+  const handleDownloadPNG = async (res = outputSettings.imageSize) => {
     if (!payload) return;
     if (res >= 2048 && !isPro) {
       onOpenPro('single_download_2048');
@@ -233,29 +233,67 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
   };
 
   const handleCopyImage = async () => {
-    if (!canvasRef.current) return;
+    if (!payload) return;
     try {
-      canvasRef.current.toBlob(async (blob) => {
-        if (blob && navigator.clipboard && window.ClipboardItem) {
-          try {
-            await navigator.clipboard.write([
-              new ClipboardItem({ 'image/png': blob }),
-            ]);
-            setCopiedImg(true);
-            setTimeout(() => setCopiedImg(false), 2000);
-            return;
-          } catch {
-            // fallback
-          }
+      const outputCanvas = document.createElement('canvas');
+      await QRRenderingService.renderToCanvas(
+        outputCanvas,
+        payload,
+        activeTemplate,
+        {
+          label: title,
+          subtitle,
+          type,
+          ...extraTemplateInfo,
+        },
+        outputSettings.imageSize
+      );
+      const blob = await new Promise<Blob | null>((resolve) =>
+        outputCanvas.toBlob(resolve, 'image/png')
+      );
+
+      if (blob && navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob }),
+          ]);
+          setCopiedImg(true);
+          setTimeout(() => setCopiedImg(false), 2000);
+          return;
+        } catch {
+          // fallback to payload text
         }
-        await navigator.clipboard.writeText(payload);
-        setCopiedImg(true);
-        setTimeout(() => setCopiedImg(false), 2000);
-      });
+      }
+
+      await navigator.clipboard.writeText(payload);
+      setCopiedImg(true);
+      setTimeout(() => setCopiedImg(false), 2000);
     } catch {
       await navigator.clipboard.writeText(payload);
       setCopiedImg(true);
       setTimeout(() => setCopiedImg(false), 2000);
+    }
+  };
+
+  const handlePrint = async () => {
+    if (!payload) return;
+    try {
+      const outputCanvas = document.createElement('canvas');
+      await QRRenderingService.renderToCanvas(
+        outputCanvas,
+        payload,
+        activeTemplate,
+        {
+          label: title,
+          subtitle,
+          type,
+          ...extraTemplateInfo,
+        },
+        outputSettings.imageSize
+      );
+      onPrintSingle(outputCanvas.toDataURL('image/png'));
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -704,48 +742,16 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
             <button
               type="button"
               disabled={isEmpty}
-              onClick={() => handleDownloadPNG(downloadRes)}
-              className="flex-1 h-9 px-4 text-xs font-semibold bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-l-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99]"
-              title={tx('Tải PNG với mẫu đang dùng (⌘S)', 'Download PNG with active template (⌘S)')}
+              onClick={() => handleDownloadPNG()}
+              className="flex-1 h-9 px-4 text-xs font-semibold bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99]"
+              title={tx('Tải PNG theo thiết lập đầu ra (⌘S)', 'Download PNG using output settings (⌘S)')}
             >
               <Download className="w-3.5 h-3.5" />
               <span>{tx('Tải PNG', 'Download PNG')}</span>
               <span className="text-neutral-400 font-mono text-[11px] font-normal">
-                {downloadRes}px
+                {outputSettings.imageSize}px
               </span>
             </button>
-
-            <button
-              type="button"
-              disabled={isEmpty}
-              onClick={() => setResDropdownOpen(!resDropdownOpen)}
-              className="h-9 px-2 bg-neutral-900 hover:bg-black disabled:opacity-40 disabled:pointer-events-none text-white rounded-r-lg border-l border-neutral-800 transition-colors flex items-center justify-center cursor-pointer"
-              title={tx('Chọn độ phân giải', 'Select resolution')}
-            >
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
-            </button>
-
-            {resDropdownOpen && (
-              <div className="absolute right-0 bottom-full mb-1 w-36 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                {([512, 1024, 2048] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => {
-                      setDownloadRes(r);
-                      setResDropdownOpen(false);
-                      handleDownloadPNG(r);
-                    }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-neutral-50 flex items-center justify-between cursor-pointer ${
-                      downloadRes === r ? 'font-semibold text-neutral-900' : 'text-neutral-600'
-                    }`}
-                  >
-                    <span>{r} × {r} px</span>
-                    {downloadRes === r && <Check className="w-3 h-3 text-blue-600" />}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Copy PNG */}
@@ -795,29 +801,19 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         <div className="flex items-center justify-between gap-1 pt-0.5">
           <button
             type="button"
-            onClick={onOpenTemplateStudio}
-            className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title={tx('Mở kho mẫu', 'Open Template Studio')}
-          >
-            <LayoutTemplate className="w-3 h-3 text-neutral-400" />
-            <span>{tx('Mẫu', 'Templates')}</span>
-          </button>
-
-          <button
-            type="button"
             disabled={isEmpty}
             onClick={onOpenMetricHandoff}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title={tx('Xuất theo kích thước mm chuẩn (300 DPI)', 'Export calibrated mm dimensions (300 DPI)')}
+            title={tx('Thiết lập kích thước ảnh và in', 'Configure image size and print output')}
           >
             <Ruler className="w-3 h-3 text-neutral-400" />
-            <span>{tx('300 DPI', '300 DPI')}</span>
+            <span>{tx('Đầu ra', 'Output')}</span>
           </button>
 
           <button
             type="button"
             disabled={isEmpty}
-            onClick={() => onPrintSingle(dataUrl)}
+            onClick={() => void handlePrint()}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
             title={tx('In (⌘P)', 'Print (⌘P)')}
           >

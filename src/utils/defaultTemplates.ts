@@ -7,7 +7,6 @@ export const BASE_DESIGN: QRDesignOptions = {
   errorCorrectionLevel: 'M',
   centerLogo: 'none',
   customLogoUrl: null,
-  resolution: 1024,
   moduleStyle: 'square',
   eyeStyle: 'square',
   frameStyle: 'none',

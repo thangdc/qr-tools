@@ -13,6 +13,8 @@ import {
   BulkQRItem,
   DecodedQRData,
   QRTemplate,
+  QROutputSettings,
+  DEFAULT_QR_OUTPUT_SETTINGS,
 } from './types/qr';
 import { PREDEFINED_TEMPLATES } from './utils/defaultTemplates';
 import { Header } from './components/Header';
@@ -40,7 +42,6 @@ import { PrivacyModal } from './components/PrivacyModal';
 import { ProModal } from './components/ProModal';
 import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
-import { Ruler, ShieldCheck, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from './i18n';
 import { initAnalytics, trackEvent } from './utils/analytics';
 
@@ -186,6 +187,14 @@ export default function App() {
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
 
+  const [outputSettings, setOutputSettings] = useState<QROutputSettings>(() => {
+    try {
+      const stored = localStorage.getItem('qr_tools_output_settings');
+      if (stored) return { ...DEFAULT_QR_OUTPUT_SETTINGS, ...JSON.parse(stored) };
+    } catch {}
+    return DEFAULT_QR_OUTPUT_SETTINGS;
+  });
+
   // Templates Management State
   const [templates, setTemplates] = useState<QRTemplate[]>(() => {
     try {
@@ -252,6 +261,15 @@ export default function App() {
     isOpen: false,
     items: [],
   });
+
+  // Sync output settings to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('qr_tools_output_settings', JSON.stringify(outputSettings));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [outputSettings]);
 
   // Sync templates to localStorage
   useEffect(() => {
@@ -456,10 +474,6 @@ export default function App() {
   };
 
   const handleOpenMetricHandoff = () => {
-    if (!isPro) {
-      openProModal();
-      return;
-    }
     setIsMetricModalOpen(true);
   };
 
@@ -495,6 +509,10 @@ export default function App() {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && !e.shiftKey) {
         e.preventDefault();
         if (currentPayload) {
+          if (outputSettings.imageSize >= 2048 && !isPro) {
+            openProModal('single_download_2048');
+            return;
+          }
           const offscreen = document.createElement('canvas');
           await renderTemplatedQR(
             offscreen,
@@ -506,13 +524,13 @@ export default function App() {
               type: selectedType,
               ...extraTemplateInfo,
             },
-            1024
+            outputSettings.imageSize
           );
           const url = offscreen.toDataURL('image/png');
           trackEvent('qr_downloaded', {
             qr_type: selectedType,
             format: 'png',
-            resolution: 1024,
+            resolution: outputSettings.imageSize,
             method: 'keyboard',
             is_pro: isPro,
           });
@@ -560,7 +578,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentPayload, activeTemplate, selectedType, summary, extraTemplateInfo]);
+  }, [currentPayload, activeTemplate, selectedType, summary, extraTemplateInfo, outputSettings.imageSize]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col selection:bg-neutral-900 selection:text-white font-sans text-neutral-900">
@@ -593,35 +611,7 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Utility Badges on Right */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsTemplatesModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-800 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
-                >
-                  <LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>{t('templatesCount')} ({templates.length})</span>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => setIsMetricModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
-                >
-                  <Ruler className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>{t('dpiExport')}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsPrivacyOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-800 bg-emerald-50/60 hover:bg-emerald-50 border border-emerald-200/60 rounded-lg transition-all cursor-pointer shadow-2xs"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{t('private')}</span>
-                </button>
-              </div>
             </div>
 
             {/* Horizontal Type Selector */}
@@ -729,6 +719,7 @@ export default function App() {
                   isPro={isPro}
                   onOpenPro={openProModal}
                   onOpenMetricHandoff={handleOpenMetricHandoff}
+                   outputSettings={outputSettings}
                 />
               </div>
             </div>
@@ -809,6 +800,7 @@ export default function App() {
         templates={templates}
         activeTemplateId={activeTemplateId}
         onSelectTemplate={setActiveTemplateId}
+        outputSettings={outputSettings}
       />
 
       {/* Template Manager / Studio Modal */}
@@ -828,7 +820,11 @@ export default function App() {
         isOpen={isMetricModalOpen}
         onClose={() => setIsMetricModalOpen(false)}
         payload={currentPayload}
-        design={activeTemplate.design}
+        template={activeTemplate}
+        outputSettings={outputSettings}
+        onOutputSettingsChange={setOutputSettings}
+        isPro={isPro}
+        onOpenPro={openProModal}
       />
 
       {/* Shortcuts Cheatsheet Modal */}

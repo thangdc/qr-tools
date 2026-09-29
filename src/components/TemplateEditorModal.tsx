@@ -68,7 +68,6 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
         errorCorrectionLevel: 'M',
         centerLogo: 'none',
         customLogoUrl: null,
-        resolution: 1024,
         moduleStyle: 'dots',
         eyeStyle: 'rounded',
         frameStyle: 'none',

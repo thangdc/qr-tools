@@ -101,12 +101,25 @@ export interface QRDesignOptions {
   errorCorrectionLevel: ErrorCorrectionLevel;
   centerLogo: 'none' | 'bank' | 'wifi' | 'link' | 'custom';
   customLogoUrl: string | null;
-  resolution: 512 | 1024 | 2048;
   moduleStyle: ModuleStyle;
   eyeStyle: EyeStyle;
   frameStyle: FrameStyle;
   frameText: string;
 }
+
+export interface QROutputSettings {
+  imageSize: 512 | 1024 | 2048;
+  dpi: 300;
+  printSizeMm: number;
+  addCropMarks: boolean;
+}
+
+export const DEFAULT_QR_OUTPUT_SETTINGS: QROutputSettings = {
+  imageSize: 1024,
+  dpi: 300,
+  printSizeMm: 60,
+  addCropMarks: true,
+};
 
 export interface QRTemplate {
   id: string;
