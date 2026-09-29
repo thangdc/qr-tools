@@ -158,12 +158,13 @@ const DEEP_LINK_TYPES: Partial<Record<QRType, true>> = {
   email: true, phone: true, sms: true, location: true, event: true,
 };
 
-function getDeepLinkConfig(): { view: 'generator' | 'bulk'; type?: QRType; source?: string } {
+function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history'; type?: QRType; source?: string } {
   if (typeof window === 'undefined') return { view: 'generator' };
   const params = new URLSearchParams(window.location.search);
   const requestedType = params.get('type') as QRType | null;
+  const viewParam = params.get('view');
   return {
-    view: params.get('view') === 'bulk' ? 'bulk' : 'generator',
+    view: viewParam === 'history' || viewParam === 'scanner' || viewParam === 'bulk' ? (viewParam === 'bulk' ? 'history' : viewParam) : 'generator',
     type: requestedType && DEEP_LINK_TYPES[requestedType] ? requestedType : undefined,
     source: params.get('source') || undefined,
   };
@@ -178,11 +179,22 @@ export default function App() {
     if (deepLink.source) {
       trackEvent('landing_cta_opened', {
         source: deepLink.source,
-        destination: deepLink.view === 'bulk' ? 'bulk' : deepLink.type || 'url',
+        destination: deepLink.view === 'history' ? 'history' : deepLink.view === 'scanner' ? 'scanner' : deepLink.type || 'url',
       });
     }
   }, [deepLink]);
-  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history'>(deepLink.view === 'bulk' ? 'history' : deepLink.view);
+  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history'>(deepLink.view);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', activeView);
+    if (activeView === 'generator') {
+      url.searchParams.set('type', selectedType);
+    } else {
+      url.searchParams.delete('type');
+    }
+    window.history.replaceState(null, '', url.toString());
+  }, [activeView, selectedType]);
+
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
 
