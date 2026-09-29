@@ -101,16 +101,31 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   const handlePrint = async (item: QRHistoryItem) => {
     const canvas = await renderHistoryItem(item);
     const settings = readOutputSettings();
-    const printWindow = window.open('', '_blank', 'noopener,noreferrer');
-    if (!printWindow) return;
+    // Open the print document synchronously from the user click so popup blockers
+    // do not treat it as a delayed window.open after async QR rendering.
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      return;
+    }
+
     const image = canvas.toDataURL('image/png');
     const width = Math.max(10, settings.printSizeMm);
-    printWindow.document.write(`<!doctype html><html><head><title>Print QR</title><style>@page{size:auto;margin:0}html,body{margin:0;padding:0}body{display:flex;justify-content:center;align-items:center;min-height:100vh}img{width:${width}mm;height:auto;display:block}</style></head><body><img src="${image}" alt="QR Code"></body></html>`);
+    printWindow.document.open();
+    printWindow.document.write(`<!doctype html><html><head><title>Print QR</title><style>@page{size:auto;margin:0}html,body{margin:0;padding:0}body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}img{width:${width}mm;height:auto;display:block}</style></head><body><img id="qr-print-image" src="${image}" alt="QR Code"></body></html>`);
     printWindow.document.close();
-    printWindow.addEventListener('load', () => {
+
+    const printImage = printWindow.document.getElementById('qr-print-image') as HTMLImageElement | null;
+    const print = () => {
       printWindow.focus();
       printWindow.print();
-    });
+    };
+
+    if (printImage?.complete) {
+      setTimeout(print, 50);
+    } else {
+      printImage?.addEventListener('load', print, { once: true });
+      setTimeout(print, 500);
+    }
   };
 
   const formatTime = (timestamp: number) => {
