@@ -32,7 +32,6 @@ import { EventForm } from './components/forms/EventForm';
 import { CustomizePanel } from './components/CustomizePanel';
 import { QRPreview } from './components/QRPreview';
 import { HistoryView } from './components/HistoryView';
-import { BulkToolsView } from './components/BulkToolsView';
 import { ScannerView } from './components/ScannerView';
 import { BatchCardPrintModal, BatchPrintItem } from './components/BatchCardPrintModal';
 import { TemplateEditorModal } from './components/TemplateEditorModal';
@@ -183,7 +182,7 @@ export default function App() {
       });
     }
   }, [deepLink]);
-  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'bulk'>(deepLink.view);
+  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history'>(deepLink.view === 'bulk' ? 'history' : deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
 
@@ -242,11 +241,6 @@ export default function App() {
   // Modals state
   const [isProModalOpen, setIsProModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (activeView === 'bulk') {
-      trackEvent('bulk_opened', { is_pro: isPro });
-    }
-  }, [activeView, isPro]);
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -454,6 +448,34 @@ export default function App() {
     if (confirm('Are you sure you want to clear your generation history?')) {
       setHistory([]);
     }
+  };
+
+  // Import multiple QR codes directly into History.
+  const handleImportToHistory = (items: BulkQRItem[]) => {
+    const now = Date.now();
+    const imported: QRHistoryItem[] = items.map((item, index) => {
+      const isUrl = item.type === 'url' || item.resolvedPayload.startsWith('http');
+      const type: QRType = isUrl ? 'url' : 'text';
+      const data = isUrl ? { url: item.resolvedPayload } : { text: item.resolvedPayload };
+      return {
+        id: `hist-import-${now}-${index}`,
+        type,
+        title: item.label || `QR ${index + 1}`,
+        subtitle: item.resolvedPayload,
+        data,
+        design: { ...activeTemplate.design },
+        templateId: activeTemplateId,
+        rawPayload: item.resolvedPayload,
+        createdAt: now + index,
+      };
+    });
+
+    setHistory((prev) => {
+      const existing = new Set(prev.map((item) => `${item.type}::${item.rawPayload}`));
+      const unique = imported.filter((item) => !existing.has(`${item.type}::${item.rawPayload}`));
+      return [...unique, ...prev];
+    });
+    trackEvent('qr_imported_to_history', { count: imported.length });
   };
 
   const handlePrintSingle = () => {
@@ -742,19 +764,12 @@ export default function App() {
             onDelete={handleDeleteHistory}
             onClearAll={handleClearHistory}
             onBackToGenerator={() => setActiveView('generator')}
-            onOpenBulk={() => setActiveView('bulk')}
+            isPro={isPro}
+            onOpenPro={openProModal}
+            onImport={handleImportToHistory}
           />
         )}
 
-        {/* Batch Tools / Bulk View */}
-        {activeView === 'bulk' && (
-          <BulkToolsView
-            isPro={isPro}
-            onOpenPro={openProModal}
-            onBackToGenerator={() => setActiveView('generator')}
-            onPrintBatch={handlePrintBatch}
-          />
-        )}
         </main>
 
         {/* Footer */}
