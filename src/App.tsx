@@ -499,21 +499,6 @@ export default function App() {
     setIsMetricModalOpen(true);
   };
 
-  // Open card template for multiple batch items from Batch & Export
-  const handlePrintBatch = (batchItems: BulkQRItem[]) => {
-    trackEvent('bulk_print_started', { count: batchItems.length, is_pro: isPro });
-    setBatchPrintState({
-      isOpen: true,
-      items: batchItems.map((b) => ({
-        id: b.id,
-        label: b.label,
-        payload: b.resolvedPayload,
-        type: b.type,
-        subtitle: b.type.toUpperCase(),
-      })),
-    });
-  };
-
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
