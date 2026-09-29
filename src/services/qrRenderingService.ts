@@ -197,10 +197,19 @@ export class QRRenderingService {
       }
 
       // Footer Message
+      // Keep the footer below the last content block instead of letting it drift
+      // into the middle when the optional Wi-Fi section consumes vertical space.
+      const tableTentContentBottom = showWifi
+        ? wifiBoxY + wifiBoxH
+        : qrY + childActualHeight;
+      const tableTentFooterY = Math.max(
+        cardHeight - Math.round(cardHeight * 0.04),
+        tableTentContentBottom + Math.round(cardHeight * 0.04)
+      );
       ctx.fillStyle = '#94a3b8';
       ctx.font = `${Math.round(cardWidth * 0.03)}px sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(template.footerMessage || 'Cảm ơn quý khách!', cardWidth / 2, cardHeight - Math.round(cardHeight * 0.04));
+      ctx.fillText(template.footerMessage || 'Cảm ơn quý khách!', cardWidth / 2, tableTentFooterY);
     }
 
     // 3b. Bank Stand Layout (VietQR, Napas 247 Cashier Display)
@@ -288,10 +297,16 @@ export class QRRenderingService {
       ctx.fillText(bName, textRightX, infoY + infoH * 0.88);
 
       // Footer
+      // Keep the footer below the account details when the card has less vertical room.
+      const bankContentBottom = infoY + infoH;
+      const bankFooterY = Math.max(
+        cardHeight - Math.round(cardHeight * 0.035),
+        bankContentBottom + Math.round(cardHeight * 0.035)
+      );
       ctx.fillStyle = '#94a3b8';
       ctx.font = `${Math.round(cardWidth * 0.028)}px sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(template.footerMessage || 'Quét bằng app ngân hàng bất kỳ', cardWidth / 2, cardHeight - Math.round(cardHeight * 0.035));
+      ctx.fillText(template.footerMessage || 'Quét bằng app ngân hàng bất kỳ', cardWidth / 2, bankFooterY);
     }
 
     // 3c. Minimal Desk Plaque Layout
@@ -331,10 +346,15 @@ export class QRRenderingService {
       ctx.drawImage(childQRCanvas, qrX, qrY, childActualWidth, childActualHeight);
 
       // Footer Note
+      const minimalContentBottom = qrY + childActualHeight;
+      const minimalFooterY = Math.max(
+        cardHeight - Math.round(cardHeight * 0.06),
+        minimalContentBottom + Math.round(cardHeight * 0.04)
+      );
       ctx.fillStyle = '#94a3b8';
       ctx.font = `${Math.round(cardWidth * 0.032)}px sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(template.footerMessage || 'Point your camera to scan', cardWidth / 2, cardHeight - Math.round(cardHeight * 0.06));
+      ctx.fillText(template.footerMessage || 'Point your camera to scan', cardWidth / 2, minimalFooterY);
     }
 
     // 3d. Dark Slate Studio Card
@@ -368,10 +388,15 @@ export class QRRenderingService {
       ctx.drawImage(childQRCanvas, qrX, qrY, childActualWidth, childActualHeight);
 
       // Footer
+      const darkCardContentBottom = qrY + childActualHeight;
+      const darkCardFooterY = Math.max(
+        cardHeight - Math.round(cardHeight * 0.05),
+        darkCardContentBottom + Math.round(cardHeight * 0.04)
+      );
       ctx.fillStyle = '#94a3b8';
       ctx.font = `${Math.round(cardWidth * 0.03)}px sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(template.footerMessage || 'Secure Verification', cardWidth / 2, cardHeight - Math.round(cardHeight * 0.05));
+      ctx.fillText(template.footerMessage || 'Secure Verification', cardWidth / 2, darkCardFooterY);
     }
   }
 
