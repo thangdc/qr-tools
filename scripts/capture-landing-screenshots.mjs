@@ -30,29 +30,31 @@ const captures = [
   },
   {
     slug: 'tao-ma-qr-tu-excel',
-    url: `${baseUrl}/?view=bulk&source=landing-excel`,
+    url: `${baseUrl}/?view=history&source=landing-excel`,
     image: 'excel.png',
     alt: 'Giao diện QR Tools sau khi nhập dữ liệu từ Excel hoặc CSV',
     caption: 'Nhập dữ liệu từ Excel/CSV và tạo danh sách QR hàng loạt',
     prepare: async (page) => {
-      const textarea = page.locator('textarea').filter({ visible: true }).first();
+      await page.getByRole('button', { name: 'Import', exact: true }).click();
+      const textarea = page.locator('textarea').first();
       await textarea.fill([
         'Sản phẩm 001, https://shop.example.com/san-pham-001',
         'Sản phẩm 002, https://shop.example.com/san-pham-002',
         'Sản phẩm 003, https://shop.example.com/san-pham-003',
         'Sản phẩm 004, https://shop.example.com/san-pham-004',
       ].join('\\n'));
-      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.getByRole('button', { name: 'Thêm', exact: true }).click();
       await page.waitForTimeout(800);
     },
   },
   {
     slug: 'in-nhieu-ma-qr-tu-excel',
-    url: `${baseUrl}/?view=bulk&source=landing-print-excel`,
+    url: `${baseUrl}/?view=history&source=landing-print-excel`,
     image: 'print-excel.png',
     alt: 'Giao diện QR Tools với định dạng in nhiều mã QR từ Excel',
     caption: 'Chọn định dạng in cho nhiều mã QR từ dữ liệu Excel/CSV',
     prepare: async (page) => {
+      await page.getByRole('button', { name: 'Import', exact: true }).click();
       const textarea = page.locator('textarea').first();
       await textarea.fill([
         'Sản phẩm 001, https://shop.example.com/san-pham-001',
@@ -62,10 +64,10 @@ const captures = [
         'Sản phẩm 005, https://shop.example.com/san-pham-005',
         'Sản phẩm 006, https://shop.example.com/san-pham-006',
       ].join('\\n'));
-      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.getByRole('button', { name: 'Thêm', exact: true }).click();
+      await page.getByRole('button', { name: /Thêm vào lịch sử/ }).click();
       await page.waitForTimeout(800);
-      // Open Print Workshop first; the layout selector is inside the print dialog.
-      await page.getByRole('button', { name: /In trang/ }).click();
+      await page.getByRole('button', { name: /Xuất & in tất cả/ }).click();
       await page.waitForTimeout(1_000);
       await page.getByText('Lưới nhãn dán', { exact: true }).click();
       await page.waitForTimeout(500);
@@ -73,13 +75,21 @@ const captures = [
   },
   {
     slug: 'tao-ma-qr-hang-loat',
-    url: `${baseUrl}/?view=bulk&source=landing-bulk`,
+    url: `${baseUrl}/?view=history&source=landing-bulk`,
     image: 'bulk.png',
     alt: 'Giao diện QR Tools tạo QR hàng loạt bằng đánh số tự động',
     caption: 'Tạo QR hàng loạt với tính năng tự động đánh số',
     prepare: async (page) => {
-      await page.getByRole('button', { name: 'Tự động đánh số bàn', exact: true }).click();
-      await page.waitForTimeout(800);
+      await page.getByRole('button', { name: 'Import', exact: true }).click();
+      const textarea = page.locator('textarea').first();
+      await textarea.fill([
+        'Bàn 01, https://menu.cafe.vn/table/01',
+        'Bàn 02, https://menu.cafe.vn/table/02',
+        'Bàn 03, https://menu.cafe.vn/table/03',
+        'Bàn 04, https://menu.cafe.vn/table/04',
+      ].join('\\n'));
+      await page.getByRole('button', { name: 'Thêm', exact: true }).click();
+      await page.waitForTimeout(700);
     },
   },
 ];
@@ -117,18 +127,15 @@ const guideCaptures = [
     },
   },
   {
-    image: 'scanner.png', url: `${baseUrl}/?type=url&source=guide-scanner`,
+    image: 'scanner.png', url: `${baseUrl}/?view=scanner&source=guide-scanner`,
     alt: 'QR Tools Scanner', caption: 'Scanner — quét và giải mã QR',
-    prepare: async (page) => {
-      await page.getByTestId('nav-scanner').click();
-      await page.waitForTimeout(500);
-    },
   },
-  { image: 'bulk-overview.png', url: `${baseUrl}/?view=bulk&source=guide-bulk`, alt: 'QR Tools tạo hàng loạt', caption: 'Batch — quản lý nhiều QR' },
+  { image: 'bulk-overview.png', url: `${baseUrl}/?view=history&source=guide-bulk`, alt: 'QR Tools tạo hàng loạt', caption: 'Batch — quản lý nhiều QR' },
   {
-    image: 'bulk-import.png', url: `${baseUrl}/?view=bulk&source=guide-import`,
+    image: 'bulk-import.png', url: `${baseUrl}/?view=history&source=guide-import`,
     alt: 'QR Tools import Excel CSV', caption: 'Import — đưa dữ liệu Excel/CSV vào Batch',
     prepare: async (page) => {
+      await page.getByRole('button', { name: 'Import', exact: true }).click();
       const textarea = page.locator('textarea').first();
       await textarea.fill([
         'Bàn 01 - Tầng 1, https://menu.cafe.vn/table/01',
@@ -137,22 +144,22 @@ const guideCaptures = [
         'Bàn 04 - Tầng 1, https://menu.cafe.vn/table/04',
         'Bàn 05 - Tầng 1, https://menu.cafe.vn/table/05',
       ].join('\\n'));
-      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.getByRole('button', { name: 'Thêm', exact: true }).click();
       await page.waitForTimeout(700);
     },
   },
   {
-    image: 'bulk-sequence.png', url: `${baseUrl}/?view=bulk&source=guide-sequence`,
+    image: 'bulk-sequence.png', url: `${baseUrl}/?view=history&source=guide-sequence`,
     alt: 'QR Tools tự động đánh số bàn', caption: 'Auto-sequencer — tạo QR bàn tự động',
     prepare: async (page) => {
-      await page.getByRole('button', { name: 'Tự động đánh số bàn', exact: true }).click();
       await page.waitForTimeout(500);
     },
   },
   {
-    image: 'print-workshop.png', url: `${baseUrl}/?view=bulk&source=guide-print`,
+    image: 'print-workshop.png', url: `${baseUrl}/?view=history&source=guide-print`,
     alt: 'QR Tools Print Workshop A4', caption: 'Print Workshop — thẻ để bàn và lưới nhãn dán A4',
     prepare: async (page) => {
+      await page.getByRole('button', { name: 'Import', exact: true }).click();
       const textarea = page.locator('textarea').first();
       await textarea.fill([
         'Bàn 01, https://menu.cafe.vn/table/01',
@@ -162,9 +169,10 @@ const guideCaptures = [
         'Bàn 05, https://menu.cafe.vn/table/05',
         'Bàn 06, https://menu.cafe.vn/table/06',
       ].join('\\n'));
-      await page.getByRole('button', { name: 'Nhập dữ liệu', exact: true }).click();
+      await page.getByRole('button', { name: 'Thêm', exact: true }).click();
+      await page.getByRole('button', { name: /Thêm vào lịch sử/ }).click();
       await page.waitForTimeout(700);
-      await page.getByRole('button', { name: /In trang/ }).click();
+      await page.getByRole('button', { name: /Xuất & in tất cả/ }).click();
       await page.waitForTimeout(1200);
       await page.getByText('Lưới nhãn dán', { exact: true }).click();
       await page.waitForTimeout(700);

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/distinct-landing-screenshots
+      - docs/update-guide-landing-pages
   workflow_dispatch:
 
 permissions:
