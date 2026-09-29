@@ -158,7 +158,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
       <div className="bg-white rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full max-h-[95vh] flex flex-col overflow-hidden print:max-w-none print:w-auto print:max-h-none print:overflow-visible print:rounded-none print:border-0 print:shadow-none">
         {/* Top Control Bar - Hidden in print */}
         <div className="p-4 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3 bg-white print:hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2 min-w-0 flex-1">
             <span className="p-1.5 rounded-lg bg-neutral-900 text-white">
               <Printer className="w-4 h-4" />
             </span>
@@ -170,7 +170,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 {currentTemplate.isDefault && (
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200/60 flex items-center gap-0.5">
                     <Star className="w-2.5 h-2.5 fill-amber-500" />
-                    <span>{tx('Mẫu mặc định', 'Mẫu mặc định')}</span>
+                    <span className="leading-5">{tx('Mẫu mặc định', 'Mẫu mặc định')}</span>
                   </span>
                 )}
               </div>
@@ -308,22 +308,22 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
         </div>
 
         {/* Informational Explanation Strip (Clarifies the difference clearly!) */}
-        <div className="px-4 py-2 bg-blue-50/50 border-b border-blue-100 flex items-center justify-between text-xs text-blue-900 print:hidden">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-600 shrink-0" />
+        <div className="px-4 py-2 bg-blue-50/50 border-b border-blue-100 flex flex-wrap items-start justify-between gap-3 text-xs text-blue-900 print:hidden">
+          <div className="flex items-start gap-2 min-w-0 flex-1">
+            <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
             {printFormatMode === 'card' ? (
-              <span>
+              <span className="min-w-0 leading-5">
                 <strong>{tx('Chế độ thẻ để bàn:', 'Chế độ thẻ để bàn:')}</strong> {tx('Thẻ gấp vật lý kích thước lớn', 'Thẻ gấp vật lý kích thước lớn')} (A5 or A6) for dining tables, acrylic counter stands, or reception desks with headers, descriptions, & Wi-Fi details.
               </span>
             ) : (
-              <span>
+              <span className="min-w-0 leading-5">
                 <strong>{tx('Chế độ lưới nhãn dán:', 'Chế độ lưới nhãn dán:')}</strong> {tx('Nhãn bóc dán mật độ cao', 'Nhãn bóc dán mật độ cao')} (9, 12, or 16 per A4 sheet) for disposable coffee cups, takeaway boxes, packaging, or product labels.
               </span>
             )}
           </div>
 
           {printFormatMode === 'card' && (
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0 pt-0.5">
               <span className="text-[11px] text-neutral-500">{tx('Mẫu:', 'Mẫu:')}</span>
               <select
                 value={selectedTmplId}
