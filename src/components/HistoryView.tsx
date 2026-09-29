@@ -3,7 +3,7 @@ import { useLanguage } from '../i18n';
 import { QRHistoryItem, QRType, QRTemplate, QROutputSettings, DEFAULT_QR_OUTPUT_SETTINGS, BulkQRItem } from '../types/qr';
 import { PREDEFINED_TEMPLATES } from '../utils/defaultTemplates';
 import { renderTemplatedQR } from '../utils/templateRenderer';
-import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft, Upload } from 'lucide-react';
+import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown } from 'lucide-react';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
 
 interface HistoryViewProps {
@@ -15,6 +15,7 @@ interface HistoryViewProps {
   isPro: boolean;
   onOpenPro: (source?: string) => void;
   onImport: (items: BulkQRItem[]) => void;
+  onBatchPrint: (items: QRHistoryItem[]) => void;
 }
 
 const FILTER_TYPES: { label: string; value: 'all' | QRType }[] = [
@@ -75,11 +76,13 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   isPro,
   onOpenPro,
   onImport,
+  onBatchPrint,
 }) => {
   const { tx } = useLanguage();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | QRType>('all');
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filteredItems = useMemo(() => items.filter((item) => {
     const matchType = filterType === 'all' || item.type === filterType;
@@ -163,7 +166,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tx('Tìm trong lịch sử...', 'Search history...')} className="w-full h-9 pl-9 pr-3 text-xs sm:text-sm bg-white border border-neutral-300 rounded-md placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600" />
         </div>
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          {FILTER_TYPES.map((ft) => <button key={ft.value} type="button" onClick={() => setFilterType(ft.value)} className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors cursor-pointer ${filterType === ft.value ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/70'}`}>{ft.label}</button>)}
+          <button type="button" onClick={toggleAllVisible} disabled={!filteredItems.length} className="h-8 px-2.5 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 disabled:opacity-40 cursor-pointer shrink-0">{allVisibleSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}<span>{tx('Chọn tất cả','Select all')}</span></button>{FILTER_TYPES.map((ft) => <button key={ft.value} type="button" onClick={() => setFilterType(ft.value)} className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors cursor-pointer ${filterType === ft.value ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/70'}`}>{ft.label}</button>)}
+          {selectedItems.length > 0 && <div className="flex items-center gap-1.5 ml-auto shrink-0">
+            <span className="text-xs text-neutral-500">{selectedItems.length} {tx('đã chọn','selected')}</span>
+            <button type="button" onClick={() => onBatchPrint(selectedItems)} className="h-8 px-2.5 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer"><Printer className="w-3.5 h-3.5" />{tx('In','Print')}</button>
+            <button type="button" onClick={handleExportCsv} className="h-8 px-2.5 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer"><FileDown className="w-3.5 h-3.5" />{tx('Xuất CSV','Export CSV')}</button>
+          </div>}
           <button type="button" onClick={() => setIsImportOpen(true)} className="h-8 px-3 text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer shrink-0">
             <Upload className="w-3.5 h-3.5" />
             <span>{tx('Import', 'Import')}</span>
