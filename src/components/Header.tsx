@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, History, Layers, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen, ChevronDown } from 'lucide-react';
+import { Sparkles, History, Upload, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
@@ -52,9 +52,8 @@ export const Header: React.FC<HeaderProps> = (props) => {
 
         <nav className="hidden md:flex items-center gap-0.5 whitespace-nowrap">
           <button data-testid="nav-generator" onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
-          <button data-testid="nav-scanner" onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-1.5`}><ScanLine className="w-3.5 h-3.5 text-neutral-400" /><span>{t('scanner')}</span></button>
           <button data-testid="nav-history" onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
-          <button data-testid="nav-bulk" onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-1.5`}><Layers className="w-3.5 h-3.5 text-neutral-400" /><span>{t('bulkExport')}</span></button>
+          <button data-testid="nav-import" onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-1.5`}><Upload className="w-3.5 h-3.5 text-neutral-400" /><span>Import</span></button>
 
           <div className="relative">
             <button
@@ -71,13 +70,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
             {isGuideMenuOpen && (
               <div className="absolute left-0 top-full mt-1 w-64 rounded-lg border border-neutral-200 bg-white p-1.5 shadow-lg z-50" role="menu">
                 {guideLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsGuideMenuOpen(false)}
-                    className="block rounded-md px-3 py-2 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
-                    role="menuitem"
-                  >
+                  <a key={link.href} href={link.href} onClick={() => setIsGuideMenuOpen(false)} className="block rounded-md px-3 py-2 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900" role="menuitem">
                     {link.label}
                   </a>
                 ))}
@@ -104,34 +97,19 @@ export const Header: React.FC<HeaderProps> = (props) => {
         <div className="md:hidden border-t border-neutral-100 bg-white shadow-lg">
           <nav className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-1.5">
             <button onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
-            <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-2`}><ScanLine className="w-4 h-4 text-neutral-400" />{t('scanner')}</button>
             <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-2`}><History className="w-4 h-4 text-neutral-400" />{t('history')}{historyCount > 0 && <span className="text-xs text-neutral-500">· {historyCount}</span>}</button>
-            <button onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-2`}><Layers className="w-4 h-4 text-neutral-400" />{t('bulkExport')}</button>
+            <button onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-2`}><Upload className="w-4 h-4 text-neutral-400" />Import</button>
+            <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-2`}><ScanLine className="w-4 h-4 text-neutral-400" />{t('scanner')}</button>
 
             <div className="col-span-2">
-              <button
-                type="button"
-                onClick={() => setIsGuideMenuOpen(v => !v)}
-                className="w-full px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg text-left flex items-center justify-between gap-2 cursor-pointer"
-                aria-expanded={isGuideMenuOpen}
-              >
+              <button type="button" onClick={() => setIsGuideMenuOpen(v => !v)} className="w-full px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg text-left flex items-center justify-between gap-2 cursor-pointer" aria-expanded={isGuideMenuOpen}>
                 <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-neutral-400" />Hướng dẫn</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${isGuideMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {isGuideMenuOpen && (
                 <div className="mt-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1.5">
                   {guideLinks.map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => {
-                        setIsGuideMenuOpen(false);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block rounded-md px-3 py-2 text-sm text-neutral-600 hover:bg-white hover:text-neutral-900"
-                    >
-                      {link.label}
-                    </a>
+                    <a key={link.href} href={link.href} onClick={() => { setIsGuideMenuOpen(false); setIsMobileMenuOpen(false); }} className="block rounded-md px-3 py-2 text-sm text-neutral-600 hover:bg-white hover:text-neutral-900">{link.label}</a>
                   ))}
                 </div>
               )}
