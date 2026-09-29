@@ -508,9 +508,9 @@ export default function App() {
         payload: item.rawPayload,
         type: item.type,
         subtitle: item.subtitle,
-        accountName: item.type === 'payment' ? item.data.accountName : undefined,
-        accountNumber: item.type === 'payment' ? item.data.accountNumber : undefined,
-        bankName: item.type === 'payment' ? item.data.bankName : undefined,
+        accountName: item.type === 'payment' ? (item.data as any).accountName : undefined,
+        accountNumber: item.type === 'payment' ? (item.data as any).accountNumber : undefined,
+        bankName: item.type === 'payment' ? (item.data as any).bankName : undefined,
       })),
     });
   };
