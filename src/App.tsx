@@ -748,6 +748,7 @@ export default function App() {
                   isPro={isPro}
                   onOpenPro={openProModal}
                   onOpenMetricHandoff={handleOpenMetricHandoff}
+                   outputSettings={outputSettings}
                 />
               </div>
             </div>
