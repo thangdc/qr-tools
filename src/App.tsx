@@ -475,10 +475,6 @@ export default function App() {
   };
 
   const handleOpenMetricHandoff = () => {
-    if (!isPro) {
-      openProModal();
-      return;
-    }
     setIsMetricModalOpen(true);
   };
 
@@ -514,6 +510,10 @@ export default function App() {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && !e.shiftKey) {
         e.preventDefault();
         if (currentPayload) {
+          if (outputSettings.imageSize >= 2048 && !isPro) {
+            openProModal('single_download_2048');
+            return;
+          }
           const offscreen = document.createElement('canvas');
           await renderTemplatedQR(
             offscreen,
