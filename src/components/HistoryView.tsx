@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import JSZip from 'jszip';
 import { useLanguage } from '../i18n';
 import { QRHistoryItem, QRType, QRTemplate, QROutputSettings, DEFAULT_QR_OUTPUT_SETTINGS, BulkQRItem } from '../types/qr';
 import { PREDEFINED_TEMPLATES } from '../utils/defaultTemplates';
 import { renderTemplatedQR } from '../utils/templateRenderer';
-import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown } from 'lucide-react';
+import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown, FileArchive } from 'lucide-react';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
 
 interface HistoryViewProps {
@@ -115,6 +116,26 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     });
   };
 
+  const handleExportZip = async () => {
+    if (!selectedItems.length) return;
+    const zip = new JSZip();
+    const folder = zip.folder('qr-codes');
+    for (let i = 0; i < selectedItems.length; i++) {
+      const item = selectedItems[i];
+      const canvas = await renderHistoryItem(item);
+      const base64 = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+      const safeTitle = item.title.replace(/[^a-z0-9_-]/gi, '_').slice(0, 80) || item.type;
+      folder?.file(`${i + 1}_${safeTitle}.png`, base64, { base64: true });
+    }
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `qr-history-${Date.now()}.zip`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportCsv = () => {
     if (!selectedItems.length) return;
     const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
@@ -209,6 +230,9 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           {selectedItems.length > 0 && <>
             <button type="button" onClick={() => onBatchPrint(selectedItems)} className="h-8 px-3 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
               <Printer className="w-3.5 h-3.5" />{tx('Xuất & in', 'Export & print')}
+            </button>
+            <button type="button" onClick={() => void handleExportZip()} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
+              <FileArchive className="w-3.5 h-3.5" />{tx('Tải ZIP', 'Download ZIP')}
             </button>
             <button type="button" onClick={handleExportCsv} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
               <FileDown className="w-3.5 h-3.5" />{tx('Xuất CSV', 'Export CSV')}
