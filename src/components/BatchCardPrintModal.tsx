@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../i18n';
 import JSZip from 'jszip';
-import { QRType, QRTemplate } from '../types/qr';
+import { QRType, QRTemplate, QROutputSettings } from '../types/qr';
 import { renderTemplatedQR } from '../utils/templateRenderer';
 import {
   X,
@@ -36,6 +36,7 @@ interface BatchCardPrintModalProps {
   templates: QRTemplate[];
   activeTemplateId: string;
   onSelectTemplate: (templateId: string) => void;
+  outputSettings: QROutputSettings;
 }
 
 export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
@@ -45,6 +46,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
   templates,
   activeTemplateId,
   onSelectTemplate,
+  outputSettings,
 }) => {
   const { tx } = useLanguage();
   const [selectedTmplId, setSelectedTmplId] = useState(activeTemplateId);
@@ -92,7 +94,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               accountNumber: item.accountNumber,
               bankName: item.bankName,
             },
-            printFormatMode === 'sticker' ? 360 : 600
+            outputSettings.imageSize
           );
           cards[item.payload] = offscreen.toDataURL('image/png');
         } catch (e) {
@@ -110,7 +112,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [isOpen, items, currentTemplate, printFormatMode]);
+  }, [isOpen, items, currentTemplate, printFormatMode, outputSettings.imageSize]);
 
   if (!isOpen) return null;
 
