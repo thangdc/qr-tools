@@ -309,21 +309,21 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
 
         {/* Informational Explanation Strip (Clarifies the difference clearly!) */}
         <div className="px-4 py-2 bg-blue-50/50 border-b border-blue-100 flex flex-wrap items-start justify-between gap-3 text-xs text-blue-900 print:hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2 min-w-0 flex-1">
             <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
             {printFormatMode === 'card' ? (
-              <span>
+              <span className="min-w-0 leading-5">
                 <strong>{tx('Chế độ thẻ để bàn:', 'Chế độ thẻ để bàn:')}</strong> {tx('Thẻ gấp vật lý kích thước lớn', 'Thẻ gấp vật lý kích thước lớn')} (A5 or A6) for dining tables, acrylic counter stands, or reception desks with headers, descriptions, & Wi-Fi details.
               </span>
             ) : (
-              <span>
+              <span className="min-w-0 leading-5">
                 <strong>{tx('Chế độ lưới nhãn dán:', 'Chế độ lưới nhãn dán:')}</strong> {tx('Nhãn bóc dán mật độ cao', 'Nhãn bóc dán mật độ cao')} (9, 12, or 16 per A4 sheet) for disposable coffee cups, takeaway boxes, packaging, or product labels.
               </span>
             )}
           </div>
 
           {printFormatMode === 'card' && (
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0 pt-0.5">
               <span className="text-[11px] text-neutral-500">{tx('Mẫu:', 'Mẫu:')}</span>
               <select
                 value={selectedTmplId}
