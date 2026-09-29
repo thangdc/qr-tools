@@ -3,8 +3,8 @@ import { Sparkles, History, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Men
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
-  activeView: 'generator' | 'scanner' | 'history' | 'bulk';
-  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'bulk') => void;
+  activeView: 'generator' | 'scanner' | 'history';
+  setActiveView: (view: 'generator' | 'scanner' | 'history') => void;
   historyCount: number;
   isPro: boolean;
   onOpenPro: () => void;
