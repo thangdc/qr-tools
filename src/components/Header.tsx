@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, History, Upload, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen, ChevronDown } from 'lucide-react';
+import { Sparkles, History, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
@@ -53,8 +53,6 @@ export const Header: React.FC<HeaderProps> = (props) => {
         <nav className="hidden md:flex items-center gap-0.5 whitespace-nowrap">
           <button data-testid="nav-generator" onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
           <button data-testid="nav-history" onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
-          <button data-testid="nav-import" onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-1.5`}><Upload className="w-3.5 h-3.5 text-neutral-400" /><span>Import</span></button>
-
           <div className="relative">
             <button
               type="button"
@@ -98,7 +96,6 @@ export const Header: React.FC<HeaderProps> = (props) => {
           <nav className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-1.5">
             <button onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
             <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-2`}><History className="w-4 h-4 text-neutral-400" />{t('history')}{historyCount > 0 && <span className="text-xs text-neutral-500">· {historyCount}</span>}</button>
-            <button onClick={() => selectView('bulk')} className={`${navClass(activeView === 'bulk')} flex items-center gap-2`}><Upload className="w-4 h-4 text-neutral-400" />Import</button>
             <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-2`}><ScanLine className="w-4 h-4 text-neutral-400" />{t('scanner')}</button>
 
             <div className="col-span-2">
