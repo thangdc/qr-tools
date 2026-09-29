@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../i18n';
 import { QRTemplate, QROutputSettings } from '../types/qr';
 import { QRRenderingService } from '../services/qrRenderingService';
-import { X, Ruler, Download, Check } from 'lucide-react';
+import { X, Ruler, Download } from 'lucide-react';
 
 interface PrintHandoffModalProps {
   isOpen: boolean;
@@ -68,7 +68,6 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
 
     try {
       const padding = outputSettings.addCropMarks ? Math.round(targetPixels * 0.12) : 0;
-      const totalWidth = targetPixels + padding * 2;
       const canvas = document.createElement('canvas');
 
       // The same centralized renderer is used for preview, PNG output and print.
