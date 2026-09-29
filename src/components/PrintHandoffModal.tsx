@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../i18n';
-import { QRDesignOptions } from '../types/qr';
-import { renderCustomQRCode } from '../utils/qrRenderer';
-import { X, Ruler, Download, Printer, Check } from 'lucide-react';
+import { QRTemplate, QROutputSettings } from '../types/qr';
+import { QRRenderingService } from '../services/qrRenderingService';
+import { X, Ruler, Download, Check } from 'lucide-react';
 
 interface PrintHandoffModalProps {
   isOpen: boolean;
   onClose: () => void;
   payload: string;
-  design: QRDesignOptions;
+  template: QRTemplate;
+  outputSettings: QROutputSettings;
+  onOutputSettingsChange: (settings: QROutputSettings) => void;
+  isPro: boolean;
+  onOpenPro: (source?: string) => void;
 }
 
 const PRESET_SIZES = [
@@ -19,91 +23,112 @@ const PRESET_SIZES = [
   { name: 'Large Poster', mm: 150, useCase: 'Áp phích cửa kính' },
 ];
 
+const IMAGE_SIZES = [512, 1024, 2048] as const;
+
 export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
   isOpen,
   onClose,
   payload,
-  design,
+  template,
+  outputSettings,
+  onOutputSettingsChange,
+  isPro,
+  onOpenPro,
 }) => {
   const { tx } = useLanguage();
-  const [selectedMm, setSelectedMm] = useState<number>(60);
-  const [customMm, setCustomMm] = useState<string>('60');
-  const [addCropMarks, setAddCropMarks] = useState<boolean>(true);
+  const [customMm, setCustomMm] = useState<string>(String(outputSettings.printSizeMm));
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
-  // 300 DPI conversion: 1 inch = 25.4 mm => pixels = (mm / 25.4) * 300
-  const targetPixels = Math.round((selectedMm / 25.4) * 300);
+  const targetPixels = Math.round(
+    (outputSettings.printSizeMm / 25.4) * outputSettings.dpi
+  );
+
+  const update = (patch: Partial<QROutputSettings>) => {
+    onOutputSettingsChange({ ...outputSettings, ...patch });
+  };
+
+  const handleImageSizeChange = (imageSize: QROutputSettings['imageSize']) => {
+    if (imageSize >= 2048 && !isPro) {
+      onOpenPro('single_download_2048');
+      return;
+    }
+    update({ imageSize });
+  };
 
   const handleDownloadMetricPNG = async () => {
     if (!payload) return;
+    if (!isPro) {
+      onOpenPro('metric_export');
+      return;
+    }
+
     setIsExporting(true);
 
     try {
-      const padding = addCropMarks ? Math.round(targetPixels * 0.12) : 0;
+      const padding = outputSettings.addCropMarks ? Math.round(targetPixels * 0.12) : 0;
       const totalWidth = targetPixels + padding * 2;
-
       const canvas = document.createElement('canvas');
-      canvas.width = totalWidth;
-      canvas.height = totalWidth;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
 
-      // Background
-      ctx.fillStyle = design.bgColor;
-      ctx.fillRect(0, 0, totalWidth, totalWidth);
+      // The same centralized renderer is used for preview, PNG output and print.
+      await QRRenderingService.renderToCanvas(
+        canvas,
+        payload,
+        template,
+        {},
+        targetPixels
+      );
 
-      // Render QR
-      const qrCanvas = document.createElement('canvas');
-      await renderCustomQRCode(qrCanvas, payload, design, targetPixels);
+      if (padding > 0) {
+        const padded = document.createElement('canvas');
+        padded.width = canvas.width + padding * 2;
+        padded.height = canvas.height + padding * 2;
+        const ctx = padded.getContext('2d');
+        if (!ctx) return;
 
-      ctx.drawImage(qrCanvas, padding, padding, targetPixels, targetPixels);
+        ctx.fillStyle = template.design.bgColor;
+        ctx.fillRect(0, 0, padded.width, padded.height);
+        ctx.drawImage(canvas, padding, padding);
 
-      // Draw Crop Marks if enabled
-      if (addCropMarks) {
         ctx.strokeStyle = '#999999';
         ctx.lineWidth = 1;
         const markLen = Math.round(padding * 0.4);
+        const right = padded.width - padding;
+        const bottom = padded.height - padding;
 
-        // Top-left
         ctx.beginPath();
         ctx.moveTo(padding - markLen, padding);
         ctx.lineTo(padding, padding);
         ctx.moveTo(padding, padding - markLen);
         ctx.lineTo(padding, padding);
+        ctx.moveTo(right, padding);
+        ctx.lineTo(right + markLen, padding);
+        ctx.moveTo(right, padding - markLen);
+        ctx.lineTo(right, padding);
+        ctx.moveTo(padding - markLen, bottom);
+        ctx.lineTo(padding, bottom);
+        ctx.moveTo(padding, bottom);
+        ctx.lineTo(padding, bottom + markLen);
+        ctx.moveTo(right, bottom);
+        ctx.lineTo(right + markLen, bottom);
+        ctx.moveTo(right, bottom);
+        ctx.lineTo(right, bottom + markLen);
         ctx.stroke();
 
-        // Top-right
-        ctx.beginPath();
-        ctx.moveTo(padding + targetPixels, padding);
-        ctx.lineTo(padding + targetPixels + markLen, padding);
-        ctx.moveTo(padding + targetPixels, padding - markLen);
-        ctx.lineTo(padding + targetPixels, padding);
-        ctx.stroke();
-
-        // Bottom-left
-        ctx.beginPath();
-        ctx.moveTo(padding - markLen, padding + targetPixels);
-        ctx.lineTo(padding, padding + targetPixels);
-        ctx.moveTo(padding, padding + targetPixels);
-        ctx.lineTo(padding, padding + targetPixels + markLen);
-        ctx.stroke();
-
-        // Bottom-right
-        ctx.beginPath();
-        ctx.moveTo(padding + targetPixels, padding + targetPixels);
-        ctx.lineTo(padding + targetPixels + markLen, padding + targetPixels);
-        ctx.moveTo(padding + targetPixels, padding + targetPixels);
-        ctx.lineTo(padding + targetPixels, padding + targetPixels + markLen);
-        ctx.stroke();
+        const url = padded.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `qr-print-${outputSettings.printSizeMm}mm-${outputSettings.dpi}dpi.png`;
+        a.click();
+      } else {
+        const url = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `qr-print-${outputSettings.printSizeMm}mm-${outputSettings.dpi}dpi.png`;
+        a.click();
       }
 
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `qr-print-${selectedMm}mm-300dpi.png`;
-      a.click();
       onClose();
     } catch (e) {
       console.error(e);
@@ -122,17 +147,14 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             </span>
             <div>
               <h2 className="text-sm font-semibold text-neutral-900">
-                {tx('Chuẩn bị in & kích thước mm', 'Print Handoff & Millimeter Sizing')}
+                {tx('Thiết lập đầu ra', 'Output Settings')}
               </h2>
               <p className="text-[11px] text-neutral-400">
-                {tx('Xuất file 300 DPI chuẩn in ấn, có thể thêm dấu xén', 'Commercial 300 DPI calibrated output with optional crop marks')}
+                {tx('Một cấu hình dùng chung cho ảnh, copy và in', 'One shared configuration for image, copy and print output')}
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer"
-          >
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 p-1 rounded cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -140,7 +162,30 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
         <div className="p-4 space-y-4 text-xs">
           <div>
             <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2">
-              {tx('Kích thước in thực tế', 'Physical Print Dimension')}
+              {tx('Kích thước ảnh', 'Image Size')}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {IMAGE_SIZES.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => handleImageSizeChange(size)}
+                  className={`p-2.5 rounded border text-center transition-colors cursor-pointer ${
+                    outputSettings.imageSize === size
+                      ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
+                      : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
+                  }`}
+                >
+                  {size} × {size}
+                  {size === 2048 && <span className="block text-[9px] opacity-70">PRO</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2">
+              {tx('Kích thước in thực tế', 'Physical Print Size')}
             </label>
             <div className="space-y-1.5">
               {PRESET_SIZES.map((preset) => (
@@ -148,11 +193,11 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
                   key={preset.mm}
                   type="button"
                   onClick={() => {
-                    setSelectedMm(preset.mm);
-                    setCustomMm(preset.mm.toString());
+                    setCustomMm(String(preset.mm));
+                    update({ printSizeMm: preset.mm });
                   }}
                   className={`w-full p-2.5 rounded border text-left flex items-center justify-between transition-colors cursor-pointer ${
-                    selectedMm === preset.mm
+                    outputSettings.printSizeMm === preset.mm
                       ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
                       : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
                   }`}
@@ -180,63 +225,73 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
               value={customMm}
               onChange={(e) => {
                 setCustomMm(e.target.value);
-                const n = parseInt(e.target.value, 10);
-                if (n > 0) setSelectedMm(n);
+                const n = Number(e.target.value);
+                if (n >= 10 && n <= 500) update({ printSizeMm: n });
               }}
               className="w-24 h-8 px-2 border border-neutral-300 rounded text-xs font-mono"
             />
-            <span className="text-xs text-neutral-400">{tx('chiều rộng mm', 'mm width')}</span>
+            <span className="text-xs text-neutral-400">{tx('chiều rộng', 'width')}</span>
           </div>
 
-          {/* Resolution specs summary */}
           <div className="p-3 bg-neutral-50 rounded border border-neutral-200 space-y-1 font-mono text-[11px] text-neutral-600">
             <div className="flex justify-between">
-              <span>{tx('Độ phân giải:', 'Resolution:')}</span>
+              <span>{tx('Kích thước ảnh:', 'Image Size:')}</span>
               <span className="font-semibold text-neutral-900">
-                {targetPixels} × {targetPixels} px
+                {outputSettings.imageSize} × {outputSettings.imageSize} px
               </span>
             </div>
             <div className="flex justify-between">
               <span>{tx('Tiêu chuẩn in:', 'Print Standard:')}</span>
-              <span className="font-semibold text-emerald-700">300 DPI (Offset Grade)</span>
+              <span className="font-semibold text-emerald-700">{outputSettings.dpi} DPI</span>
             </div>
             <div className="flex justify-between">
               <span>{tx('Kích thước thực:', 'Physical Size:')}</span>
-              <span>{selectedMm} × {selectedMm} mm</span>
+              <span>{outputSettings.printSizeMm} × {outputSettings.printSizeMm} mm</span>
+            </div>
+            <div className="flex justify-between">
+              <span>{tx('300 DPI cần:', 'Pixels needed at 300 DPI:')}</span>
+              <span className="font-semibold text-neutral-900">{targetPixels} px</span>
             </div>
           </div>
 
-          <div className="pt-1">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={addCropMarks}
-                onChange={(e) => setAddCropMarks(e.target.checked)}
-                className="w-4 h-4 rounded border-neutral-300 text-blue-600"
-              />
-              <span className="text-xs font-medium text-neutral-700">
-                {tx('Thêm dấu xén thành phẩm', 'Add printer crop marks')} (Góc xén thành phẩm)
-              </span>
-            </label>
-          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={outputSettings.addCropMarks}
+              onChange={(e) => update({ addCropMarks: e.target.checked })}
+              className="w-4 h-4 rounded border-neutral-300 text-blue-600"
+            />
+            <span className="text-xs font-medium text-neutral-700">
+              {tx('Thêm dấu xén thành phẩm', 'Add printer crop marks')}
+            </span>
+          </label>
+
+          <p className="text-[10px] text-neutral-400 leading-relaxed">
+            {tx(
+              'SVG là vector nên không phụ thuộc vào DPI. PNG dùng kích thước ảnh đã chọn; xuất 300 DPI tính theo kích thước in thực tế.',
+              'SVG is vector and does not depend on DPI. PNG uses the selected image size; 300 DPI output is calculated from the physical print size.'
+            )}
+          </p>
         </div>
 
         <div className="p-3.5 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3 py-1.5 text-xs text-neutral-600 hover:text-neutral-900 cursor-pointer"
-          >
-            {tx('Hủy', 'Cancel')}
+          <button type="button" onClick={onClose} className="px-3 py-1.5 text-xs text-neutral-600 hover:text-neutral-900 cursor-pointer">
+            {tx('Đóng', 'Close')}
           </button>
           <button
             type="button"
-            disabled={isExporting}
+            disabled={isExporting || !isPro}
             onClick={handleDownloadMetricPNG}
-            className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-40 text-white rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{isExporting ? tx('Đang tạo...', 'Generating...') : tx(`Xuất ${selectedMm}mm (300 DPI)`, `Export ${selectedMm}mm (300 DPI)`)}</span>
+            <span>
+              {isExporting
+                ? tx('Đang tạo...', 'Generating...')
+                : !isPro
+                ? tx('Mở Pro để xuất 300 DPI', 'Unlock Pro for 300 DPI export')
+                : tx(`Xuất ${outputSettings.printSizeMm}mm (${outputSettings.dpi} DPI)`, `Export ${outputSettings.printSizeMm}mm (${outputSettings.dpi} DPI)`)}
+            </span>
           </button>
         </div>
       </div>
