@@ -801,16 +801,6 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
         <div className="flex items-center justify-between gap-1 pt-0.5">
           <button
             type="button"
-            onClick={onOpenTemplateStudio}
-            className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer"
-            title={tx('Mở kho mẫu', 'Open Template Studio')}
-          >
-            <LayoutTemplate className="w-3 h-3 text-neutral-400" />
-            <span>{tx('Mẫu', 'Templates')}</span>
-          </button>
-
-          <button
-            type="button"
             disabled={isEmpty}
             onClick={onOpenMetricHandoff}
             className="flex-1 h-7 text-[11px] font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center justify-center gap-1 cursor-pointer"
