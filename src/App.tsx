@@ -184,6 +184,8 @@ export default function App() {
     }
   }, [deepLink]);
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history'>(deepLink.view);
+  const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
+
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set('view', activeView);
@@ -194,8 +196,6 @@ export default function App() {
     }
     window.history.replaceState(null, '', url.toString());
   }, [activeView, selectedType]);
-
-  const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
 
   const [outputSettings, setOutputSettings] = useState<QROutputSettings>(() => {
