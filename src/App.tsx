@@ -618,7 +618,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col selection:bg-neutral-900 selection:text-white font-sans text-neutral-900">
       {/* 3-Zone Top Bar Contract */}
-      <div className="print:hidden">
+      <div className="flex min-h-screen flex-col print:hidden">
         <Header
         activeView={activeView}
         setActiveView={setActiveView}
