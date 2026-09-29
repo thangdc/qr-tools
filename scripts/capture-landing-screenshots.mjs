@@ -117,13 +117,9 @@ const guideCaptures = [
     },
   },
   {
-    image: 'scanner.png', url: `${baseUrl}/?type=url&source=guide-scanner`,
+    image: 'scanner.png', url: `${baseUrl}/?view=scanner&source=guide-scanner`,
     alt: 'QR Tools Scanner', caption: 'Scanner — quét và giải mã QR',
-    prepare: async (page) => {
-      await page.getByTestId('nav-scanner').click();
-      await page.waitForTimeout(500);
-    },
-  },
+  },  },
   { image: 'bulk-overview.png', url: `${baseUrl}/?view=bulk&source=guide-bulk`, alt: 'QR Tools tạo hàng loạt', caption: 'Batch — quản lý nhiều QR' },
   {
     image: 'bulk-import.png', url: `${baseUrl}/?view=bulk&source=guide-import`,
