@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../i18n';
-import { QRHistoryItem, QRType, QRTemplate, QROutputSettings, DEFAULT_QR_OUTPUT_SETTINGS } from '../types/qr';
+import { QRHistoryItem, QRType, QRTemplate, QROutputSettings, DEFAULT_QR_OUTPUT_SETTINGS, BulkQRItem } from '../types/qr';
 import { PREDEFINED_TEMPLATES } from '../utils/defaultTemplates';
 import { renderTemplatedQR } from '../utils/templateRenderer';
-import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft } from 'lucide-react';
+import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft, Upload } from 'lucide-react';
+import { ImportHistoryPanel } from './ImportHistoryPanel';
 
 interface HistoryViewProps {
   items: QRHistoryItem[];
@@ -11,7 +12,9 @@ interface HistoryViewProps {
   onDelete: (id: string) => void;
   onClearAll: () => void;
   onBackToGenerator: () => void;
-  onOpenBulk: () => void;
+  isPro: boolean;
+  onOpenPro: (source?: string) => void;
+  onImport: (items: BulkQRItem[]) => void;
 }
 
 const FILTER_TYPES: { label: string; value: 'all' | QRType }[] = [
@@ -69,10 +72,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   onDelete,
   onClearAll,
   onBackToGenerator,
+  isPro,
+  onOpenPro,
+  onImport,
 }) => {
   const { tx } = useLanguage();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | QRType>('all');
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const filteredItems = useMemo(() => items.filter((item) => {
     const matchType = filterType === 'all' || item.type === filterType;
@@ -155,8 +162,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tx('Tìm trong lịch sử...', 'Search history...')} className="w-full h-9 pl-9 pr-3 text-xs sm:text-sm bg-white border border-neutral-300 rounded-md placeholder:text-neutral-400 focus:outline-hidden focus:border-blue-600 focus:ring-1 focus:ring-blue-600" />
         </div>
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {FILTER_TYPES.map((ft) => <button key={ft.value} type="button" onClick={() => setFilterType(ft.value)} className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors cursor-pointer ${filterType === ft.value ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200/70'}`}>{ft.label}</button>)}
+          <button type="button" onClick={() => setIsImportOpen(true)} className="h-8 px-3 text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer shrink-0">
+            <Upload className="w-3.5 h-3.5" />
+            <span>{tx('Import', 'Import')}</span>
+          </button>
         </div>
       </div>
 
@@ -164,7 +175,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         <div className="border border-dashed border-neutral-300 rounded-lg p-12 text-center bg-white/50">
           <p className="text-sm font-medium text-neutral-700 mb-1">{items.length === 0 ? tx('Chưa có mã QR nào.', 'No saved QR codes yet.') : tx('Không tìm thấy kết quả.', 'No matching results found.')}</p>
           <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-4">{items.length === 0 ? tx('Các mã QR bạn lưu từ trình tạo sẽ xuất hiện ở đây.', 'QR codes you save from the generator will appear here.') : tx('Thử tìm kiếm hoặc đổi bộ lọc.', 'Try another search or filter.')}</p>
-          {items.length === 0 && <button type="button" onClick={onBackToGenerator} className="px-4 py-2 text-xs font-medium text-white bg-neutral-900 hover:bg-neutral-800 rounded-md transition-colors cursor-pointer">{tx('Tạo mã QR', 'Create QR')}</button>}
+          {items.length === 0 && <div className="flex items-center justify-center gap-2"><button type="button" onClick={onBackToGenerator} className="px-4 py-2 text-xs font-medium text-white bg-neutral-900 hover:bg-neutral-800 rounded-md transition-colors cursor-pointer">{tx('Tạo mã QR', 'Create QR')}</button><button type="button" onClick={() => setIsImportOpen(true)} className="px-4 py-2 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />{tx('Import', 'Import')}</button></div>}
         </div>
       ) : (
         <div className="border border-neutral-200 rounded-lg bg-white overflow-hidden divide-y divide-neutral-200">
@@ -184,6 +195,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             </div>
           ))}
         </div>
+      )}
+      {isImportOpen && (
+        <ImportHistoryPanel
+          isPro={isPro}
+          onOpenPro={onOpenPro}
+          onClose={() => setIsImportOpen(false)}
+          onImport={onImport}
+        />
       )}
     </div>
   );
