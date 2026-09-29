@@ -91,6 +91,50 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     return matchType && matchSearch;
   }), [items, filterType, search]);
 
+  const selectedItems = filteredItems.filter((item) => selectedIds.has(item.id));
+  const allVisibleSelected = filteredItems.length > 0 && filteredItems.every((item) => selectedIds.has(item.id));
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAllVisible = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        filteredItems.forEach((item) => next.delete(item.id));
+      } else {
+        filteredItems.forEach((item) => next.add(item.id));
+      }
+      return next;
+    });
+  };
+
+  const handleExportCsv = () => {
+    if (!selectedItems.length) return;
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const csv = [
+      'Label,Type,Payload,Created At',
+      ...selectedItems.map((item) =>
+        [item.title, item.type, item.rawPayload, new Date(item.createdAt).toISOString()]
+          .map(escapeCsv)
+          .join(',')
+      ),
+    ].join('\\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `qr-history-${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const renderHistoryItem = async (item: QRHistoryItem) => {
     const settings = readOutputSettings();
     const isPro = localStorage.getItem('qr_tools_pro') === 'true';
