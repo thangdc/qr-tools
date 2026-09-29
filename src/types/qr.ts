@@ -101,7 +101,6 @@ export interface QRDesignOptions {
   errorCorrectionLevel: ErrorCorrectionLevel;
   centerLogo: 'none' | 'bank' | 'wifi' | 'link' | 'custom';
   customLogoUrl: string | null;
-  resolution: 512 | 1024 | 2048;
   moduleStyle: ModuleStyle;
   eyeStyle: EyeStyle;
   frameStyle: FrameStyle;
