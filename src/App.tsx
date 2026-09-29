@@ -13,6 +13,8 @@ import {
   BulkQRItem,
   DecodedQRData,
   QRTemplate,
+  QROutputSettings,
+  DEFAULT_QR_OUTPUT_SETTINGS,
 } from './types/qr';
 import { PREDEFINED_TEMPLATES } from './utils/defaultTemplates';
 import { Header } from './components/Header';
@@ -186,6 +188,14 @@ export default function App() {
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
   const [formData, setFormData] = useState<QRFormData>(INITIAL_FORM_DATA);
 
+  const [outputSettings, setOutputSettings] = useState<QROutputSettings>(() => {
+    try {
+      const stored = localStorage.getItem('qr_tools_output_settings');
+      if (stored) return { ...DEFAULT_QR_OUTPUT_SETTINGS, ...JSON.parse(stored) };
+    } catch {}
+    return DEFAULT_QR_OUTPUT_SETTINGS;
+  });
+
   // Templates Management State
   const [templates, setTemplates] = useState<QRTemplate[]>(() => {
     try {
@@ -252,6 +262,15 @@ export default function App() {
     isOpen: false,
     items: [],
   });
+
+  // Sync output settings to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('qr_tools_output_settings', JSON.stringify(outputSettings));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [outputSettings]);
 
   // Sync templates to localStorage
   useEffect(() => {
@@ -506,13 +525,13 @@ export default function App() {
               type: selectedType,
               ...extraTemplateInfo,
             },
-            1024
+            outputSettings.imageSize
           );
           const url = offscreen.toDataURL('image/png');
           trackEvent('qr_downloaded', {
             qr_type: selectedType,
             format: 'png',
-            resolution: 1024,
+            resolution: outputSettings.imageSize,
             method: 'keyboard',
             is_pro: isPro,
           });
@@ -560,7 +579,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentPayload, activeTemplate, selectedType, summary, extraTemplateInfo]);
+  }, [currentPayload, activeTemplate, selectedType, summary, extraTemplateInfo, outputSettings.imageSize]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col selection:bg-neutral-900 selection:text-white font-sans text-neutral-900">
@@ -610,7 +629,7 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
                 >
                   <Ruler className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>{t('dpiExport')}</span>
+                  <span>Đầu ra</span>
                 </button>
 
                 <button
@@ -809,6 +828,7 @@ export default function App() {
         templates={templates}
         activeTemplateId={activeTemplateId}
         onSelectTemplate={setActiveTemplateId}
+        outputSettings={outputSettings}
       />
 
       {/* Template Manager / Studio Modal */}
@@ -828,7 +848,11 @@ export default function App() {
         isOpen={isMetricModalOpen}
         onClose={() => setIsMetricModalOpen(false)}
         payload={currentPayload}
-        design={activeTemplate.design}
+        template={activeTemplate}
+        outputSettings={outputSettings}
+        onOutputSettingsChange={setOutputSettings}
+        isPro={isPro}
+        onOpenPro={openProModal}
       />
 
       {/* Shortcuts Cheatsheet Modal */}
