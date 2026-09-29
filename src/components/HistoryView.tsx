@@ -201,7 +201,20 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">{tx('Lịch sử', 'History')}</h1>
           <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">{tx('Quản lý các mã QR bạn đã lưu. Tải xuống hoặc in trực tiếp từ đây.', 'Manage your saved QR codes. Download or print directly from here.')}</p>
         </div>
-        {items.length > 0 && <button type="button" onClick={onClearAll} className="h-8 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer">{tx('Xóa tất cả', 'Clear all')}</button>}
+        <div className="flex items-center gap-2 shrink-0">
+          {items.length > 0 && <button type="button" onClick={onClearAll} className="h-8 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer">{tx('Xóa tất cả', 'Clear all')}</button>}
+          <button type="button" onClick={() => setIsImportOpen(true)} className="h-8 px-3 text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
+            <Upload className="w-3.5 h-3.5" /><span>{tx('Import', 'Import')}</span>
+          </button>
+          {selectedItems.length > 0 && <>
+            <button type="button" onClick={() => onBatchPrint(selectedItems)} className="h-8 px-3 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
+              <Printer className="w-3.5 h-3.5" />{tx('Xuất & in', 'Export & print')}
+            </button>
+            <button type="button" onClick={handleExportCsv} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
+              <FileDown className="w-3.5 h-3.5" />{tx('Xuất CSV', 'Export CSV')}
+            </button>
+          </>}
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -232,7 +245,10 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       ) : (
         <div className="border border-neutral-200 rounded-lg bg-white overflow-hidden divide-y divide-neutral-200">
           {filteredItems.map((item) => (
-            <div key={item.id} className="p-3 sm:p-4 hover:bg-neutral-50/80 transition-colors flex items-center justify-between gap-4 group">
+            <div key={item.id} className="p-3 sm:p-4 hover:bg-neutral-50/80 transition-colors flex items-center gap-3 group">
+              <button type="button" onClick={() => toggleSelected(item.id)} className="p-1 shrink-0 text-neutral-400 hover:text-neutral-900 cursor-pointer" aria-label={tx('Chọn mã QR','Select QR code')}>
+                {selectedIds.has(item.id) ? <CheckSquare className="w-4 h-4 text-neutral-900" /> : <Square className="w-4 h-4" />}
+              </button>
               <button type="button" onClick={() => onRestore(item)} className="flex items-center gap-3.5 min-w-0 flex-1 text-left cursor-pointer" title={tx('Mở lại trong trình tạo', 'Open in generator')}>
                 <div className="w-12 h-12 bg-neutral-50 border border-neutral-200 rounded p-1 shrink-0 flex items-center justify-center overflow-hidden group-hover:border-neutral-400 transition-colors"><div className="w-full h-full bg-neutral-900 rounded-xs flex items-center justify-center text-[10px] font-mono text-white">QR</div></div>
                 <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="text-sm font-semibold text-neutral-900 truncate">{item.title}</span><span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 shrink-0">{item.type}</span></div><p className="text-xs text-neutral-500 truncate mt-0.5 font-mono">{item.subtitle || item.rawPayload}</p></div>
