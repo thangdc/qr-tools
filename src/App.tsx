@@ -42,7 +42,6 @@ import { PrivacyModal } from './components/PrivacyModal';
 import { ProModal } from './components/ProModal';
 import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
-import { Ruler, ShieldCheck, LayoutTemplate } from 'lucide-react';
 import { useLanguage } from './i18n';
 import { initAnalytics, trackEvent } from './utils/analytics';
 
@@ -612,35 +611,7 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Utility Badges on Right */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsTemplatesModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-800 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
-                >
-                  <LayoutTemplate className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>{t('templatesCount')} ({templates.length})</span>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => setIsMetricModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200/90 rounded-lg transition-all cursor-pointer shadow-2xs hover:border-neutral-300"
-                >
-                  <Ruler className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>Đầu ra</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsPrivacyOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-800 bg-emerald-50/60 hover:bg-emerald-50 border border-emerald-200/60 rounded-lg transition-all cursor-pointer shadow-2xs"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{t('private')}</span>
-                </button>
-              </div>
             </div>
 
             {/* Horizontal Type Selector */}
