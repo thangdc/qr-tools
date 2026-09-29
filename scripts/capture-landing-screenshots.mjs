@@ -119,7 +119,7 @@ const guideCaptures = [
   {
     image: 'scanner.png', url: `${baseUrl}/?view=scanner&source=guide-scanner`,
     alt: 'QR Tools Scanner', caption: 'Scanner — quét và giải mã QR',
-  },  },
+  },
   { image: 'bulk-overview.png', url: `${baseUrl}/?view=bulk&source=guide-bulk`, alt: 'QR Tools tạo hàng loạt', caption: 'Batch — quản lý nhiều QR' },
   {
     image: 'bulk-import.png', url: `${baseUrl}/?view=bulk&source=guide-import`,
