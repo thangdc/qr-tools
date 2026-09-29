@@ -4,7 +4,7 @@ import { useLanguage } from '../i18n';
 import { QRHistoryItem, QRType, QRTemplate, QROutputSettings, DEFAULT_QR_OUTPUT_SETTINGS, BulkQRItem } from '../types/qr';
 import { PREDEFINED_TEMPLATES } from '../utils/defaultTemplates';
 import { renderTemplatedQR } from '../utils/templateRenderer';
-import { Search, RotateCcw, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown, FileArchive } from 'lucide-react';
+import { Search, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown, FileArchive } from 'lucide-react';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
 
 interface HistoryViewProps {
@@ -93,6 +93,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   }), [items, filterType, search]);
 
   const selectedItems = filteredItems.filter((item) => selectedIds.has(item.id));
+  const actionItems = selectedItems.length > 0 ? selectedItems : filteredItems;
   const allVisibleSelected = filteredItems.length > 0 && filteredItems.every((item) => selectedIds.has(item.id));
 
   const toggleSelected = (id: string) => {
@@ -117,14 +118,15 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   };
 
   const handleExportZip = async () => {
-    if (!selectedItems.length) return;
+    if (!actionItems.length) return;
     const zip = new JSZip();
     const folder = zip.folder('qr-codes');
-    for (let i = 0; i < selectedItems.length; i++) {
-      const item = selectedItems[i];
+    for (let i = 0; i < actionItems.length; i++) {
+      const item = actionItems[i];
       const canvas = await renderHistoryItem(item);
       const base64 = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
-      folder?.file(`${i + 1}_${item.title.replace(/[^a-z0-9_-]/gi, '_').slice(0, 80) || item.type}.png`, base64, { base64: true });
+      const safeTitle = item.title.replace(/[^a-z0-9_-]/gi, '_').slice(0, 80) || item.type;
+      folder?.file(`${i + 1}_${safeTitle}.png`, base64, { base64: true });
     }
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
@@ -136,11 +138,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   };
 
   const handleExportCsv = () => {
-    if (!selectedItems.length) return;
+    if (!actionItems.length) return;
     const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const csv = [
       'Label,Type,Payload,Created At',
-      ...selectedItems.map((item) =>
+      ...actionItems.map((item) =>
         [item.title, item.type, item.rawPayload, new Date(item.createdAt).toISOString()]
           .map(escapeCsv)
           .join(',')
@@ -172,36 +174,6 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     link.click();
   };
 
-  const handlePrint = async (item: QRHistoryItem) => {
-    const canvas = await renderHistoryItem(item);
-    const settings = readOutputSettings();
-    // Open the print document synchronously from the user click so popup blockers
-    // do not treat it as a delayed window.open after async QR rendering.
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      return;
-    }
-
-    const image = canvas.toDataURL('image/png');
-    const width = Math.max(10, settings.printSizeMm);
-    printWindow.document.open();
-    printWindow.document.write(`<!doctype html><html><head><title>Print QR</title><style>@page{size:auto;margin:0}html,body{margin:0;padding:0}body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh}img{width:${width}mm;height:auto;display:block}</style></head><body><img id="qr-print-image" src="${image}" alt="QR Code"></body></html>`);
-    printWindow.document.close();
-
-    const printImage = printWindow.document.getElementById('qr-print-image') as HTMLImageElement | null;
-    const print = () => {
-      printWindow.focus();
-      printWindow.print();
-    };
-
-    if (printImage?.complete) {
-      setTimeout(print, 50);
-    } else {
-      printImage?.addEventListener('load', print, { once: true });
-      setTimeout(print, 500);
-    }
-  };
-
   const formatTime = (timestamp: number) => {
     const diff = Date.now() - timestamp;
     if (diff < 60000) return 'Just now';
@@ -222,23 +194,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">{tx('Quản lý các mã QR bạn đã lưu. Tải xuống hoặc in trực tiếp từ đây.', 'Manage your saved QR codes. Download or print directly from here.')}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-          {items.length > 0 && <button type="button" onClick={onClearAll} className="h-8 px-2.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer">{tx('Xóa tất cả', 'Clear all')}</button>}
-          <button type="button" onClick={() => setIsImportOpen(true)} className="h-8 px-3 text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
-            <Upload className="w-3.5 h-3.5" /><span>{tx('Import', 'Import')}</span>
-          </button>
-          {selectedItems.length > 0 && <>
-            <button type="button" onClick={() => onBatchPrint(selectedItems)} className="h-8 px-3 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
-              <Printer className="w-3.5 h-3.5" />{tx('Xuất & in', 'Export & print')}
-            </button>
-            <button type="button" onClick={() => void handleExportZip()} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
-              <FileArchive className="w-3.5 h-3.5" />{tx('Tải ZIP', 'Download ZIP')}
-            </button>
-            <button type="button" onClick={handleExportCsv} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer">
-              <FileDown className="w-3.5 h-3.5" />{tx('Xuất CSV', 'Export CSV')}
-            </button>
-          </>}
-        </div>
-      </div>
+          {items.length > 0 && <button type="button" onClick={onClearAll} className="h-8 px-3 text-xs font-medium text-red-600 bg-white hover:bg-red-50 border border-red-200 rounded-md transition-colors cursor-pointer">{tx('Xóa tất cả', 'Clear all')}</button>}
+          <button type="button" onClick={() => setIsImportOpen(true)} className="h-8 px-3 text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" /><span>{tx('Import', 'Import')}</span></button>
+          <button type="button" onClick={() => onBatchPrint(actionItems)} disabled={!actionItems.length} className="h-8 px-3 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><Printer className="w-3.5 h-3.5" />{selectedItems.length ? tx('Xuất & in đã chọn', 'Export & print selected') : tx('Xuất & in tất cả', 'Export & print all')}</button>
+          <button type="button" onClick={() => void handleExportZip()} disabled={!actionItems.length} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><FileArchive className="w-3.5 h-3.5" />{selectedItems.length ? tx('Tải ZIP đã chọn', 'Download selected ZIP') : tx('Tải ZIP tất cả', 'Download all ZIP')}</button>
+          <button type="button" onClick={handleExportCsv} disabled={!actionItems.length} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><FileDown className="w-3.5 h-3.5" />{selectedItems.length ? tx('Xuất CSV đã chọn', 'Export selected CSV') : tx('Xuất CSV tất cả', 'Export all CSV')}</button>
+        </div>    </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
@@ -272,8 +233,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <span className="text-xs text-neutral-400 font-mono tabular-nums hidden md:inline mr-1">{formatTime(item.createdAt)}</span>
                 <button type="button" onClick={() => void handleDownload(item)} className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={tx('Tải xuống', 'Download')}><Download className="w-4 h-4" /></button>
-                <button type="button" onClick={() => void handlePrint(item)} className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={tx('In', 'Print')}><Printer className="w-4 h-4" /></button>
-                <button type="button" onClick={() => onRestore(item)} className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={tx('Mở lại để chỉnh sửa', 'Open to edit')}><RotateCcw className="w-4 h-4" /></button>
+                <button type="button" onClick={() => onBatchPrint([item])} className="p-1.5 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded transition-colors cursor-pointer" title={tx('In', 'Print')}><Printer className="w-4 h-4" /></button>
                 <button type="button" onClick={() => onDelete(item.id)} className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer" title={tx('Xóa khỏi lịch sử', 'Delete from history')}><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
