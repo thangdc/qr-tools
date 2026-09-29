@@ -88,6 +88,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     setEditingTemplate(copy);
   };
 
+  const handleEdit = (tmpl: QRTemplate) => {
+    // Edit the selected template in place. Duplication is a separate, explicit action.
+    setEditingTemplate({ ...tmpl });
+  };
+
   const handleSaveEdit = () => {
     if (!editingTemplate) return;
     onSaveTemplate(editingTemplate);
@@ -143,7 +148,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             <div className="space-y-4 text-xs">
               <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
                 <span className="font-semibold text-sm text-neutral-900">
-                  {editingTemplate.isPredefined ? tx('Tùy chỉnh mẫu', 'Customizing Template') : tx('Tạo mẫu tùy chỉnh', 'Create Custom Template')}
+                  {templates.some((t) => t.id === editingTemplate.id)
+                    ? editingTemplate.isPredefined
+                      ? tx('Tùy chỉnh mẫu', 'Customize Template')
+                      : tx('Chỉnh sửa mẫu', 'Edit Template')
+                    : tx('Tạo mẫu tùy chỉnh', 'Create Custom Template')}
                 </span>
                 <button
                   type="button"
@@ -551,32 +560,24 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                           <Copy className="w-3.5 h-3.5" />
                         </button>
 
-                        {!tmpl.isPredefined ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setEditingTemplate(tmpl)}
-                              className="p-1 text-neutral-400 hover:text-neutral-700 rounded cursor-pointer"
-                              title="Edit custom template"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => onDeleteTemplate(tmpl.id)}
-                              className="p-1 text-neutral-400 hover:text-red-600 rounded cursor-pointer"
-                              title="Delete custom template"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </>
-                        ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(tmpl)}
+                          className="text-[11px] text-neutral-400 hover:text-neutral-700 underline ml-1 cursor-pointer inline-flex items-center gap-1"
+                          title={tmpl.isPredefined ? 'Customize this template' : 'Edit custom template'}
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>{tmpl.isPredefined ? tx('Tùy chỉnh', 'Customize') : tx('Chỉnh sửa', 'Edit')}</span>
+                        </button>
+
+                        {!tmpl.isPredefined && (
                           <button
                             type="button"
-                            onClick={() => handleDuplicate(tmpl)}
-                            className="text-[11px] text-neutral-400 hover:text-neutral-700 underline ml-1 cursor-pointer"
+                            onClick={() => onDeleteTemplate(tmpl.id)}
+                            className="p-1 text-neutral-400 hover:text-red-600 rounded cursor-pointer"
+                            title="Delete custom template"
                           >
-                            {tx('Tùy chỉnh', 'Customize')}
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
