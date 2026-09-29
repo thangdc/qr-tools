@@ -165,7 +165,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-semibold text-neutral-900">
-                  {tx('Xưởng in', 'Xưởng in')} ({items.length} {tx('mã QR đã chọn', 'mã QR đã chọn')})
+                  {tx('Xuất & in', 'Export & print')} ({items.length} {tx('mã QR đã chọn', 'mã QR đã chọn')})
                 </h2>
                 {currentTemplate.isDefault && (
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold border border-amber-200/60 flex items-center gap-0.5">
@@ -175,7 +175,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-neutral-500">
-                {tx('Chọn giữa thẻ để bàn hoặc tờ nhãn dán mật độ cao.', 'Chọn thẻ để bàn hoặc tờ nhãn dán mật độ cao.')}
+                {tx('Tải xuống nhiều QR hoặc in theo mẫu.', 'Download multiple QR codes or print them with a template.')}
               </p>
             </div>
           </div>

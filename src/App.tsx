@@ -499,6 +499,22 @@ export default function App() {
     setIsMetricModalOpen(true);
   };
 
+  const handleBatchPrintFromHistory = (items: QRHistoryItem[]) => {
+    setBatchPrintState({
+      isOpen: true,
+      items: items.map((item) => ({
+        id: item.id,
+        label: item.title,
+        payload: item.rawPayload,
+        type: item.type,
+        subtitle: item.subtitle,
+        accountName: item.type === 'payment' ? (item.data as any).accountName : undefined,
+        accountNumber: item.type === 'payment' ? (item.data as any).accountNumber : undefined,
+        bankName: item.type === 'payment' ? (item.data as any).bankName : undefined,
+      })),
+    });
+  };
+
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
@@ -752,6 +768,7 @@ export default function App() {
             isPro={isPro}
             onOpenPro={openProModal}
             onImport={handleImportToHistory}
+            onBatchPrint={handleBatchPrintFromHistory}
           />
         )}
 
