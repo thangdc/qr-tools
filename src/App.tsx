@@ -314,6 +314,7 @@ export default function App() {
 
   // Save new or edited template
   const handleSaveTemplate = (saved: QRTemplate) => {
+    trackEvent('template_saved', { template_id: saved.id });
     setTemplates((prev) => {
       const exists = prev.some((t) => t.id === saved.id);
       if (exists) {
