@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useTransition } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useTransition } from 'react';
 import QRCode from 'qrcode';
 import {
   QRType,
@@ -187,6 +187,10 @@ export default function App() {
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
 
   useEffect(() => {
+    if (activeView === 'history') trackEvent('history_opened');
+  }, [activeView]);
+
+  useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set('view', activeView);
     if (activeView === 'generator') {
@@ -252,6 +256,7 @@ export default function App() {
 
   // Modals state
   const [isProModalOpen, setIsProModalOpen] = useState(false);
+  const customizeTrackedRef = useRef(false);
 
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
@@ -329,6 +334,10 @@ export default function App() {
 
   // Update design of active template directly from CustomizePanel
   const handleUpdateDesign = (design: QRDesignOptions) => {
+    if (!customizeTrackedRef.current) {
+      trackEvent('customize_used', { qr_type: selectedType });
+      customizeTrackedRef.current = true;
+    }
     setHistoryDesignOverride(null);
     setTemplates((prev) =>
       prev.map((t) =>
@@ -388,6 +397,7 @@ export default function App() {
 
   // Restore history item to editor
   const handleRestoreHistory = (item: QRHistoryItem) => {
+    trackEvent('history_item_restored', { qr_type: item.type });
     setSelectedType(item.type);
     setFormData((prev) => ({
       ...prev,
@@ -402,6 +412,7 @@ export default function App() {
 
   // Load from scanner into editor
   const handleLoadFromScanner = (decoded: DecodedQRData) => {
+    trackEvent('scanner_used', { qr_type: decoded.type });
     setSelectedType(decoded.type);
     setFormData((prev) => ({
       ...prev,
@@ -492,7 +503,12 @@ export default function App() {
 
   const handlePrintSingle = () => {
     if (!currentPayload) return;
-    trackEvent('qr_print_started', { qr_type: selectedType, is_pro: isPro });
+    if (!isPro) {
+      trackEvent('pro_feature_clicked', { feature: 'print', source: 'generator', is_pro: false });
+      openProModal('generator_print');
+      return;
+    }
+    trackEvent('qr_print_started', { qr_type: selectedType, is_pro: true, source: 'generator' });
     setBatchPrintState({
       isOpen: true,
       items: [
@@ -512,6 +528,12 @@ export default function App() {
   };
 
   const handleBatchPrintFromHistory = (items: QRHistoryItem[]) => {
+    if (!isPro) {
+      trackEvent('pro_feature_clicked', { feature: 'print', source: 'history', is_pro: false });
+      openProModal('history_print');
+      return;
+    }
+    trackEvent('qr_print_started', { qr_type: items[0]?.type || 'mixed', count: items.length, is_pro: true, source: 'history' });
     setBatchPrintState({
       isOpen: true,
       items: items.map((item) => ({
@@ -743,6 +765,7 @@ export default function App() {
                   templates={templates}
                   activeTemplate={activeTemplate}
                   onSelectTemplate={(templateId) => {
+                  trackEvent('template_selected', { template_id: templateId, source: 'generator' });
                   setHistoryDesignOverride(null);
                   setActiveTemplateId(templateId);
                 }}
@@ -838,7 +861,10 @@ export default function App() {
         onClose={() => setIsTemplatesModalOpen(false)}
         templates={templates}
         activeTemplateId={activeTemplateId}
-        onSelectTemplate={setActiveTemplateId}
+        onSelectTemplate={(templateId) => {
+          trackEvent('template_selected', { template_id: templateId, source: 'template_manager' });
+          setActiveTemplateId(templateId);
+        }}
         onSetDefaultTemplate={handleSetDefaultTemplate}
         onSaveTemplate={handleSaveTemplate}
         onDeleteTemplate={handleDeleteTemplate}
