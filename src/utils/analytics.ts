@@ -1,4 +1,4 @@
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-2S8WCS3WBQ';
+const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-774V8J1SPG';
 
 type EventParams = Record<string, string | number | boolean | undefined>;
 
