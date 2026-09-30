@@ -1,3 +1,5 @@
+import { trackEvent } from '../utils/analytics';
+
 export type ProPlan = 'monthly' | 'yearly';
 
 export interface CreateOrderResult {
@@ -123,7 +125,6 @@ export function submitSePayCheckout(endpoint: string, fields: Record<string, str
   return target;
 }
 
-
 export async function deactivateProLicense(
   email: string,
   deviceId: string,
@@ -155,3 +156,41 @@ export async function validateProLicense(
     message?: string;
   }>('validate-license', { email, deviceId, activationToken });
 }
+
+/**
+ * SePay's cancel redirect currently returns `payment=cancel` without the order code.
+ * Recover the order from the checkout session shared through localStorage.
+ */
+export async function handleCancelledPaymentRedirect(): Promise<void> {
+  if (typeof window === 'undefined') return;
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') !== 'cancel') return;
+
+  let orderCode = params.get('order')?.trim() || '';
+  if (!orderCode) {
+    try {
+      const raw = localStorage.getItem('qr_tools_checkout_session');
+      if (raw) {
+        const saved = JSON.parse(raw) as { orderCode?: string };
+        orderCode = saved.orderCode?.trim() || '';
+      }
+    } catch {
+      // Ignore malformed checkout-session storage.
+    }
+  }
+
+  if (!orderCode) return;
+
+  try {
+    const result = await cancelProOrder(orderCode);
+    if (result.success && result.status === 'cancelled') {
+      trackEvent('pro_payment_cancelled', { order_code: orderCode });
+      try { localStorage.removeItem('qr_tools_checkout_session'); } catch { /* ignore storage errors */ }
+    }
+  } catch {
+    // The order-status polling remains the fallback for the original checkout tab.
+  }
+}
+
+void handleCancelledPaymentRedirect();
