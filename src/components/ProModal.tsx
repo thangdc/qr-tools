@@ -337,6 +337,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 0;border-bottom:1px
       localStorage.removeItem('qr_tools_license_key');
       localStorage.removeItem('qr_tools_license_email');
       localStorage.removeItem('qr_tools_last_paid_order_code');
+      clearOrderSession();
+      setPaymentStarted(false);
+      setOrderCode('');
+      setAmount(0);
       setLicenseKey('');
       setLastPaidOrderCode('');
       setExpiresAt(null);
