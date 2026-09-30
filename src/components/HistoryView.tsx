@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { trackEvent } from '../utils/analytics';
 import JSZip from 'jszip';
 import { useLanguage } from '../i18n';
 import { QRHistoryItem, QRType, QRTemplate, QROutputSettings, DEFAULT_QR_OUTPUT_SETTINGS, BulkQRItem } from '../types/qr';
@@ -119,6 +120,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
   const handleExportZip = async () => {
     if (!actionItems.length) return;
+    if (!isPro) {
+      trackEvent('pro_feature_clicked', { feature: 'export_zip', source: 'history', is_pro: false });
+      onOpenPro('history_export_zip');
+      return;
+    }
+    trackEvent('qr_export_started', { format: 'zip', count: actionItems.length });
     const zip = new JSZip();
     const folder = zip.folder('qr-codes');
     for (let i = 0; i < actionItems.length; i++) {
@@ -139,6 +146,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
   const handleExportCsv = () => {
     if (!actionItems.length) return;
+    if (!isPro) {
+      trackEvent('pro_feature_clicked', { feature: 'export_csv', source: 'history', is_pro: false });
+      onOpenPro('history_export_csv');
+      return;
+    }
+    trackEvent('qr_export_started', { format: 'csv', count: actionItems.length });
     const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const csv = [
       'Label,Type,Payload,Created At',
