@@ -43,6 +43,7 @@ import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
 import { useLanguage } from './i18n';
 import { initAnalytics, trackEvent } from './utils/analytics';
+import { cancelProOrder } from './services/revenueService';
 
 const INITIAL_FORM_DATA: QRFormData = {
   url: { url: 'https://example.com' },
@@ -183,6 +184,24 @@ export default function App() {
       });
     }
   }, [deepLink]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const order = params.get('order');
+    if (payment !== 'cancel' || !order) return;
+    void cancelProOrder(order).then((result) => {
+      if (result.success && result.status === 'cancelled') trackEvent('pro_payment_cancelled', { order_code: order });
+    }).catch(() => {
+      // The original checkout tab will detect the final order state via polling.
+    }).finally(() => {
+      params.delete('payment');
+      params.delete('order');
+      const query = params.toString();
+      const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+      window.history.replaceState(null, '', cleanUrl);
+    });
+  }, []);
+
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history'>(deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
 
