@@ -73,6 +73,10 @@ export async function getOrderStatus(email: string, orderCode: string): Promise<
   return callFunction<OrderStatusResult>('order-status', { email, orderCode });
 }
 
+export async function cancelProOrder(orderCode: string): Promise<{ success: boolean; status?: string; message?: string }> {
+  return callFunction<{ success: boolean; status?: string; message?: string }>('cancel-order', { orderCode });
+}
+
 export async function getInvoice(email: string, orderCode?: string): Promise<InvoiceResult> {
   return callFunction<InvoiceResult>('get-invoice', { email, ...(orderCode ? { orderCode } : {}) });
 }
