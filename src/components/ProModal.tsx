@@ -192,6 +192,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
           clearOrderSession();
           trackEvent('pro_payment_confirmed', { plan, amount });
+          trackEvent('pro_license_activated', { source: 'payment', plan });
           onTogglePro(true);
           setActivePanel('active');
           setMessage(tx(
