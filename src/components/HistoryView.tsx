@@ -183,6 +183,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     const canvas = await renderHistoryItem(item);
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
+    trackEvent('qr_downloaded', { qr_type: item.type, format: 'png', method: 'history', is_pro: isPro });
     link.download = `qr-${item.type}-${item.id}.png`;
     link.click();
   };
