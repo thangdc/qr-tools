@@ -1,0 +1,33 @@
+name: Record QR Tools demo video
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install --package-lock=false --legacy-peer-deps
+      - run: npm install --no-save --package-lock=false --legacy-peer-deps playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Record demo
+        env:
+          QR_PRO_EMAIL: thang@thangdc.com
+          QR_PRO_KEY: ${{ secrets.QR_PRO_KEY }}
+          QR_VIDEO_OUTPUT: artifacts/qr-demo
+        run: node scripts/record-qr-demo.mjs
+      - uses: actions/upload-artifact@v6
+        with:
+          name: qr-tools-demo-recording
+          path: artifacts/qr-demo
+          if-no-files-found: error
+          retention-days: 7
