@@ -14,7 +14,7 @@ const rooms = [
   ['Phòng 202','https://qr.thangdc.com/room/202'],['Phòng 203','https://qr.thangdc.com/room/203'],
   ['Phòng 301','https://qr.thangdc.com/room/301'],['Phòng 302','https://qr.thangdc.com/room/302'],
 ];
-const csv=rooms.map(([n,u])=>`${n}, ${u}`).join('\\n');
+const csv=rooms.map(([n,u])=>`${n}, ${u}`).join('\n');
 await fs.mkdir(outputDir,{recursive:true});
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1,recordVideo:{dir:path.join(outputDir,'video'),size:{width:1440,height:900}}});
