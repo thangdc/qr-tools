@@ -3,10 +3,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const baseUrl = process.env.QR_TOOLS_URL || 'https://qr.thangdc.com';
-const proEmail = process.env.QR_PRO_EMAIL || '';
+const proEmail = process.env.QR_PRO_EMAIL || 'thang@thangdc.com';
+const proEmails = [...new Set([proEmail, 'dinhcongthang113@gmail.com'].filter(Boolean))];
 const proKey = process.env.QR_PRO_KEY || '';
 const outputDir = path.resolve(process.env.QR_VIDEO_OUTPUT || 'artifacts/qr-demo');
-if (!proEmail || !proKey) throw new Error('QR_PRO_EMAIL and QR_PRO_KEY are required.');
+if (!proKey) throw new Error('QR_PRO_KEY is required.');
 
 const rooms = [
   ['Phòng 101','https://qr.thangdc.com/room/101'],['Phòng 102','https://qr.thangdc.com/room/102'],
@@ -23,7 +24,25 @@ const pause=ms=>page.waitForTimeout(ms);
 async function dismiss(){await page.keyboard.press('Escape').catch(()=>{});const o=page.locator('div.fixed.inset-0.z-50');for(let i=await o.count()-1;i>=0;i--){const x=o.nth(i);if(!(await x.isVisible().catch(()=>false)))continue;const b=x.locator('button').first();if(await b.isVisible().catch(()=>false))await b.click().catch(()=>{});else await page.keyboard.press('Escape').catch(()=>{});await x.waitFor({state:'hidden',timeout:5000}).catch(()=>{});}}
 async function shot(n){await page.screenshot({path:path.join(outputDir,`${n}.png`),fullPage:false,animations:'disabled',scale:'css'});}
 async function openHistory(){await page.goto(`${baseUrl}/?view=history&source=video`,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForLoadState('networkidle',{timeout:15000}).catch(()=>{});await pause(1500);await dismiss();await page.getByTestId('nav-history').click().catch(()=>{});await pause(700);await page.getByRole('button',{name:'Import',exact:true}).click();await pause(700);}
-async function activate(){await page.getByRole('button',{name:'Pro',exact:true}).click();await pause(700);await page.locator('input[type="email"]').first().fill(proEmail);await page.getByPlaceholder('License Key',{exact:true}).fill(proKey);await page.getByRole('button',{name:'Kích hoạt',exact:true}).click();await page.waitForFunction(()=>localStorage.getItem('qr_tools_pro')==='true',undefined,{timeout:15000});await pause(1000);await dismiss();}
+async function activate(){
+  await page.getByRole('button',{name:'Pro',exact:true}).click();
+  await pause(700);
+  const emailInput=page.locator('input[type="email"]').first();
+  const keyInput=page.getByPlaceholder('License Key',{exact:true});
+  const activateButton=page.getByRole('button',{name:'Kích hoạt',exact:true});
+  const message=page.locator('text=/Kích hoạt thất bại|License|không hợp lệ|thành công|activated|expired/i').last();
+  const errors=[];
+  for(const email of proEmails){
+    await emailInput.fill(email);
+    await keyInput.fill(proKey);
+    await activateButton.click();
+    try{await page.waitForFunction(()=>localStorage.getItem('qr_tools_pro')==='true',undefined,{timeout:15000});return email;}catch{}
+    const visibleMessage=await message.textContent().catch(()=>null);
+    errors.push(`${email}: ${visibleMessage || 'activation did not complete'}`);
+    await pause(500);
+  }
+  throw new Error(`Pro activation failed for configured owner emails: ${errors.join(' | ')}`);
+}
 try{
  await page.goto(`${baseUrl}/?view=generator&type=url&source=video`,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForLoadState('networkidle',{timeout:15000}).catch(()=>{});await pause(1800);await dismiss();await shot('01-generator');
  await openHistory();await shot('02-import-empty');await page.locator('textarea').first().fill(csv);await pause(1200);await shot('03-import-data');await page.getByRole('button',{name:'Thêm',exact:true}).click();await pause(900);await shot('04-pro-gate');
