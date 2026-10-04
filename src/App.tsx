@@ -35,6 +35,7 @@ import { HistoryView } from './components/HistoryView';
 import { ScannerView } from './components/ScannerView';
 import { WorkflowHub } from './components/WorkflowHub';
 import { CheckinView } from './components/CheckinView';
+import { BulkPrintWorkflow } from './components/BulkPrintWorkflow';
 import { BatchCardPrintModal, BatchPrintItem } from './components/BatchCardPrintModal';
 import { TemplateEditorModal } from './components/TemplateEditorModal';
 import { PrintHandoffModal } from './components/PrintHandoffModal';
@@ -161,13 +162,13 @@ const DEEP_LINK_TYPES: Partial<Record<QRType, true>> = {
   email: true, phone: true, sms: true, location: true, event: true,
 };
 
-function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin'; type?: QRType; source?: string } {
+function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print'; type?: QRType; source?: string } {
   if (typeof window === 'undefined') return { view: 'generator' };
   const params = new URLSearchParams(window.location.search);
   const requestedType = params.get('type') as QRType | null;
   const viewParam = params.get('view');
   return {
-    view: viewParam === 'history' || viewParam === 'scanner' || viewParam === 'workflows' || viewParam === 'checkin' || viewParam === 'bulk' ? (viewParam === 'bulk' ? 'history' : viewParam) : 'generator',
+    view: viewParam === 'history' || viewParam === 'scanner' || viewParam === 'workflows' || viewParam === 'checkin' || viewParam === 'bulk-print' ? viewParam : 'generator',
     type: requestedType && DEEP_LINK_TYPES[requestedType] ? requestedType : undefined,
     source: params.get('source') || undefined,
   };
@@ -182,7 +183,7 @@ export default function App() {
     if (deepLink.source) {
       trackEvent('landing_cta_opened', {
         source: deepLink.source,
-        destination: deepLink.view === 'history' ? 'history' : deepLink.view === 'scanner' ? 'scanner' : deepLink.view === 'workflows' ? 'workflows' : deepLink.view === 'checkin' ? 'checkin' : deepLink.type || 'url',
+        destination: deepLink.view === 'history' ? 'history' : deepLink.view === 'scanner' ? 'scanner' : deepLink.view === 'workflows' ? 'workflows' : deepLink.view === 'checkin' ? 'checkin' : deepLink.view === 'bulk-print' ? 'bulk-print' : deepLink.type || 'url',
       });
     }
   }, [deepLink]);
@@ -204,7 +205,7 @@ export default function App() {
     });
   }, []);
 
-  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin'>(deepLink.view);
+  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print'>(deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
 
   useEffect(() => {
@@ -689,7 +690,22 @@ export default function App() {
         <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Workflow Hub */}
         {activeView === 'workflows' && (
-          <WorkflowHub onOpenCheckin={() => setActiveView('checkin')} />
+          <WorkflowHub
+            onOpenCheckin={() => setActiveView('checkin')}
+            onOpenBulkPrint={() => setActiveView('bulk-print')}
+          />
+        )}
+
+        {/* Bulk QR Print Workflow */}
+        {activeView === 'bulk-print' && (
+          <BulkPrintWorkflow
+            isPro={isPro}
+            onOpenPro={openProModal}
+            onBack={() => setActiveView('workflows')}
+            onGenerateAndPrint={(items) => {
+              setBatchPrintState({ isOpen: true, items });
+            }}
+          />
         )}
 
         {/* Check-in Workflow */}
