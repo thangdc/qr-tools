@@ -39,7 +39,6 @@ import { BulkPrintWorkflow } from './components/BulkPrintWorkflow';
 import { AssetWorkflow } from './components/AssetWorkflow';
 import { InventoryWorkflow } from './components/InventoryWorkflow';
 import { RoomWorkflow } from './components/RoomWorkflow';
-import { RoomWorkflow } from './components/RoomWorkflow';
 import { BatchCardPrintModal, BatchPrintItem } from './components/BatchCardPrintModal';
 import { TemplateEditorModal } from './components/TemplateEditorModal';
 import { PrintHandoffModal } from './components/PrintHandoffModal';
