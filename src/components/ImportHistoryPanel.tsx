@@ -25,18 +25,42 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
   const [importText, setImportText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const canonicalizeData = (value: unknown): string => {
+    if (Array.isArray(value)) return `[${value.map(canonicalizeData).join(',')}]`;
+    if (value && typeof value === 'object') {
+      return `{${Object.entries(value as Record<string, unknown>)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalizeData(entry)}`)
+        .join(',')}}`;
+    }
+    return JSON.stringify(value);
+  };
+
   const duplicateIds = React.useMemo(() => {
-    const seen = new Set(existingItems.map((item) => `${item.type}::${item.rawPayload}`));
+    const seenPayloads = new Set<string>();
+    const seenData = new Set<string>();
+
+    for (const item of existingItems) {
+      const payload = item.rawPayload;
+      if (payload) seenPayloads.add(`${item.type}::${payload}`);
+      seenData.add(`${item.type}::${canonicalizeData(item.data)}`);
+    }
+
     const duplicates = new Set<string>();
 
     for (const item of items) {
       const payload = generatePayload(item.type, item.data);
-      const key = payload ? `${item.type}::${payload}` : '';
-      if (!key) continue;
-      if (seen.has(key)) {
-        duplicates.add(item.id);
-      }
-      seen.add(key);
+      const payloadKey = payload ? `${item.type}::${payload}` : '';
+      const dataKey = `${item.type}::${canonicalizeData(item.data)}`;
+      const duplicate = Boolean(
+        (payloadKey && seenPayloads.has(payloadKey)) ||
+        seenData.has(dataKey)
+      );
+
+      if (duplicate) duplicates.add(item.id);
+
+      if (payloadKey) seenPayloads.add(payloadKey);
+      seenData.add(dataKey);
     }
 
     return duplicates;
