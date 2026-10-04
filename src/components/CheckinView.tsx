@@ -144,8 +144,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
         p.checkedInAt ? 'Đã check-in' : 'Chưa check-in',
         p.checkedInAt ? new Date(p.checkedInAt).toISOString() : '',
       ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
-    ].join('\r
-');
+    ].join('\r\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
