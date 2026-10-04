@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLanguage } from '../i18n';
-import { scanImageData, scanImageFile, parseRawQRPayload } from '../utils/qrDecoder';
+import { parseRawQRPayload } from '../utils/qrDecoder';
+import { useQRScanner } from '../hooks/useQRScanner';
 import { DecodedQRData } from '../types/qr';
 import { trackEvent } from '../utils/analytics';
 import {
@@ -26,118 +27,40 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   onLoadIntoGenerator,
 }) => {
   const { tx } = useLanguage();
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<DecodedQRData | null>(null);
   const [copied, setCopied] = useState(false);
-  const scanBusyRef = useRef(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
+  const handleDecoded = (decodedRaw: string) => {
+    const parsed = parseRawQRPayload(decodedRaw);
+    setScanResult(parsed);
+    trackEvent('scanner_success', { source: 'camera', qr_type: parsed.type });
+  };
+
+  const {
+    videoRef,
+    isCameraActive,
+    cameraError,
+    startCamera,
+    stopCamera,
+    scanFile,
+  } = useQRScanner({ onDecoded: handleDecoded, stopAfterDecode: true });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Stop camera when unmounting
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, []);
-
-  const startCamera = async () => {
-    setCameraError(null);
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error('CAMERA_UNAVAILABLE');
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      streamRef.current = stream;
-      setIsCameraActive(true);
-    } catch (err: any) {
-      console.error(err);
-      setCameraError(
-        'Không thể truy cập camera. Hãy cấp quyền camera hoặc tải ảnh lên để quét.'
-      );
-      setIsCameraActive(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!isCameraActive || !streamRef.current || !videoRef.current) return;
-
-    const video = videoRef.current;
-    video.srcObject = streamRef.current;
-
-    video.play()
-      .then(() => requestScan())
-      .catch((err) => {
-        console.error(err);
-        setCameraError('Không thể phát camera. Hãy thử cho phép camera và bấm quét lại.');
-        stopCamera();
-      });
-  }, [isCameraActive]);
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-    setIsCameraActive(false);
-  };
-
-  const requestScan = () => {
-    if (scanBusyRef.current) return;
-    scanBusyRef.current = true;
-    const video = videoRef.current;
-    if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
-      scanBusyRef.current = false;
-      animationFrameRef.current = requestAnimationFrame(requestScan);
-      return;
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const decodedRaw = scanImageData(imageData);
-      if (decodedRaw) {
-        const parsed = parseRawQRPayload(decodedRaw);
-        setScanResult(parsed);
-        trackEvent('scanner_success', { source: 'camera', qr_type: parsed.type });
-        stopCamera();
-        scanBusyRef.current = false;
-        return;
-      }
-    }
-
-    scanBusyRef.current = false;
-    animationFrameRef.current = requestAnimationFrame(requestScan);
-  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const decodedRaw = await scanImageFile(file);
-    if (decodedRaw) {
+    const decodedRaw = await scanFile(file);
+    if (!decodedRaw) {
+      trackEvent('scanner_failure', { source: 'upload' });
+      alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn hoặc dùng ảnh QR gốc.');
+    } else {
       const parsed = parseRawQRPayload(decodedRaw);
       setScanResult(parsed);
       trackEvent('scanner_success', { source: 'upload', qr_type: parsed.type });
-    } else {
-      trackEvent('scanner_failure', { source: 'upload' });
-      alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn hoặc dùng ảnh QR gốc.');
     }
 
-    // Allow selecting the same file again.
     e.target.value = '';
   };
 
