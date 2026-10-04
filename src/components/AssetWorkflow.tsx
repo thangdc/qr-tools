@@ -159,50 +159,45 @@ export const AssetWorkflow: React.FC<AssetWorkflowProps> = ({ isPro, onOpenPro, 
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 cursor-pointer">
-          <ArrowLeft className="w-4 h-4" /> Workflows
-        </button>
-        <span className="text-[11px] font-mono uppercase bg-blue-50 px-2 py-0.5 rounded text-blue-700">Workflow 3</span>
-      </div>
-
-      <div className="pb-5 border-b border-neutral-200">
-        <div className="flex items-center gap-2">
-          <Package className="w-5 h-5 text-blue-600" />
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">Quản lý tài sản</h1>
+      <div className="flex items-start justify-between gap-4 pb-4 border-b border-neutral-200">
+        <div>
+          <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-900 mb-2 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5" />Quay lại Workflows</button>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">📦 Quản lý tài sản</h1>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-1">Tạo QR cho từng tài sản → dán nhãn → quét để tra cứu và ghi nhận kiểm kê.</p>
         </div>
-        <p className="text-xs sm:text-sm text-neutral-500 mt-1">Tạo QR cho từng tài sản → dán nhãn → quét để tra cứu và ghi nhận kiểm kê.</p>
+        {step > 1 && <div className="text-right"><div className="text-xl font-bold text-neutral-900">{assets.filter(a => a.checkedAt).length}/{assets.length}</div><div className="text-[11px] text-neutral-500">đã quét</div></div>}
       </div>
 
-      <div className="flex items-center gap-1 overflow-x-auto pb-1">
-        {['Nhập danh sách', 'Tạo & in QR', 'Quét tài sản', 'Kết quả'].map((label, index) => (
-          <React.Fragment key={label}>
-            {index > 0 && <span className="text-neutral-300 px-1">→</span>}
-            <span className={`text-xs whitespace-nowrap px-2.5 py-1 rounded-md ${step === index + 1 ? 'bg-neutral-900 text-white font-semibold' : 'bg-neutral-100 text-neutral-500'}`}>
-              {index + 1}. {label}
-            </span>
-          </React.Fragment>
-        ))}
+      <div className="grid grid-cols-4 gap-1.5 text-[11px] sm:text-xs">
+        {['Nhập danh sách','Tạo & in QR','Quét tài sản','Kết quả'].map((label, i) => <div key={label} className={`rounded-lg px-2 py-2 text-center font-medium ${step === i + 1 ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-500'}`}>{i + 1}. {label}</div>)}
       </div>
 
       {step === 1 && (
-        <section className="bg-white border border-neutral-200 rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="grid md:grid-cols-[1fr_280px] gap-5">\n          <section className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
           <div>
             <h2 className="text-sm font-semibold">Danh sách tài sản</h2>
             <p className="text-xs text-neutral-500 mt-1">Copy từ Excel / Google Sheets và dán vào đây. Cột bắt buộc: Mã tài sản, Tên tài sản.</p>
           </div>
           <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={9} placeholder={SAMPLE} className="w-full rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-xs font-mono outline-none focus:border-neutral-400" />
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <button type="button" onClick={() => setInput(SAMPLE)} className="text-xs text-neutral-500 hover:text-neutral-900 cursor-pointer">Dùng dữ liệu mẫu</button>
-            <button type="button" onClick={importAssets} disabled={!parseAssets(input).length} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
-              Tiếp tục <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="text-[11px] text-neutral-500">Bắt buộc: Mã tài sản, Tên tài sản. Dán trực tiếp từ Excel vẫn giữ cột.</span>
+            <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+              <button type="button" onClick={() => setInput(SAMPLE)} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold cursor-pointer">Dùng dữ liệu mẫu</button>
+              <button type="button" onClick={importAssets} disabled={!parseAssets(input).length} className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
+                Tiếp tục <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+              </button>
+            </div>
           </div>
         </section>
+        <aside className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 space-y-3">
+          <h2 className="text-sm font-semibold">Bạn có sẵn Excel?</h2>
+          <p className="text-xs text-neutral-500 leading-5">Mở Excel, chọn vùng dữ liệu rồi copy/paste vào đây. Không cần đổi định dạng.</p>
+          <div className="text-xs font-mono bg-white border border-neutral-200 rounded-lg p-3 overflow-auto">{SAMPLE}</div>
+        </aside>
       )}
 
       {step === 2 && (
-        <section className="bg-white border border-neutral-200 rounded-2xl p-5 sm:p-6 space-y-5">
+        <section className="max-w-2xl mx-auto bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold">Tạo QR cho tài sản</h2>
@@ -228,7 +223,7 @@ export const AssetWorkflow: React.FC<AssetWorkflowProps> = ({ isPro, onOpenPro, 
       )}
 
       {step === 3 && (
-        <section className="bg-white border border-neutral-200 rounded-2xl p-5 sm:p-6 space-y-5">
+        <section className="max-w-2xl mx-auto bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold">Quét tài sản</h2>
