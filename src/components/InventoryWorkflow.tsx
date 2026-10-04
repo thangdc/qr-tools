@@ -75,7 +75,7 @@ function playScanBeep(status: 'success' | 'complete' | 'unknown') {
     tones.forEach(t => {
       osc.frequency.setValueAtTime(t.f, now + t.s);
       gain.gain.setValueAtTime(0.12, now + t.s);
-      gain.linearRampToValueAtTime(0.0001, now + t.s + t.d);
+      gain.gain.setValueAtTime(0.0001, now + t.s + t.d);
     });
     osc.start(now);
     osc.stop(now + tones[tones.length - 1].s + tones[tones.length - 1].d + 0.02);
