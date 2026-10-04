@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowLeft, Check, Download, FileText, Printer, RotateCcw, WalletCards } from 'lucide-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ArrowLeft, Camera, Check, Download, FileText, Printer, RotateCcw, Upload, WalletCards } from 'lucide-react';
 import { BatchPrintItem } from './BatchCardPrintModal';
 import { VIETNAM_BANKS, buildVietQRPayload } from '../utils/vietqr';
 import { trackEvent } from '../utils/analytics';
+import { useQRScanner } from '../hooks/useQRScanner';
 
 interface Receivable {
   id: string;
@@ -58,6 +59,38 @@ function formatMoney(value: number) {
   return `${value.toLocaleString('vi-VN')} ₫`;
 }
 
+function parseVietQRPayload(raw: string) {
+  const fields: Record<string, string> = {};
+  let offset = 0;
+  while (offset + 4 <= raw.length) {
+    const tag = raw.slice(offset, offset + 2);
+    const length = Number(raw.slice(offset + 2, offset + 4));
+    if (!Number.isFinite(length) || offset + 4 + length > raw.length) break;
+    fields[tag] = raw.slice(offset + 4, offset + 4 + length);
+    offset += 4 + length;
+  }
+
+  let description = '';
+  const additional = fields['62'] || '';
+  let subOffset = 0;
+  while (subOffset + 4 <= additional.length) {
+    const tag = additional.slice(subOffset, subOffset + 2);
+    const length = Number(additional.slice(subOffset + 2, subOffset + 4));
+    if (!Number.isFinite(length) || subOffset + 4 + length > additional.length) break;
+    if (tag === '08') description = additional.slice(subOffset + 4, subOffset + 4 + length);
+    subOffset += 4 + length;
+  }
+
+  return {
+    amount: Number(fields['54'] || 0),
+    description,
+  };
+}
+
+function normalizeText(value: string) {
+  return value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().trim();
+}
+
 export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   isPro,
   onOpenPro,
@@ -72,6 +105,8 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   const [input, setInput] = useState(SAMPLE_DATA);
   const [rows, setRows] = useState<Receivable[]>([]);
   const [query, setQuery] = useState('');
+  const [scanMessage, setScanMessage] = useState<string | null>(null);
+  const [lastScannedId, setLastScannedId] = useState<string | null>(null);
 
   const total = useMemo(() => rows.reduce((sum, row) => sum + row.amount, 0), [rows]);
   const paidTotal = useMemo(() => rows.filter(r => r.status === 'Đã thu').reduce((sum, row) => sum + row.amount, 0), [rows]);
@@ -93,12 +128,66 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
     id: row.id,
     label: row.name,
     subtitle: `${row.id} · ${formatMoney(row.amount)}`,
-    payload: buildVietQRPayload(bankBin, accountNumber, accountName, row.amount, row.description),
+    payload: buildVietQRPayload(bankBin, accountNumber, accountName, row.amount, paymentDescription(row)),
     type: 'payment',
     accountName,
     accountNumber,
     bankName,
   }));
+
+  const paymentDescription = (row: Receivable) => `${row.description} ${row.id}`.trim();
+
+  const handleDecodedPayment = useCallback((raw: string) => {
+    const payload = parseVietQRPayload(raw);
+    if (!payload.amount || !payload.description) {
+      setScanMessage('QR không phải mã thanh toán của danh sách này.');
+      setLastScannedId(null);
+      return;
+    }
+
+    const normalizedDescription = normalizeText(payload.description);
+    const match = rows.find(row =>
+      row.amount === payload.amount && normalizedDescription.includes(normalizeText(row.id))
+    ) || rows.find(row =>
+      row.amount === payload.amount && normalizedDescription.includes(normalizeText(row.description))
+    );
+
+    if (!match) {
+      setScanMessage(`Không tìm thấy khoản thu khớp: ${formatMoney(payload.amount)}.`);
+      setLastScannedId(null);
+      return;
+    }
+
+    if (match.status === 'Đã thu') {
+      setScanMessage(`${match.name} · ${match.id} đã được đánh dấu Đã thu.`);
+      setLastScannedId(match.id);
+      return;
+    }
+
+    setRows(prev => prev.map(row => row.id === match.id
+      ? { ...row, status: 'Đã thu', paidAt: Date.now() }
+      : row
+    ));
+    setLastScannedId(match.id);
+    setScanMessage(`Đã thu: ${match.name} · ${formatMoney(match.amount)}.`);
+    trackEvent('workflow_payment_scanned', { id: match.id, amount: match.amount });
+  }, [rows]);
+
+  const scanner = useQRScanner({ onDecoded: handleDecodedPayment, stopAfterDecode: false });
+
+  const handleScanFile = async (file: File) => {
+    const raw = await scanner.scanFile(file);
+    if (!raw) setScanMessage('Không đọc được mã QR từ ảnh.');
+  };
+
+  const toggleScanner = async () => {
+    setScanMessage(null);
+    if (scanner.isCameraActive) {
+      scanner.stopCamera();
+      return;
+    }
+    await scanner.startCamera();
+  };
 
   const handlePrint = () => {
     if (!isPro) {
@@ -135,8 +224,11 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   };
 
   const reset = () => {
+    scanner.stopCamera();
     setRows([]);
     setQuery('');
+    setScanMessage(null);
+    setLastScannedId(null);
     setStep(1);
   };
 
@@ -250,6 +342,41 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
             <div className="rounded-xl bg-neutral-50 p-3"><div className="text-[11px] text-neutral-500">Tổng</div><div className="text-sm font-bold">{formatMoney(total)}</div></div>
             <div className="rounded-xl bg-emerald-50 p-3"><div className="text-[11px] text-emerald-700">Đã thu</div><div className="text-sm font-bold text-emerald-800">{formatMoney(paidTotal)}</div></div>
             <div className="rounded-xl bg-amber-50 p-3"><div className="text-[11px] text-amber-700">Còn lại</div><div className="text-sm font-bold text-amber-800">{formatMoney(total - paidTotal)}</div></div>
+          </div>
+
+          <div className="rounded-xl border border-neutral-200 p-3 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="text-xs font-semibold text-neutral-800">Quét QR để xác nhận đã thu</div>
+                <div className="text-[11px] text-neutral-500">Quét mã thanh toán đã in cho từng người. QR phải chứa đúng số tiền và mã khoản thu.</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-xs font-semibold cursor-pointer">
+                  <Upload className="w-3.5 h-3.5" /> Quét ảnh
+                  <input type="file" accept="image/*" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleScanFile(file);
+                    e.currentTarget.value = '';
+                  }} />
+                </label>
+                <button type="button" onClick={() => void toggleScanner()} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer">
+                  <Camera className="w-3.5 h-3.5" /> {scanner.isCameraActive ? 'Dừng quét' : 'Mở camera'}
+                </button>
+              </div>
+            </div>
+            {scanner.isCameraActive && (
+              <div className="relative overflow-hidden rounded-xl bg-neutral-950 aspect-video max-w-xl mx-auto">
+                <video ref={scanner.videoRef} className="w-full h-full object-cover" playsInline muted />
+                <div className="absolute inset-8 border-2 border-white/70 rounded-xl pointer-events-none" />
+                <div className="absolute left-1/2 top-8 bottom-8 w-px bg-white/70 -translate-x-1/2 pointer-events-none" />
+              </div>
+            )}
+            {scanner.cameraError && <div className="text-xs text-red-600">{scanner.cameraError}</div>}
+            {scanMessage && (
+              <div className={`rounded-lg px-3 py-2 text-xs ${lastScannedId ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
+                {scanMessage}
+              </div>
+            )}
           </div>
           <div className="overflow-x-auto border border-neutral-200 rounded-xl">
             <table className="w-full text-xs">
