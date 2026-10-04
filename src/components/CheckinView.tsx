@@ -7,10 +7,9 @@ interface Participant { id: string; name: string; email?: string; phone?: string
 interface CheckinViewProps { onBack: () => void; onGenerateAndPrint: (items: { id: string; label: string; payload: string }[]) => void; }
 
 function formatDateTime(timestamp: number) {
-  return new Intl.DateTimeFormat('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
-  }).format(new Date(timestamp)).replace(',', '');
+  const date = new Date(timestamp);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 
