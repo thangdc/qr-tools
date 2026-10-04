@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Camera, CheckCircle2, Download, Upload, XCircle, AlertTriangle, Printer } from 'lucide-react';
-import { scanImageData, scanImageFile } from '../utils/qrDecoder';
+import { useQRScanner } from '../hooks/useQRScanner';
 import { trackEvent } from '../utils/analytics';
 
 interface Participant { id: string; name: string; email?: string; phone?: string; checkedInAt?: number; }
@@ -29,79 +29,13 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
   const [step, setStep] = useState<'data' | 'scan' | 'result'>('data');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [rawInput, setRawInput] = useState('');
-  const [cameraActive, setCameraActive] = useState(false);
   const [lastResult, setLastResult] = useState<{ participant?: Participant; status: 'success' | 'duplicate' | 'unknown' } | null>(null);
   const [scanned, setScanned] = useState<{ id: string; at: number; status: 'success' | 'duplicate' }[]>([]);
   const [error, setError] = useState('');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const frameRef = useRef<number | null>(null);
-  const busyRef = useRef(false);
 
   const checkedIn = useMemo(() => participants.filter(p => p.checkedInAt).length, [participants]);
 
-  useEffect(() => () => stopCamera(), []);
-
-  function stopCamera() {
-    streamRef.current?.getTracks().forEach(track => track.stop());
-    streamRef.current = null;
-    if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    frameRef.current = null;
-    busyRef.current = false;
-    setCameraActive(false);
-  }
-
-  async function startCamera() {
-    setError('');
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      streamRef.current = stream;
-      setCameraActive(true);
-    } catch {
-      setError('Không thể truy cập camera. Hãy cấp quyền camera hoặc dùng tải ảnh QR.');
-    }
-  }
-
-  useEffect(() => {
-    if (!cameraActive || !videoRef.current || !streamRef.current) return;
-    const video = videoRef.current;
-    video.srcObject = streamRef.current;
-    video.play().then(() => scanFrame()).catch(() => setError('Không thể phát camera.'));
-  }, [cameraActive]);
-
-  function scanFrame() {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    const video = videoRef.current;
-    if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
-      busyRef.current = false;
-      frameRef.current = requestAnimationFrame(scanFrame);
-      return;
-    }
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const raw = scanImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      if (raw) {
-        handleScan(raw);
-        busyRef.current = false;
-        return;
-      }
-    }
-    busyRef.current = false;
-    frameRef.current = requestAnimationFrame(scanFrame);
-  }
-
-  function recordScan(id: string, status: 'success' | 'duplicate') {
-    const at = Date.now();
-    setScanned(prev => [...prev, { id, at, status }]);
-    trackEvent('checkin_scan', { status });
-  }
-
-  function handleScan(raw: string) {
+  const handleScan = (raw: string) => {
     const id = raw.trim();
     const participant = participants.find(p => p.id.toLowerCase() === id.toLowerCase());
     if (!participant) {
@@ -119,13 +53,29 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
     setParticipants(updated);
     setLastResult({ participant: { ...participant, checkedInAt: at }, status: 'success' });
     recordScan(participant.id, 'success');
+  };
+
+  const {
+    videoRef,
+    isCameraActive: cameraActive,
+    cameraError,
+    startCamera,
+    stopCamera,
+    scanFile,
+  } = useQRScanner({ onDecoded: handleScan, stopAfterDecode: false });
+
+  const scannerError = error || cameraError || '';
+
+  function recordScan(id: string, status: 'success' | 'duplicate') {
+    const at = Date.now();
+    setScanned(prev => [...prev, { id, at, status }]);
+    trackEvent('checkin_scan', { status });
   }
 
   async function handleImageUpload(file?: File) {
     if (!file) return;
-    const raw = await scanImageFile(file);
-    if (raw) handleScan(raw);
-    else setError('Không tìm thấy mã QR trong ảnh.');
+    const raw = await scanFile(file);
+    if (!raw) setError('Không tìm thấy mã QR trong ảnh.');
   }
 
   function loadSample() {
@@ -212,7 +162,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
               {cameraActive ? <video ref={videoRef} playsInline muted className="w-full h-full object-cover" /> : <div className="text-center text-neutral-400"><Camera className="w-10 h-10 mx-auto mb-2" /><p className="text-xs">Bấm bắt đầu để quét</p></div>}
               {cameraActive && <div className="absolute inset-10 border-2 border-white/60 rounded-xl pointer-events-none" />}
             </div>
-            {error && <div className="text-xs text-red-600">{error}</div>}
+            {scannerError && <div className="text-xs text-red-600">{scannerError}</div>}
             <div className="flex gap-2">
               <button type="button" onClick={cameraActive ? stopCamera : startCamera} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
               <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />Tải ảnh QR<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
