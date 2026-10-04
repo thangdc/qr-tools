@@ -3,7 +3,7 @@ import { Sparkles, History, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Men
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
-  activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory';
+  activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms';
   setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory') => void;
   historyCount: number;
   isPro: boolean;
