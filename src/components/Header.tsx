@@ -3,7 +3,7 @@ import { Sparkles, History, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Men
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
-  activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin';
+  activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print';
   setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin') => void;
   historyCount: number;
   isPro: boolean;
@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
 
         <nav className="hidden md:flex items-center gap-0.5 whitespace-nowrap">
           <button data-testid="nav-generator" onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
-          <button data-testid="nav-workflows" onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin')} flex items-center gap-1.5`}><Workflow className="w-3.5 h-3.5 text-neutral-400" /><span>Workflows</span></button>
+          <button data-testid="nav-workflows" onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print')} flex items-center gap-1.5`}><Workflow className="w-3.5 h-3.5 text-neutral-400" /><span>Workflows</span></button>
           <button data-testid="nav-history" onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
           <div className="relative">
             <button
