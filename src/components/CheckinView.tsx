@@ -6,7 +6,38 @@ import { trackEvent } from '../utils/analytics';
 interface Participant { id: string; name: string; email?: string; phone?: string; checkedInAt?: number; }
 interface CheckinViewProps { onBack: () => void; onGenerateAndPrint: (items: { id: string; label: string; payload: string }[]) => void; }
 
-function formatDateTime(timestamp: number) {\n  return new Intl.DateTimeFormat('vi-VN', {\n    day: '2-digit', month: '2-digit', year: 'numeric',\n    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,\n  }).format(new Date(timestamp)).replace(',', '');\n}\n\nfunction parseRows(text: string): Participant[] {
+function formatDateTime(timestamp: number) {\n  return new Intl.DateTimeFormat('vi-VN', {\n    day: '2-digit', month: '2-digit', year: 'numeric',\n    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,\n  }).format(new Date(timestamp)).replace(',', '');\n}\n\n
+function playScanBeep(status: 'success' | 'duplicate' | 'unknown') {
+  try {
+    const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const audioContext = new AudioContextClass();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const now = audioContext.currentTime;
+    const settings = status === 'success'
+      ? [{ frequency: 880, start: 0, duration: 0.09 }]
+      : status === 'duplicate'
+        ? [{ frequency: 520, start: 0, duration: 0.08 }, { frequency: 520, start: 0.11, duration: 0.08 }]
+        : [{ frequency: 260, start: 0, duration: 0.16 }];
+    oscillator.type = 'sine';
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    gain.gain.setValueAtTime(0.0001, now);
+    settings.forEach(({ frequency, start, duration }) => {
+      oscillator.frequency.setValueAtTime(frequency, now + start);
+      gain.gain.setValueAtTime(0.12, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+    });
+    oscillator.start(now);
+    oscillator.stop(now + settings[settings.length - 1].start + settings[settings.length - 1].duration + 0.02);
+    oscillator.addEventListener('ended', () => void audioContext.close());
+  } catch {
+    // Audio feedback is optional; scanning must continue if audio is unavailable.
+  }
+}
+
+function parseRows(text: string): Participant[] {
   const rows = text.trim().split(/\r?\n/).map(line => line.split(/\t|,/).map(v => v.trim().replace(/^"|"$/g, ''))).filter(row => row.some(Boolean));
   if (rows.length < 2) return [];
   const headers = rows[0].map(v => v.toLowerCase());
@@ -40,11 +71,13 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
     const participant = participants.find(p => p.id.toLowerCase() === id.toLowerCase());
     if (!participant) {
       setLastResult({ status: 'unknown' });
+      playScanBeep('unknown');
       trackEvent('checkin_scan', { status: 'unknown' });
       return;
     }
     if (participant.checkedInAt) {
       setLastResult({ participant, status: 'duplicate' });
+      playScanBeep('duplicate');
       recordScan(participant.id, 'duplicate');
       return;
     }
@@ -52,6 +85,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
     const updated = participants.map(p => p.id === participant.id ? { ...p, checkedInAt: at } : p);
     setParticipants(updated);
     setLastResult({ participant: { ...participant, checkedInAt: at }, status: 'success' });
+    playScanBeep('success');
     recordScan(participant.id, 'success');
   };
 
@@ -187,7 +221,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
             <div className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
               <div className="relative aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
                 {cameraActive ? <video ref={videoRef} playsInline muted className="w-full h-full object-cover" /> : <div className="text-center text-neutral-400"><Camera className="w-10 h-10 mx-auto mb-2" /><p className="text-xs">Bấm bắt đầu để quét</p></div>}
-                {cameraActive && <div className="absolute inset-10 border-2 border-white/60 rounded-xl pointer-events-none" />}
+                {cameraActive && <div className="absolute inset-[12%] border-2 border-white/80 rounded-2xl pointer-events-none shadow-[0_0_0_9999px_rgba(0,0,0,0.18)]"><span className="absolute -top-0.5 -left-0.5 w-8 h-8 border-l-4 border-t-4 border-white rounded-tl-lg" /><span className="absolute -top-0.5 -right-0.5 w-8 h-8 border-r-4 border-t-4 border-white rounded-tr-lg" /><span className="absolute -bottom-0.5 -left-0.5 w-8 h-8 border-l-4 border-b-4 border-white rounded-bl-lg" /><span className="absolute -bottom-0.5 -right-0.5 w-8 h-8 border-r-4 border-b-4 border-white rounded-br-lg" /><div className="absolute left-1/2 top-1/2 w-[70%] h-0.5 -translate-x-1/2 -translate-y-1/2 bg-white/70" /></div>}
               </div>
               {scannerError && <div className="text-xs text-red-600">{scannerError}</div>}
               <div className="flex gap-2">
