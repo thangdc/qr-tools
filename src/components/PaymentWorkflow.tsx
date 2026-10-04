@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ArrowLeft, Camera, Check, Download, FileText, Printer, RotateCcw, Upload, WalletCards } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Camera, Check, Download, FileText, Printer, RotateCcw, Upload, WalletCards } from 'lucide-react';
 import { BatchPrintItem } from './BatchCardPrintModal';
 import { VIETNAM_BANKS, buildVietQRPayload } from '../utils/vietqr';
 import { trackEvent } from '../utils/analytics';
@@ -106,7 +106,10 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   const [rows, setRows] = useState<Receivable[]>([]);
   const [query, setQuery] = useState('');
   const [scanMessage, setScanMessage] = useState<string | null>(null);
-  const [lastScannedId, setLastScannedId] = useState<string | null>(null);
+  const [lastResult, setLastResult] = useState<{ row?: Receivable; status: 'success' | 'unknown' } | null>(null);
+  const [scanned, setScanned] = useState<{ id: string; name: string; at: number }[]>([]);
+  const [scanPaused, setScanPaused] = useState(false);
+  const [scanError, setScanError] = useState('');
 
   const total = useMemo(() => rows.reduce((sum, row) => sum + row.amount, 0), [rows]);
   const paidTotal = useMemo(() => rows.filter(r => r.status === 'Đã thu').reduce((sum, row) => sum + row.amount, 0), [rows]);
@@ -137,57 +140,80 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
 
   const paymentDescription = (row: Receivable) => `${row.description} ${row.id}`.trim();
 
+  const pauseAfterScan = (duration = 1500) => {
+    setScanPaused(true);
+    window.setTimeout(() => setScanPaused(false), duration);
+  };
+
   const handleDecodedPayment = useCallback((raw: string) => {
+    if (scanPaused) return;
+
     const payload = parseVietQRPayload(raw);
     if (!payload.amount || !payload.description) {
-      setScanMessage('QR không phải mã thanh toán của danh sách này.');
-      setLastScannedId(null);
+      setLastResult({ status: 'unknown' });
+      setScanError('QR này không phải mã thanh toán hợp lệ.');
+      trackEvent('workflow_payment_scanned', { status: 'unknown' });
+      pauseAfterScan();
       return;
     }
 
     const normalizedDescription = normalizeText(payload.description);
     const match = rows.find(row =>
-      row.amount === payload.amount && normalizedDescription.includes(normalizeText(row.id))
+      row.amount === payload.amount &&
+      normalizedDescription.includes(normalizeText(row.id))
     ) || rows.find(row =>
-      row.amount === payload.amount && normalizedDescription.includes(normalizeText(row.description))
+      row.amount === payload.amount &&
+      normalizedDescription.includes(normalizeText(row.description))
     );
 
     if (!match) {
-      setScanMessage(`Không tìm thấy khoản thu khớp: ${formatMoney(payload.amount)}.`);
-      setLastScannedId(null);
+      setLastResult({ status: 'unknown' });
+      setScanError('QR này không thuộc danh sách khoản thu.');
+      trackEvent('workflow_payment_scanned', { status: 'unknown' });
+      pauseAfterScan();
       return;
     }
 
-    if (match.status === 'Đã thu') {
-      setScanMessage(`${match.name} · ${match.id} đã được đánh dấu Đã thu.`);
-      setLastScannedId(match.id);
-      return;
+    const alreadyPaid = match.status === 'Đã thu';
+    const updated = alreadyPaid ? match : { ...match, status: 'Đã thu' as const, paidAt: Date.now() };
+
+    if (!alreadyPaid) {
+      setRows(prev => prev.map(row => row.id === match.id ? updated : row));
     }
 
-    setRows(prev => prev.map(row => row.id === match.id
-      ? { ...row, status: 'Đã thu', paidAt: Date.now() }
-      : row
-    ));
-    setLastScannedId(match.id);
-    setScanMessage(`Đã thu: ${match.name} · ${formatMoney(match.amount)}.`);
-    trackEvent('workflow_payment_scanned', { id: match.id, amount: match.amount });
-  }, [rows]);
+    setLastResult({ row: updated, status: 'success' });
+    setScanError('');
+    setScanned(prev => [
+      { id: match.id, name: match.name, at: updated.paidAt || Date.now() },
+      ...prev.filter(item => item.id !== match.id)
+    ].slice(0, 8));
+    trackEvent('workflow_payment_scanned', {
+      id: match.id,
+      amount: match.amount,
+      status: alreadyPaid ? 'duplicate' : 'success'
+    });
+    pauseAfterScan(alreadyPaid ? 1800 : 1500);
+  }, [rows, scanPaused]);
 
-  const scanner = useQRScanner({ onDecoded: handleDecodedPayment, stopAfterDecode: false });
+  const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera, scanFile } = useQRScanner({
+    onDecoded: handleDecodedPayment,
+    stopAfterDecode: false,
+  });
 
-  const handleScanFile = async (file: File) => {
-    const raw = await scanner.scanFile(file);
-    if (!raw) setScanMessage('Không đọc được mã QR từ ảnh.');
+  const handleImageUpload = async (file?: File) => {
+    if (!file) return;
+    const raw = await scanFile(file);
+    if (!raw) {
+      setScanError('Không tìm thấy mã QR trong ảnh.');
+      setLastResult({ status: 'unknown' });
+    } else {
+      setScanError('');
+    }
   };
 
-  const toggleScanner = async () => {
-    setScanMessage(null);
-    if (scanner.isCameraActive) {
-      scanner.stopCamera();
-      return;
-    }
-    await scanner.startCamera();
-  };
+  const totalReceivables = rows.length;
+  const paidCount = rows.filter(row => row.status === 'Đã thu').length;
+
 
   const handlePrint = () => {
     if (!isPro) {
@@ -224,11 +250,13 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   };
 
   const reset = () => {
-    scanner.stopCamera();
+    stopCamera();
     setRows([]);
     setQuery('');
-    setScanMessage(null);
-    setLastScannedId(null);
+    setLastResult(null);
+    setScanned([]);
+    setScanError('');
+    setScanPaused(false);
     setStep(1);
   };
 
@@ -325,60 +353,113 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
       )}
 
       {step === 3 && (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-lg font-bold text-neutral-900">Theo dõi & đối soát</h1>
-              <p className="text-xs text-neutral-500 mt-1">Đánh dấu các khoản đã nhận tiền. Bạn vẫn có thể mở lại danh sách để kiểm tra.</p>
-            </div>
-            <div className="flex gap-2">
-              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm mã, tên..." className="h-8 w-36 sm:w-48 rounded-lg border border-neutral-200 px-2.5 text-xs" />
-              <button type="button" onClick={exportCsv} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-xs font-semibold cursor-pointer">
-                <Download className="w-3.5 h-3.5" /> Xuất CSV
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl bg-neutral-50 p-3"><div className="text-[11px] text-neutral-500">Tổng</div><div className="text-sm font-bold">{formatMoney(total)}</div></div>
-            <div className="rounded-xl bg-emerald-50 p-3"><div className="text-[11px] text-emerald-700">Đã thu</div><div className="text-sm font-bold text-emerald-800">{formatMoney(paidTotal)}</div></div>
-            <div className="rounded-xl bg-amber-50 p-3"><div className="text-[11px] text-amber-700">Còn lại</div><div className="text-sm font-bold text-amber-800">{formatMoney(total - paidTotal)}</div></div>
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <button type="button" onClick={() => { stopCamera(); setStep(2); }} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+              <ArrowLeft className="w-3.5 h-3.5" />Quay lại tạo & in QR
+            </button>
+            <button type="button" onClick={() => { stopCamera(); setStep(4); }} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-900 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+              Kết quả <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <div className="rounded-xl border border-neutral-200 p-3 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <div className="text-xs font-semibold text-neutral-800">Quét QR để xác nhận đã thu</div>
-                <div className="text-[11px] text-neutral-500">Quét mã thanh toán đã in cho từng người. QR phải chứa đúng số tiền và mã khoản thu.</div>
+          <div className="grid lg:grid-cols-[1.2fr_.8fr] gap-5">
+            <div className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
+              <div className="relative aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
+                {cameraActive
+                  ? <video ref={videoRef} playsInline muted className="w-full h-full object-cover" />
+                  : <div className="text-center text-neutral-400"><WalletCards className="w-10 h-10 mx-auto mb-2" /><p className="text-xs">Bấm bắt đầu để quét QR thanh toán</p></div>}
+                {cameraActive && scanPaused && (
+                  <div className="absolute inset-0 z-10 bg-black/45 flex items-center justify-center">
+                    <div className="rounded-xl bg-black/75 px-4 py-3 text-center text-white">
+                      <p className="text-xs font-semibold">{lastResult?.row?.status === 'Đã thu' ? 'Đã thu' : 'Đã xác nhận'}</p>
+                      <p className="text-[11px] text-white/70 mt-1">Chuẩn bị quét tiếp...</p>
+                    </div>
+                  </div>
+                )}
+                {cameraActive && (
+                  <div className="absolute inset-[12%] border-2 border-white/80 rounded-2xl pointer-events-none shadow-[0_0_0_9999px_rgba(0,0,0,0.18)]">
+                    <span className="absolute -top-0.5 -left-0.5 w-8 h-8 border-l-4 border-t-4 border-white rounded-tl-lg" />
+                    <span className="absolute -top-0.5 -right-0.5 w-8 h-8 border-r-4 border-t-4 border-white rounded-tr-lg" />
+                    <span className="absolute -bottom-0.5 -left-0.5 w-8 h-8 border-l-4 border-b-4 border-white rounded-bl-lg" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-8 h-8 border-r-4 border-b-4 border-white rounded-br-lg" />
+                    <div className="absolute left-1/2 top-1/2 w-[70%] h-0.5 -translate-x-1/2 -translate-y-1/2 bg-white/70" />
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <label className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-xs font-semibold cursor-pointer">
-                  <Upload className="w-3.5 h-3.5" /> Quét ảnh
-                  <input type="file" accept="image/*" className="hidden" onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleScanFile(file);
-                    e.currentTarget.value = '';
-                  }} />
+              {cameraError && <div className="text-xs text-red-600">{cameraError}</div>}
+              {scanError && <div className="text-xs text-red-600">{scanError}</div>}
+              <div className="flex gap-2">
+                <button type="button" onClick={cameraActive ? stopCamera : startCamera} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>
+                  {cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}
+                </button>
+                <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
+                  <Upload className="w-3.5 h-3.5" />Quét bằng ảnh
+                  <input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} />
                 </label>
-                <button type="button" onClick={() => void toggleScanner()} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer">
-                  <Camera className="w-3.5 h-3.5" /> {scanner.isCameraActive ? 'Dừng quét' : 'Mở camera'}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white border border-neutral-200 rounded-2xl p-5">
+                {!lastResult ? (
+                  <div className="py-8 text-center text-neutral-400 text-xs">Đang chờ quét...</div>
+                ) : lastResult.status === 'success' ? (
+                  <div className="text-center py-5">
+                    <Check className="w-10 h-10 mx-auto text-emerald-600" />
+                    <p className="mt-2 text-xs font-semibold text-emerald-700">{lastResult.row?.status === 'Đã thu' ? 'ĐÃ XÁC NHẬN' : 'ĐÃ THANH TOÁN'}</p>
+                    <p className="text-lg font-bold text-neutral-900 mt-1">{lastResult.row?.name}</p>
+                    <p className="text-xs text-neutral-500">{lastResult.row?.id}</p>
+                    <div className="mt-3 space-y-1 text-xs text-left bg-neutral-50 rounded-lg p-3">
+                      <p><strong>Số tiền:</strong> {formatMoney(lastResult.row?.amount || 0)}</p>
+                      <p><strong>Nội dung:</strong> {lastResult.row?.description || '—'}</p>
+                      {lastResult.row?.phone && <p><strong>SĐT:</strong> {lastResult.row.phone}</p>}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-5">
+                    <div className="w-10 h-10 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center">!</div>
+                    <p className="mt-2 text-xs font-semibold text-red-700">KHÔNG TÌM THẤY</p>
+                    <p className="text-xs text-neutral-500 mt-2">QR này không thuộc danh sách khoản thu.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white border border-neutral-200 rounded-2xl p-5">
+                <div className="flex items-center justify-between"><h2 className="text-sm font-semibold">Tiến độ</h2><span className="text-xs text-neutral-500">{paidCount}/{totalReceivables}</span></div>
+                <div className="h-2 rounded-full bg-neutral-100 mt-3 overflow-hidden"><div className="h-full bg-emerald-500 transition-all" style={{ width: `${totalReceivables ? paidCount / totalReceivables * 100 : 0}%` }} /></div>
+                <p className="text-[11px] text-neutral-500 mt-3">Quét QR của từng khoản thu để đánh dấu đã thu.</p>
+                <button type="button" onClick={() => { stopCamera(); setStep(4); }} className="w-full mt-4 h-9 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer">Xem kết quả</button>
+              </div>
+
+              <div className="bg-white border border-neutral-200 rounded-2xl p-5">
+                <h2 className="text-sm font-semibold">Quét gần đây</h2>
+                <div className="mt-3 space-y-2 max-h-44 overflow-auto">
+                  {scanned.map(scan => (
+                    <div key={`${scan.id}-${scan.at}`} className="flex items-center justify-between text-xs">
+                      <span className="truncate mr-2">{scan.id} · {scan.name}</span>
+                      <span className="text-emerald-600 shrink-0">Đã thu</span>
+                    </div>
+                  ))}
+                  {!scanned.length && <p className="text-xs text-neutral-400">Chưa có lượt quét.</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-neutral-200 rounded-2xl overflow-x-auto">
+            <div className="p-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold">Danh sách khoản thu</h2>
+                <p className="text-[11px] text-neutral-500">{paidCount}/{totalReceivables} khoản đã thu · {formatMoney(paidTotal)} / {formatMoney(total)}</p>
+              </div>
+              <div className="flex gap-2">
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm mã, tên..." className="h-8 w-36 sm:w-48 rounded-lg border border-neutral-200 px-2.5 text-xs" />
+                <button type="button" onClick={exportCsv} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-neutral-200 text-xs font-semibold cursor-pointer">
+                  <Download className="w-3.5 h-3.5" /> Xuất CSV
                 </button>
               </div>
             </div>
-            {scanner.isCameraActive && (
-              <div className="relative overflow-hidden rounded-xl bg-neutral-950 aspect-video max-w-xl mx-auto">
-                <video ref={scanner.videoRef} className="w-full h-full object-cover" playsInline muted />
-                <div className="absolute inset-8 border-2 border-white/70 rounded-xl pointer-events-none" />
-                <div className="absolute left-1/2 top-8 bottom-8 w-px bg-white/70 -translate-x-1/2 pointer-events-none" />
-              </div>
-            )}
-            {scanner.cameraError && <div className="text-xs text-red-600">{scanner.cameraError}</div>}
-            {scanMessage && (
-              <div className={`rounded-lg px-3 py-2 text-xs ${lastScannedId ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
-                {scanMessage}
-              </div>
-            )}
-          </div>
-          <div className="overflow-x-auto border border-neutral-200 rounded-xl">
             <table className="w-full text-xs">
               <thead className="bg-neutral-50 text-neutral-500">
                 <tr><th className="text-left p-2.5">Mã</th><th className="text-left p-2.5">Người nộp</th><th className="text-right p-2.5">Số tiền</th><th className="text-left p-2.5">Nội dung</th><th className="text-left p-2.5">Trạng thái</th></tr>
@@ -386,14 +467,16 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
               <tbody>
                 {filteredRows.map(row => (
                   <tr key={row.id} className="border-t border-neutral-100">
-                    <td className="p-2.5 font-mono">{row.id}</td><td className="p-2.5">{row.name}</td><td className="p-2.5 text-right font-semibold">{formatMoney(row.amount)}</td><td className="p-2.5 text-neutral-500">{row.description}</td>
+                    <td className="p-2.5 font-mono">{row.id}</td>
+                    <td className="p-2.5">{row.name}</td>
+                    <td className="p-2.5 text-right font-semibold">{formatMoney(row.amount)}</td>
+                    <td className="p-2.5 text-neutral-500">{row.description}</td>
                     <td className="p-2.5"><button type="button" onClick={() => togglePaid(row.id)} className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold cursor-pointer ${row.status === 'Đã thu' ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-100 text-neutral-600'}`}><Check className="w-3 h-3" />{row.status}</button></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="flex justify-end"><button type="button" onClick={() => setStep(4)} className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer">Xem kết quả →</button></div>
         </section>
       )}
 
