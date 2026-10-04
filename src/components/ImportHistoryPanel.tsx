@@ -1,14 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { FileSpreadsheet, Upload, X, Plus, Trash2 } from 'lucide-react';
-import { BulkQRItem, QRType } from '../types/qr';
+import { BulkQRItem, QRHistoryItem, QRType } from '../types/qr';
 import { useLanguage } from '../i18n';
 import { trackEvent } from '../utils/analytics';
+import { generatePayload } from '../utils/qrPayload';
 
 interface ImportHistoryPanelProps {
   isPro: boolean;
   onOpenPro: (source?: string) => void;
   onClose: () => void;
   onImport: (items: BulkQRItem[]) => void;
+  existingItems: QRHistoryItem[];
 }
 
 export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
@@ -16,11 +18,32 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
   onOpenPro,
   onClose,
   onImport,
+  existingItems,
 }) => {
   const { tx } = useLanguage();
   const [items, setItems] = useState<BulkQRItem[]>([]);
   const [importText, setImportText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const duplicateIds = React.useMemo(() => {
+    const seen = new Set(existingItems.map((item) => `${item.type}::${item.rawPayload}`));
+    const duplicates = new Set<string>();
+
+    for (const item of items) {
+      const payload = generatePayload(item.type, item.data);
+      const key = payload ? `${item.type}::${payload}` : '';
+      if (!key) continue;
+      if (seen.has(key)) {
+        duplicates.add(item.id);
+      }
+      seen.add(key);
+    }
+
+    return duplicates;
+  }, [existingItems, items]);
+
+  const importableItems = items.filter((item) => item.selected && !duplicateIds.has(item.id));
+  const duplicateCount = duplicateIds.size;
 
   const parseCsvRows = (text: string): string[][] => {
     const rows: string[][] = [];
@@ -138,7 +161,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
   };
 
   const handleImport = () => {
-    const selected = items.filter((item) => item.selected);
+    const selected = importableItems;
     if (!selected.length) return;
 
     if (!isPro) {
@@ -200,7 +223,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
             <div className="flex items-center gap-2 text-xs font-semibold text-neutral-800">
               <FileSpreadsheet className="w-4 h-4 text-neutral-400" />
               {tx('Sẽ thêm vào lịch sử', 'Will be added to History')}
-              <span className="text-neutral-400 font-normal">· {items.length}</span>
+              <span className="text-neutral-400 font-normal">· {importableItems.length}</span>{duplicateCount > 0 && <span className="text-amber-600 font-normal">· {duplicateCount} {tx('trùng', 'duplicate')}</span>}
             </div>
             <span className="text-[11px] text-neutral-400">{tx('Tên, Loại, Dữ liệu', 'Label, Type, Data')}</span>
           </div>
@@ -212,8 +235,8 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
           ) : (
             <div className="border border-neutral-200 rounded-xl overflow-hidden divide-y divide-neutral-100">
               {items.map((item) => (
-                <div key={item.id} className="p-3 flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-neutral-100 flex items-center justify-center text-[10px] font-mono shrink-0">QR</div>
+                <div key={item.id} className={`p-3 flex items-center gap-3 ${duplicateIds.has(item.id) ? 'bg-amber-50/70' : ''}`}>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-mono shrink-0 ${duplicateIds.has(item.id) ? 'bg-amber-100 text-amber-700' : 'bg-neutral-100'}`}>QR</div>
                   <div className="min-w-0 flex-1">
                     <input
                       value={item.label}
@@ -233,6 +256,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
                       className="w-full mt-0.5 text-[11px] font-mono text-neutral-500 bg-transparent border-b border-transparent hover:border-neutral-300 focus:border-neutral-900 outline-none truncate"
                     />
                   </div>
+                  {duplicateIds.has(item.id) && <span className="text-[10px] font-semibold text-amber-700 shrink-0">{tx('Đã có', 'Already exists')}</span>}
                   <button type="button" onClick={() => removeItem(item.id)} className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer" title={tx('Xóa dòng', 'Remove row')}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -243,11 +267,11 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
         </div>
 
         <div className="px-5 py-4 border-t border-neutral-200 bg-neutral-50 flex items-center justify-between gap-3">
-          <span className="text-xs text-neutral-500">{tx('Các mã được thêm vào lịch sử và có thể tải xuống hoặc in ngay.', 'Imported codes are added to History and can be downloaded or printed immediately.')}</span>
+          <span className="text-xs text-neutral-500">{duplicateCount > 0 ? tx(`${duplicateCount} mã đã có trong lịch sử và sẽ không được thêm lại.`, `${duplicateCount} codes already exist in History and will not be added again.`) : tx('Các mã được thêm vào lịch sử và có thể tải xuống hoặc in ngay.', 'Imported codes are added to History and can be downloaded or printed immediately.')}</span>
           <div className="flex items-center gap-2 shrink-0">
             <button type="button" onClick={onClose} className="h-9 px-3 text-xs font-medium text-neutral-700 hover:bg-neutral-200 rounded-lg cursor-pointer">{tx('Hủy', 'Cancel')}</button>
-            <button type="button" onClick={handleImport} disabled={!items.length} className="h-9 px-4 text-xs font-semibold text-white bg-neutral-900 hover:bg-black disabled:opacity-40 rounded-lg cursor-pointer">
-              {tx('Thêm vào lịch sử', 'Add to History')} ({items.length})
+            <button type="button" onClick={handleImport} disabled={!importableItems.length} className="h-9 px-4 text-xs font-semibold text-white bg-neutral-900 hover:bg-black disabled:opacity-40 rounded-lg cursor-pointer">
+              {tx('Thêm vào lịch sử', 'Add to History')} ({importableItems.length})
             </button>
           </div>
         </div>
