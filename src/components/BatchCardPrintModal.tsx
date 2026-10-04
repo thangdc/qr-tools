@@ -157,13 +157,13 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto print:static print:block print:bg-white print:p-0">
       <div className="bg-white rounded-none sm:rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[95vh] min-h-0 flex flex-col overflow-hidden print:max-w-none print:w-auto print:max-h-none print:h-auto print:overflow-visible print:rounded-none print:border-0 print:shadow-none">
         {/* Top Control Bar - Hidden in print */}
-        <div className="p-4 border-b border-neutral-200 flex flex-wrap items-center justify-between gap-3 bg-white print:hidden">
+        <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white print:hidden">
           <div className="flex items-start gap-2 min-w-0 flex-1">
-            <span className="p-1.5 rounded-lg bg-neutral-900 text-white">
+            <span className="p-1.5 rounded-lg bg-neutral-900 text-white shrink-0">
               <Printer className="w-4 h-4" />
             </span>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-sm font-semibold text-neutral-900">
                   {tx('Xuất & in', 'Export & print')} ({items.length} {tx('mã QR đã chọn', 'mã QR đã chọn')})
                 </h2>
@@ -180,7 +180,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2 shrink-0">
             <button
               type="button"
               onClick={handleExportZip}
