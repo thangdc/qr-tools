@@ -166,8 +166,7 @@ export interface BulkQRItem {
   id: string;
   label: string;
   type: QRType;
-  value: string;
-  resolvedPayload: string;
+  data: any;
   selected: boolean;
 }
 
