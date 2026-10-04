@@ -61,10 +61,7 @@ function parseRows(text: string): Participant[] {
   });
 }
 
-const SAMPLE = 'ID\tHọ tên\tEmail
-HV001\tNguyễn Văn A\ta@gmail.com
-HV002\tTrần Văn B\tb@gmail.com
-HV003\tLê Văn C\tc@gmail.com';
+const SAMPLE = 'ID\tHọ tên\tEmail\nHV001\tNguyễn Văn A\ta@gmail.com\nHV002\tTrần Văn B\tb@gmail.com\nHV003\tLê Văn C\tc@gmail.com';
 
 export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndPrint }) => {
   const [step, setStep] = useState<'data' | 'print' | 'scan' | 'result'>('data');
