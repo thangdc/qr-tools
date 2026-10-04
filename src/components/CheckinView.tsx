@@ -45,8 +45,7 @@ function playScanBeep(status: 'success' | 'duplicate' | 'unknown') {
 }
 
 function parseRows(text: string): Participant[] {
-  const rows = text.trim().split(/\r?
-/).map(line => line.split(/\t|,/).map(v => v.trim().replace(/^"|"$/g, ''))).filter(row => row.some(Boolean));
+  const rows = text.trim().split(/\r?\n/).map(line => line.split(/\t|,/).map(v => v.trim().replace(/^"|"$/g, ''))).filter(row => row.some(Boolean));
   if (rows.length < 2) return [];
   const headers = rows[0].map(v => v.toLowerCase());
   const idIndex = headers.findIndex(v => ['id', 'mã', 'ma', 'code'].includes(v));
