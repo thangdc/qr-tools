@@ -31,7 +31,7 @@ const workflows = [
     icon: Boxes,
     title: 'Kiểm kê hàng hóa',
     description: 'Quét từng mã → ghi nhận số lượng → đối chiếu và xuất kết quả.',
-    status: 'coming',
+    status: 'active',
   },
   {
     icon: Home,
