@@ -4,7 +4,7 @@ import { useLanguage } from '../i18n';
 
 interface HeaderProps {
   activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment';
-  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms') => void;
+  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment') => void;
   historyCount: number;
   isPro: boolean;
   onOpenPro: () => void;
