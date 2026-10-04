@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, ArrowLeft, ArrowRight, Camera, CheckCircle2, Download, Minus, Plus, Printer, Upload, XCircle } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRight, Camera, CheckCircle2, Download, Plus, Printer, Upload, XCircle } from 'lucide-react';
 import { useQRScanner } from '../hooks/useQRScanner';
 import { BatchPrintItem } from './BatchCardPrintModal';
 import { trackEvent } from '../utils/analytics';
@@ -92,6 +92,13 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
 
+  const handleImageUpload = async (file?: File) => {
+    if (!file) return;
+    const raw = await scanFile(file);
+    if (!raw) setError('Không tìm thấy mã QR trong ảnh.');
+    else setError('');
+  };
+
   const totalExpected = useMemo(() => items.reduce((sum, item) => sum + item.expectedQty, 0), [items]);
   const totalActual = useMemo(() => items.reduce((sum, item) => sum + item.actualQty, 0), [items]);
   const matched = useMemo(() => items.filter(item => item.actualQty === item.expectedQty).length, [items]);
@@ -122,7 +129,7 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
     trackEvent('workflow_inventory_scanned', { item_id: item.id, status: complete ? 'matched' : 'counted', actual_qty: nextQty });
   };
 
-  const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera } = useQRScanner({
+  const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera, scanFile } = useQRScanner({
     onDecoded: handleScan,
     stopAfterDecode: false,
   });
@@ -281,7 +288,7 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
               {cameraError && <div className="text-xs text-red-600">{cameraError}</div>}
               <div className="flex gap-2">
                 <button type="button" onClick={cameraActive ? stopCamera : startCamera} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
-                <span className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-500 text-xs font-semibold flex items-center justify-center gap-1.5"><Upload className="w-3.5 h-3.5" />Quét bằng ảnh</span>
+                <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />Quét bằng ảnh<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
               </div>
             </div>
 
