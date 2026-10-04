@@ -694,7 +694,17 @@ export default function App() {
 
         {/* Check-in Workflow */}
         {activeView === 'checkin' && (
-          <CheckinView onBack={() => setActiveView('workflows')} />
+          <CheckinView
+            onBack={() => setActiveView('workflows')}
+            onGenerateAndPrint={(items) => {
+              if (!isPro) {
+                openProModal('workflow_checkin_print');
+                return;
+              }
+              setBatchPrintState({ isOpen: true, items });
+              trackEvent('workflow_checkin_qr_print_opened', { count: items.length });
+            }}
+          />
         )}
 
         {/* Generator View */}
