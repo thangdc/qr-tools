@@ -154,9 +154,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     trackEvent('qr_export_started', { format: 'csv', count: actionItems.length });
     const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const csv = [
-      'Label,Type,Payload,Created At',
+      'Label,Type,Data,Created At',
       ...actionItems.map((item) =>
-        [item.title, item.type, item.rawPayload, new Date(item.createdAt).toISOString()]
+        [
+          item.title,
+          item.type,
+          JSON.stringify(item.data),
+          new Date(item.createdAt).toISOString(),
+        ]
           .map(escapeCsv)
           .join(',')
       ),
