@@ -168,6 +168,7 @@ export interface BulkQRItem {
   type: QRType;
   data: any;
   selected: boolean;
+  duplicate?: boolean;
 }
 
 export interface DecodedQRData {
