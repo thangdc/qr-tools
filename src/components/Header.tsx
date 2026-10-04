@@ -4,7 +4,7 @@ import { useLanguage } from '../i18n';
 
 interface HeaderProps {
   activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets';
-  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print') => void;
+  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets') => void;
   historyCount: number;
   isPro: boolean;
   onOpenPro: () => void;
@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
       {isMobileMenuOpen && <div className="md:hidden border-t border-neutral-100 bg-white shadow-lg">
         <nav className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-1.5">
           <button onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
-          <button onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print')} flex items-center gap-2`}><Workflow className="w-4 h-4 text-neutral-400" />Workflows</button>
+          <button onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print' || activeView === 'assets')} flex items-center gap-2`}><Workflow className="w-4 h-4 text-neutral-400" />Workflows</button>
           <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-2`}><History className="w-4 h-4 text-neutral-400" />{t('history')}{historyCount > 0 && <span className="text-xs text-neutral-500">· {historyCount}</span>}</button>
           <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-2`}><ScanLine className="w-4 h-4 text-neutral-400" />{t('scanner')}</button>
           <div className="col-span-2">
