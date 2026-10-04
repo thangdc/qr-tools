@@ -173,7 +173,8 @@ export const AssetWorkflow: React.FC<AssetWorkflowProps> = ({ isPro, onOpenPro, 
       </div>
 
       {step === 1 && (
-        <div className="grid md:grid-cols-[1fr_280px] gap-5">\n          <section className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
+        <div className="grid md:grid-cols-[1fr_280px] gap-5">
+          <section className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
           <div>
             <h2 className="text-sm font-semibold">Danh sách tài sản</h2>
             <p className="text-xs text-neutral-500 mt-1">Copy từ Excel / Google Sheets và dán vào đây. Cột bắt buộc: Mã tài sản, Tên tài sản.</p>
@@ -188,12 +189,13 @@ export const AssetWorkflow: React.FC<AssetWorkflowProps> = ({ isPro, onOpenPro, 
               </button>
             </div>
           </div>
-        </section>
-        <aside className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 space-y-3">
+          </section>
+          <aside className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 space-y-3">
           <h2 className="text-sm font-semibold">Bạn có sẵn Excel?</h2>
           <p className="text-xs text-neutral-500 leading-5">Mở Excel, chọn vùng dữ liệu rồi copy/paste vào đây. Không cần đổi định dạng.</p>
           <div className="text-xs font-mono bg-white border border-neutral-200 rounded-lg p-3 overflow-auto">{SAMPLE}</div>
-        </aside>
+          </aside>
+        </div>
       )}
 
       {step === 2 && (
