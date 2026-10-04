@@ -265,6 +265,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           onOpenPro={onOpenPro}
           onClose={() => setIsImportOpen(false)}
           onImport={onImport}
+          existingItems={items}
         />
       )}
     </div>
