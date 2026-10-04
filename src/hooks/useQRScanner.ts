@@ -13,6 +13,7 @@ export function useQRScanner({ onDecoded, stopAfterDecode = true }: UseQRScanner
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const scanBusyRef = useRef(false);
+  const lastDecodedRef = useRef<{ raw: string; at: number } | null>(null);
   const callbackRef = useRef(onDecoded);
   callbackRef.current = onDecoded;
 
@@ -43,9 +44,19 @@ export function useQRScanner({ onDecoded, stopAfterDecode = true }: UseQRScanner
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const raw = scanImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
       if (raw) {
-        callbackRef.current(raw);
-        if (stopAfterDecode) stopCamera();
+        const now = Date.now();
+        const last = lastDecodedRef.current;
+        if (!last || last.raw !== raw || now - last.at > 1200) {
+          lastDecodedRef.current = { raw, at: now };
+          callbackRef.current(raw);
+        }
+        if (stopAfterDecode) {
+          stopCamera();
+          scanBusyRef.current = false;
+          return;
+        }
         scanBusyRef.current = false;
+        animationFrameRef.current = requestAnimationFrame(requestScan);
         return;
       }
     }
