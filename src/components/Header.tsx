@@ -4,7 +4,7 @@ import { useLanguage } from '../i18n';
 
 interface HeaderProps {
   activeView: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms';
-  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory') => void;
+  setActiveView: (view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms') => void;
   historyCount: number;
   isPro: boolean;
   onOpenPro: () => void;
@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
 
         <nav className="hidden md:flex items-center gap-0.5 whitespace-nowrap">
           <button data-testid="nav-generator" onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
-          <button data-testid="nav-workflows" onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print' || activeView === 'assets')} flex items-center gap-1.5`}><Workflow className="w-3.5 h-3.5 text-neutral-400" /><span>Workflows</span></button>
+          <button data-testid="nav-workflows" onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print' || activeView === 'assets' || activeView === 'inventory' || activeView === 'rooms')} flex items-center gap-1.5`}><Workflow className="w-3.5 h-3.5 text-neutral-400" /><span>Workflows</span></button>
           <button data-testid="nav-history" onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
           <div className="relative">
             <button type="button" onClick={() => setIsGuideMenuOpen(v => !v)} className="px-2.5 py-1.5 text-sm font-medium rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 flex items-center gap-1.5 cursor-pointer" aria-expanded={isGuideMenuOpen} aria-haspopup="menu">
