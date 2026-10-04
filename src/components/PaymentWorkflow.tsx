@@ -72,7 +72,6 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   const [input, setInput] = useState(SAMPLE_DATA);
   const [rows, setRows] = useState<Receivable[]>([]);
   const [query, setQuery] = useState('');
-  const [note, setNote] = useState('');
 
   const total = useMemo(() => rows.reduce((sum, row) => sum + row.amount, 0), [rows]);
   const paidTotal = useMemo(() => rows.filter(r => r.status === 'Đã thu').reduce((sum, row) => sum + row.amount, 0), [rows]);
@@ -84,8 +83,9 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
 
   const importRows = () => {
     const parsed = parseRows(input);
+    if (parsed.length === 0) return;
     setRows(parsed);
-    setStep(1);
+    setStep(2);
     trackEvent('workflow_payment_started', { count: parsed.length });
   };
 
@@ -137,7 +137,6 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   const reset = () => {
     setRows([]);
     setQuery('');
-    setNote('');
     setStep(1);
   };
 
@@ -289,7 +288,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
             <button type="button" onClick={reset} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg border border-neutral-200 text-xs font-semibold cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /> Làm lại</button>
           </div>
           <div className="rounded-xl bg-amber-50 border border-amber-100 p-3 text-xs text-amber-900">
-            {note || 'Lưu ý: trạng thái “Đã thu” là xác nhận thủ công trong V1. Không nên dùng trạng thái này như bằng chứng giao dịch ngân hàng.'}
+            Lưu ý: trạng thái “Đã thu” là xác nhận thủ công trong V1. Không nên dùng trạng thái này như bằng chứng giao dịch ngân hàng.
           </div>
         </section>
       )}
