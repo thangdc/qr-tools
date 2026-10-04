@@ -56,6 +56,36 @@ function encodeAsset(asset: Asset) {
   });
 }
 
+function playScanBeep(status: 'success' | 'duplicate' | 'unknown') {
+  try {
+    const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const audioContext = new AudioContextClass();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const now = audioContext.currentTime;
+    const settings = status === 'success'
+      ? [{ frequency: 880, start: 0, duration: 0.09 }]
+      : status === 'duplicate'
+        ? [{ frequency: 520, start: 0, duration: 0.08 }, { frequency: 520, start: 0.11, duration: 0.08 }]
+        : [{ frequency: 260, start: 0, duration: 0.16 }];
+    oscillator.type = 'sine';
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    gain.gain.setValueAtTime(0.0001, now);
+    settings.forEach(({ frequency, start, duration }) => {
+      oscillator.frequency.setValueAtTime(frequency, now + start);
+      gain.gain.setValueAtTime(0.12, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
+    });
+    oscillator.start(now);
+    oscillator.stop(now + settings[settings.length - 1].start + settings[settings.length - 1].duration + 0.02);
+    oscillator.addEventListener('ended', () => void audioContext.close());
+  } catch {
+    // Audio feedback is optional; scanning must continue if audio is unavailable.
+  }
+}
+
 function decodeAsset(raw: string): Asset | null {
   try {
     const data = JSON.parse(raw);
@@ -89,14 +119,23 @@ export const AssetWorkflow: React.FC<AssetWorkflowProps> = ({ isPro, onOpenPro, 
       const asset = decodeAsset(raw);
       if (!asset) {
         setScanMessage('QR này không phải mã tài sản của workflow.');
+        playScanBeep('unknown');
+        return;
+      }
+
+      const existing = assets.find((item) => item.id === asset.id);
+      if (existing?.checkedAt) {
+        setScanMessage('Tài sản này đã được quét.');
+        playScanBeep('duplicate');
         return;
       }
 
       setAssets((prev) => {
-        const existing = prev.find((item) => item.id === asset.id);
-        if (!existing) return [asset, ...prev];
+        const current = prev.find((item) => item.id === asset.id);
+        if (!current) return [asset, ...prev];
         return prev.map((item) => item.id === asset.id ? { ...item, checkedAt: Date.now() } : item);
       });
+      playScanBeep('success');
       setLastAsset(asset);
       setScanCount((count) => count + 1);
       setScanMessage('Đã nhận diện tài sản');
