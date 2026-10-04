@@ -262,6 +262,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       {isImportOpen && (
         <ImportHistoryPanel
           isPro={isPro}
+          existingItems={items}
           onOpenPro={onOpenPro}
           onClose={() => setIsImportOpen(false)}
           onImport={onImport}
