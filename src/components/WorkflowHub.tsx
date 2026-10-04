@@ -4,6 +4,7 @@ import { ArrowRight, CalendarCheck, Package, Boxes, Home, WalletCards, Printer }
 interface WorkflowHubProps {
   onOpenCheckin: () => void;
   onOpenBulkPrint: () => void;
+  onOpenAssets: () => void;
 }
 
 const workflows = [
@@ -23,7 +24,7 @@ const workflows = [
     icon: Package,
     title: 'Quản lý tài sản',
     description: 'Dán QR lên tài sản → quét để tra cứu và ghi nhận kiểm kê.',
-    status: 'coming',
+    status: 'active',
   },
   {
     icon: Boxes,
@@ -45,7 +46,7 @@ const workflows = [
   },
 ] as const;
 
-export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint }) => (
+export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets }) => (
   <div className="w-full max-w-5xl mx-auto space-y-8">
     <div className="pb-5 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -80,7 +81,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
               {active ? (
                 <button
                   type="button"
-                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : onOpenBulkPrint}
+                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : onOpenAssets}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold hover:bg-black cursor-pointer"
                 >
                   Bắt đầu <ArrowRight className="w-3.5 h-3.5" />
