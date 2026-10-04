@@ -133,17 +133,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
             <textarea value={rawInput} onChange={e => setRawInput(e.target.value)} placeholder="Dán từ Excel / Google Sheets...\nID\tHọ tên\tEmail\nHV001\tNguyễn Văn A\ta@gmail.com" className="w-full min-h-52 p-3 rounded-xl border border-neutral-200 bg-neutral-50 font-mono text-xs focus:outline-hidden focus:border-neutral-900" />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="text-[11px] text-neutral-500">Bắt buộc: ID, Họ tên. Dán trực tiếp từ Excel vẫn giữ cột.</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => onGenerateAndPrint(participants.map(p => ({ id: p.id, label: p.name, payload: p.id })))}
-                  disabled={!participants.length}
-                  className="h-9 px-3 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
-                >
-                  <Printer className="w-3.5 h-3.5" />Tạo & in QR
-                </button>
-                <button type="button" onClick={importData} className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer">Tiếp tục →</button>
-              </div>
+              <button type="button" onClick={importData} disabled={!rawInput.trim()} className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer disabled:opacity-40">Tiếp tục →</button>
             </div>
             {error && <p className="text-xs text-red-600">{error}</p>}
           </div>
@@ -170,7 +160,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
             <p>• Không bắt buộc phải in nếu bạn đã có QR từ trước.</p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center sm:justify-end gap-2">
             <button
               type="button"
               onClick={() => onGenerateAndPrint(participants.map(p => ({ id: p.id, label: p.name, payload: p.id })))}
