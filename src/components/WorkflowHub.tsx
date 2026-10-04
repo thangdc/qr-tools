@@ -5,6 +5,7 @@ interface WorkflowHubProps {
   onOpenCheckin: () => void;
   onOpenBulkPrint: () => void;
   onOpenAssets: () => void;
+  onOpenInventory: () => void;
 }
 
 const workflows = [
@@ -46,7 +47,7 @@ const workflows = [
   },
 ] as const;
 
-export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets }) => (
+export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory }) => (
   <div className="w-full max-w-5xl mx-auto space-y-8">
     <div className="pb-5 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -81,7 +82,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
               {active ? (
                 <button
                   type="button"
-                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : onOpenAssets}
+                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : title === 'Quản lý tài sản' ? onOpenAssets : onOpenInventory}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold hover:bg-black cursor-pointer"
                 >
                   Bắt đầu <ArrowRight className="w-3.5 h-3.5" />
