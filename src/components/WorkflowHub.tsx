@@ -7,6 +7,7 @@ interface WorkflowHubProps {
   onOpenAssets: () => void;
   onOpenInventory: () => void;
   onOpenRooms: () => void;
+  onOpenPayment: () => void;
 }
 
 const workflows = [
@@ -44,11 +45,11 @@ const workflows = [
     icon: WalletCards,
     title: 'Thu tiền / Thanh toán',
     description: 'Tạo QR thanh toán → khách quét → theo dõi và đối soát.',
-    status: 'coming',
+    status: 'active',
   },
 ] as const;
 
-export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory, onOpenRooms }) => (
+export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory, onOpenRooms, onOpenPayment }) => (
   <div className="w-full max-w-5xl mx-auto space-y-8">
     <div className="pb-5 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -83,7 +84,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
               {active ? (
                 <button
                   type="button"
-                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : title === 'Quản lý tài sản' ? onOpenAssets : title === 'Kiểm kê hàng hóa' ? onOpenInventory : onOpenRooms}
+                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : title === 'Quản lý tài sản' ? onOpenAssets : title === 'Kiểm kê hàng hóa' ? onOpenInventory : title === 'Quản lý phòng / căn hộ' ? onOpenRooms : onOpenPayment}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold hover:bg-black cursor-pointer"
                 >
                   Bắt đầu <ArrowRight className="w-3.5 h-3.5" />
