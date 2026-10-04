@@ -39,6 +39,7 @@ import { BulkPrintWorkflow } from './components/BulkPrintWorkflow';
 import { AssetWorkflow } from './components/AssetWorkflow';
 import { InventoryWorkflow } from './components/InventoryWorkflow';
 import { RoomWorkflow } from './components/RoomWorkflow';
+import { RoomWorkflow } from './components/RoomWorkflow';
 import { BatchCardPrintModal, BatchPrintItem } from './components/BatchCardPrintModal';
 import { TemplateEditorModal } from './components/TemplateEditorModal';
 import { PrintHandoffModal } from './components/PrintHandoffModal';
@@ -729,6 +730,18 @@ export default function App() {
         {/* Inventory Counting Workflow */}
         {activeView === 'inventory' && (
           <InventoryWorkflow
+            isPro={isPro}
+            onOpenPro={openProModal}
+            onBack={() => setActiveView('workflows')}
+            onGenerateAndPrint={(items) => {
+              setBatchPrintState({ isOpen: true, items });
+            }}
+          />
+        )}
+
+        {/* Room Management Workflow */}
+        {activeView === 'rooms' && (
+          <RoomWorkflow
             isPro={isPro}
             onOpenPro={openProModal}
             onBack={() => setActiveView('workflows')}
