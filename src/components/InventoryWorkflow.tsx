@@ -91,6 +91,7 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
   const [scanned, setScanned] = useState<{ id: string; name: string; qty: number; at: number }[]>([]);
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
+  const [scanPaused, setScanPaused] = useState(false);
 
   const handleImageUpload = async (file?: File) => {
     if (!file) return;
@@ -104,11 +105,13 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
   const matched = useMemo(() => items.filter(item => item.actualQty === item.expectedQty).length, [items]);
 
   const handleScan = (raw: string) => {
+    if (scanPaused) return;
     const decoded = decodeInventory(raw);
     if (!decoded) {
       setLastResult({ status: 'unknown' });
       playScanBeep('unknown');
       trackEvent('workflow_inventory_scanned', { status: 'unknown' });
+      pauseAfterScan();
       return;
     }
     const item = items.find(i => i.id.toLowerCase() === decoded.id.toLowerCase());
@@ -127,6 +130,12 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
     playScanBeep(complete ? 'complete' : 'success');
     setScanned(prev => [...prev, { id: item.id, name: item.name, qty: nextQty, at: Date.now() }]);
     trackEvent('workflow_inventory_scanned', { item_id: item.id, status: complete ? 'matched' : 'counted', actual_qty: nextQty });
+    pauseAfterScan(complete ? 2000 : 1500);
+  };
+
+  const pauseAfterScan = (duration = 1500) => {
+    setScanPaused(true);
+    window.setTimeout(() => setScanPaused(false), duration);
   };
 
   const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera, scanFile } = useQRScanner({
@@ -185,6 +194,7 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
 
   const reset = () => {
     stopCamera();
+    setScanPaused(false);
     setStep('data');
     setInput('');
     setItems([]);
@@ -283,6 +293,7 @@ export const InventoryWorkflow: React.FC<InventoryWorkflowProps> = ({ isPro, onO
             <div className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
               <div className="relative aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
                 {cameraActive ? <video ref={videoRef} playsInline muted className="w-full h-full object-cover" /> : <div className="text-center text-neutral-400"><Camera className="w-10 h-10 mx-auto mb-2" /><p className="text-xs">Bấm bắt đầu để quét</p></div>}
+                {cameraActive && scanPaused && <div className="absolute inset-0 z-10 bg-black/45 flex items-center justify-center"><div className="rounded-xl bg-black/75 px-4 py-3 text-center text-white"><p className="text-xs font-semibold">Đã đếm</p><p className="text-[11px] text-white/70 mt-1">Chuẩn bị quét tiếp...</p></div></div>}
                 {cameraActive && <div className="absolute inset-[12%] border-2 border-white/80 rounded-2xl pointer-events-none shadow-[0_0_0_9999px_rgba(0,0,0,0.18)]"><span className="absolute -top-0.5 -left-0.5 w-8 h-8 border-l-4 border-t-4 border-white rounded-tl-lg" /><span className="absolute -top-0.5 -right-0.5 w-8 h-8 border-r-4 border-t-4 border-white rounded-tr-lg" /><span className="absolute -bottom-0.5 -left-0.5 w-8 h-8 border-l-4 border-b-4 border-white rounded-bl-lg" /><span className="absolute -bottom-0.5 -right-0.5 w-8 h-8 border-r-4 border-b-4 border-white rounded-br-lg" /><div className="absolute left-1/2 top-1/2 w-[70%] h-0.5 -translate-x-1/2 -translate-y-1/2 bg-white/70" /></div>}
               </div>
               {cameraError && <div className="text-xs text-red-600">{cameraError}</div>}
