@@ -26,7 +26,7 @@ function parseRows(text: string): Participant[] {
 const SAMPLE = 'ID\tHọ tên\tEmail\nHV001\tNguyễn Văn A\ta@gmail.com\nHV002\tTrần Văn B\tb@gmail.com\nHV003\tLê Văn C\tc@gmail.com';
 
 export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndPrint }) => {
-  const [step, setStep] = useState<'data' | 'scan' | 'result'>('data');
+  const [step, setStep] = useState<'data' | 'print' | 'scan' | 'result'>('data');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [rawInput, setRawInput] = useState('');
   const [lastResult, setLastResult] = useState<{ participant?: Participant; status: 'success' | 'duplicate' | 'unknown' } | null>(null);
@@ -91,7 +91,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
     }
     setError('');
     setParticipants(parsed);
-    setStep('scan');
+    setStep('print');
     trackEvent('checkin_started', { count: parsed.length });
   }
 
@@ -122,8 +122,8 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
         {step !== 'data' && <div className="text-right"><div className="text-xl font-bold text-neutral-900">{checkedIn}/{participants.length}</div><div className="text-[11px] text-neutral-500">đã check-in</div></div>}
       </div>
 
-      <div className="grid grid-cols-3 gap-1.5 text-[11px] sm:text-xs">
-        {(['data','scan','result'] as const).map((item, i) => <div key={item} className={`rounded-lg px-3 py-2 text-center font-medium ${step === item ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-500'}`}>{i + 1}. {item === 'data' ? 'Danh sách' : item === 'scan' ? 'Check-in' : 'Kết quả'}</div>)}
+      <div className="grid grid-cols-4 gap-1.5 text-[11px] sm:text-xs">
+        {(['data','print','scan','result'] as const).map((item, i) => <div key={item} className={`rounded-lg px-2 py-2 text-center font-medium ${step === item ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-500'}`}>{i + 1}. {item === 'data' ? 'Nhập danh sách' : item === 'print' ? 'Tạo & in QR' : item === 'scan' ? 'Check-in' : 'Kết quả'}</div>)}
       </div>
 
       {step === 'data' && (
@@ -152,6 +152,52 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
             <p className="text-xs text-neutral-500 leading-5">Mở Excel, chọn vùng dữ liệu rồi copy/paste vào đây. Không cần đổi định dạng.</p>
             <div className="text-xs font-mono bg-white border border-neutral-200 rounded-lg p-3 overflow-auto">{SAMPLE}</div>
           </div>
+        </div>
+      )}
+
+      {step === 'print' && (
+        <div className="max-w-2xl mx-auto bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-5">
+          <div>
+            <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wide">Bước 2</p>
+            <h2 className="text-lg font-bold text-neutral-900 mt-1">Tạo & in QR cho danh sách</h2>
+            <p className="text-sm text-neutral-500 mt-1">
+              Đã có <strong className="text-neutral-900">{participants.length} người</strong>. Mỗi người sẽ có một mã QR chứa ID để dùng khi check-in.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4 text-xs text-neutral-600 space-y-1.5">
+            <p>• In mã QR và phát cho người tham dự trước sự kiện.</p>
+            <p>• Không bắt buộc phải in nếu bạn đã có QR từ trước.</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => onGenerateAndPrint(participants.map(p => ({ id: p.id, label: p.name, payload: p.id })))}
+              className="h-10 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />Tạo & in QR
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep('scan')}
+              className="h-10 px-4 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold cursor-pointer"
+            >
+              Bỏ qua / Đã có QR →
+            </button>
+          </div>
+
+          <p className="text-[11px] text-neutral-400">
+            Sau khi tạo/in xong, chọn <strong>Tiếp tục check-in</strong> để chuyển sang bước quét.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setStep('scan')}
+            className="w-full h-10 rounded-lg bg-neutral-100 text-neutral-900 text-xs font-semibold cursor-pointer"
+          >
+            Tiếp tục check-in →
+          </button>
         </div>
       )}
 
