@@ -111,7 +111,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
     trackEvent('checkin_exported', { count: participants.length });
   }
 
-  const goToPrint = () => setStep('print');
+  const restartWorkflow = () => {\n    stopCamera();\n    setStep('data');\n    setParticipants([]);\n    setRawInput('');\n    setLastResult(null);\n    setScanned([]);\n    setError('');\n  };\n\n  const goToPrint = () => setStep('print');
   const goToScan = () => setStep('scan');
   const goToResult = () => {
     stopCamera();
@@ -225,7 +225,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
           <div className="overflow-x-auto"><table className="w-full text-xs"><thead className="bg-neutral-50"><tr><th className="text-left p-3">ID</th><th className="text-left p-3">Họ tên</th><th className="text-left p-3">Email</th><th className="text-left p-3">Trạng thái</th><th className="text-left p-3">Check-in</th></tr></thead><tbody>{participants.map(p => <tr key={p.id} className="border-t border-neutral-100"><td className="p-3 font-mono">{p.id}</td><td className="p-3 font-medium">{p.name}</td><td className="p-3 text-neutral-500">{p.email || '—'}</td><td className="p-3">{p.checkedInAt ? <span className="text-emerald-600">✓ Đã check-in</span> : <span className="text-neutral-400">Chưa check-in</span>}</td><td className="p-3 text-neutral-500">{p.checkedInAt ? new Date(p.checkedInAt).toLocaleString('vi-VN') : '—'}</td></tr>)}</tbody></table></div>
           <div className="p-4 border-t border-neutral-200 flex justify-between gap-2">
             <button type="button" onClick={goToScan} className="h-9 px-3 rounded-lg bg-neutral-100 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5" />Quay lại check-in</button>
-            <button type="button" onClick={() => { setStep('data'); setLastResult(null); }} className="h-9 px-3 rounded-lg bg-white border border-neutral-300 text-xs font-semibold cursor-pointer">Bắt đầu lại</button>
+            <button type="button" onClick={restartWorkflow} className="h-9 px-3 rounded-lg bg-white border border-neutral-300 text-xs font-semibold cursor-pointer">Bắt đầu lại</button>
           </div>
         </div>
       )}
