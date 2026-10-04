@@ -496,21 +496,24 @@ export default function App() {
   // Import multiple QR codes directly into History.
   const handleImportToHistory = (items: BulkQRItem[]) => {
     const now = Date.now();
-    const imported: QRHistoryItem[] = items.map((item, index) => {
-      const isUrl = item.type === 'url' || item.resolvedPayload.startsWith('http');
-      const type: QRType = isUrl ? 'url' : 'text';
-      const data = isUrl ? { url: item.resolvedPayload } : { text: item.resolvedPayload };
-      return {
+    const imported: QRHistoryItem[] = items.flatMap((item, index) => {
+      const type = item.type;
+      const data = item.data as QRFormData[QRType];
+      const rawPayload = generatePayload(type, data);
+      if (!rawPayload) return [];
+
+      const summary = getQRSummary(type, data);
+      return [{
         id: `hist-import-${now}-${index}`,
         type,
-        title: item.label || `QR ${index + 1}`,
-        subtitle: item.resolvedPayload,
+        title: item.label || summary.title,
+        subtitle: summary.subtitle,
         data,
         design: { ...activeTemplate.design },
         templateId: activeTemplateId,
-        rawPayload: item.resolvedPayload,
+        rawPayload,
         createdAt: now + index,
-      };
+      }];
     });
 
     setHistory((prev) => {
