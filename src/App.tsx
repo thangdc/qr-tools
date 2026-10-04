@@ -207,7 +207,7 @@ export default function App() {
     });
   }, []);
 
-  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets'>(deepLink.view);
+  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory'>(deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
 
   useEffect(() => {
