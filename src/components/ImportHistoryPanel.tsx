@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { FileSpreadsheet, Upload, X, Plus, Trash2 } from 'lucide-react';
-import { BulkQRItem } from '../types/qr';
+import { BulkQRItem, QRType } from '../types/qr';
 import { useLanguage } from '../i18n';
 import { trackEvent } from '../utils/analytics';
 
@@ -22,30 +22,81 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
   const [importText, setImportText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const parseCsvRows = (text: string): string[][] => {
+    const rows: string[][] = [];
+    let row: string[] = [];
+    let field = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i += 1) {
+      const char = text[i];
+      const next = text[i + 1];
+
+      if (inQuotes) {
+        if (char === '"' && next === '"') {
+          field += '"';
+          i += 1;
+        } else if (char === '"') {
+          inQuotes = false;
+        } else {
+          field += char;
+        }
+      } else if (char === '"') {
+        inQuotes = true;
+      } else if (char === ',' || char === '\t') {
+        row.push(field);
+        field = '';
+      } else if (char === '\n') {
+        row.push(field);
+        rows.push(row);
+        row = [];
+        field = '';
+      } else if (char !== '\r') {
+        field += char;
+      }
+    }
+
+    if (field || row.length) {
+      row.push(field);
+      rows.push(row);
+    }
+
+    return rows.filter((current) => current.some((value) => value.trim()));
+  };
+
   const parseLines = (text: string) => {
-    const lines = text
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean);
+    const rows = parseCsvRows(text.trim());
+    if (rows.length < 2) return;
 
-    const parsed = lines.map((line, index): BulkQRItem => {
-      const parts = line.split(/[\t,]/);
-      const hasLabel = parts.length >= 2;
-      const label = hasLabel
-        ? parts[0].trim().replace(/^"|"$/g, '')
-        : `QR ${items.length + index + 1}`;
-      const value = hasLabel
-        ? parts.slice(1).join(',').trim().replace(/^"|"$/g, '')
-        : line;
+    const header = rows[0].map((value) => value.trim().toLowerCase());
+    if (header.join(',') !== 'label,type,data,created at') {
+      return;
+    }
 
-      return {
-        id: `import-${Date.now()}-${index}`,
-        label,
-        type: value.startsWith('http') ? 'url' : 'text',
-        value,
-        resolvedPayload: value,
-        selected: true,
-      };
+    const labelIndex = header.indexOf('label');
+    const typeIndex = header.indexOf('type');
+    const dataIndex = header.indexOf('data');
+
+    const parsed = rows.slice(1).flatMap((row, index): BulkQRItem[] => {
+      const label = row[labelIndex]?.trim();
+      const type = row[typeIndex]?.trim() as QRType;
+      const dataText = row[dataIndex]?.trim();
+
+      if (!label || !dataText) return [];
+
+      try {
+        const data = JSON.parse(dataText);
+        if (!data || typeof data !== 'object') return [];
+        return [{
+          id: `import-${Date.now()}-${index}`,
+          label,
+          type,
+          data,
+          selected: true,
+        }];
+      } catch {
+        return [];
+      }
     });
 
     setItems((prev) => [...prev, ...parsed]);
@@ -151,7 +202,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
               {tx('Sẽ thêm vào lịch sử', 'Will be added to History')}
               <span className="text-neutral-400 font-normal">· {items.length}</span>
             </div>
-            <span className="text-[11px] text-neutral-400">{tx('Tên, Nội dung', 'Label, Payload')}</span>
+            <span className="text-[11px] text-neutral-400">{tx('Tên, Loại, Dữ liệu', 'Label, Type, Data')}</span>
           </div>
 
           {items.length === 0 ? (
@@ -170,8 +221,15 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
                       className="w-full text-xs font-semibold text-neutral-900 bg-transparent border-b border-transparent hover:border-neutral-300 focus:border-neutral-900 outline-none truncate"
                     />
                     <input
-                      value={item.resolvedPayload}
-                      onChange={(e) => setItems((prev) => prev.map((current) => current.id === item.id ? { ...current, value: e.target.value, resolvedPayload: e.target.value } : current))}
+                      value={JSON.stringify(item.data)}
+                      onChange={(e) => {
+                        try {
+                          const data = JSON.parse(e.target.value);
+                          setItems((prev) => prev.map((current) => current.id === item.id ? { ...current, data } : current));
+                        } catch {
+                          // Keep the last valid structured data while the user edits.
+                        }
+                      }}
                       className="w-full mt-0.5 text-[11px] font-mono text-neutral-500 bg-transparent border-b border-transparent hover:border-neutral-300 focus:border-neutral-900 outline-none truncate"
                     />
                   </div>
