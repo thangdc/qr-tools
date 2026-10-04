@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { FileSpreadsheet, Upload, X, Plus, Trash2 } from 'lucide-react';
-import { BulkQRItem, QRType } from '../types/qr';
+import { BulkQRItem, QRHistoryItem, QRType } from '../types/qr';
 import { useLanguage } from '../i18n';
 import { trackEvent } from '../utils/analytics';
 
@@ -200,7 +200,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
             <div className="flex items-center gap-2 text-xs font-semibold text-neutral-800">
               <FileSpreadsheet className="w-4 h-4 text-neutral-400" />
               {tx('Sẽ thêm vào lịch sử', 'Will be added to History')}
-              <span className="text-neutral-400 font-normal">· {items.length}</span>
+              <span className="text-neutral-400 font-normal">· {items.filter((item) => item.selected && !item.duplicate).length}</span>{items.some((item) => item.duplicate) && <span className="text-amber-600 font-normal">· {items.filter((item) => item.duplicate).length} {tx('trùng', 'duplicate')}</span>
             </div>
             <span className="text-[11px] text-neutral-400">{tx('Tên, Loại, Dữ liệu', 'Label, Type, Data')}</span>
           </div>
