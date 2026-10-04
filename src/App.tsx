@@ -517,8 +517,16 @@ export default function App() {
     });
 
     setHistory((prev) => {
-      const existing = new Set(prev.map((item) => `${item.type}::${item.rawPayload}`));
-      const unique = imported.filter((item) => !existing.has(`${item.type}::${item.rawPayload}`));
+      const seen = new Set(prev.map((item) => `${item.type}::${item.rawPayload}`));
+      const unique: QRHistoryItem[] = [];
+
+      for (const item of imported) {
+        const key = `${item.type}::${item.rawPayload}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(item);
+      }
+
       return [...unique, ...prev];
     });
     trackEvent('qr_imported_to_history', { count: imported.length });
