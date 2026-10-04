@@ -750,18 +750,6 @@ export default function App() {
           />
         )}
 
-        {/* Room Management Workflow */}
-        {activeView === 'rooms' && (
-          <RoomWorkflow
-            isPro={isPro}
-            onOpenPro={openProModal}
-            onBack={() => setActiveView('workflows')}
-            onGenerateAndPrint={(items) => {
-              setBatchPrintState({ isOpen: true, items });
-            }}
-          />
-        )}
-
         {/* Check-in Workflow */}
         {activeView === 'checkin' && (
           <CheckinView
