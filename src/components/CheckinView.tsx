@@ -6,7 +6,14 @@ import { trackEvent } from '../utils/analytics';
 interface Participant { id: string; name: string; email?: string; phone?: string; checkedInAt?: number; }
 interface CheckinViewProps { onBack: () => void; onGenerateAndPrint: (items: { id: string; label: string; payload: string }[]) => void; }
 
-function formatDateTime(timestamp: number) {\n  return new Intl.DateTimeFormat('vi-VN', {\n    day: '2-digit', month: '2-digit', year: 'numeric',\n    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,\n  }).format(new Date(timestamp)).replace(',', '');\n}\n\n
+function formatDateTime(timestamp: number) {
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  }).format(new Date(timestamp)).replace(',', '');
+}
+
+
 function playScanBeep(status: 'success' | 'duplicate' | 'unknown') {
   try {
     const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -38,7 +45,8 @@ function playScanBeep(status: 'success' | 'duplicate' | 'unknown') {
 }
 
 function parseRows(text: string): Participant[] {
-  const rows = text.trim().split(/\r?\n/).map(line => line.split(/\t|,/).map(v => v.trim().replace(/^"|"$/g, ''))).filter(row => row.some(Boolean));
+  const rows = text.trim().split(/\r?
+/).map(line => line.split(/\t|,/).map(v => v.trim().replace(/^"|"$/g, ''))).filter(row => row.some(Boolean));
   if (rows.length < 2) return [];
   const headers = rows[0].map(v => v.toLowerCase());
   const idIndex = headers.findIndex(v => ['id', 'mã', 'ma', 'code'].includes(v));
@@ -54,7 +62,10 @@ function parseRows(text: string): Participant[] {
   });
 }
 
-const SAMPLE = 'ID\tHọ tên\tEmail\nHV001\tNguyễn Văn A\ta@gmail.com\nHV002\tTrần Văn B\tb@gmail.com\nHV003\tLê Văn C\tc@gmail.com';
+const SAMPLE = 'ID\tHọ tên\tEmail
+HV001\tNguyễn Văn A\ta@gmail.com
+HV002\tTrần Văn B\tb@gmail.com
+HV003\tLê Văn C\tc@gmail.com';
 
 export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndPrint }) => {
   const [step, setStep] = useState<'data' | 'print' | 'scan' | 'result'>('data');
@@ -137,7 +148,8 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
         p.checkedInAt ? 'Đã check-in' : 'Chưa check-in',
         p.checkedInAt ? new Date(p.checkedInAt).toISOString() : '',
       ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
-    ].join('\r\n');
+    ].join('\r
+');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -145,7 +157,17 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
     trackEvent('checkin_exported', { count: participants.length });
   }
 
-  const restartWorkflow = () => {\n    stopCamera();\n    setStep('data');\n    setParticipants([]);\n    setRawInput('');\n    setLastResult(null);\n    setScanned([]);\n    setError('');\n  };\n\n  const goToPrint = () => setStep('print');
+  const restartWorkflow = () => {
+    stopCamera();
+    setStep('data');
+    setParticipants([]);
+    setRawInput('');
+    setLastResult(null);
+    setScanned([]);
+    setError('');
+  };
+
+  const goToPrint = () => setStep('print');
   const goToScan = () => setStep('scan');
   const goToResult = () => {
     stopCamera();
@@ -171,7 +193,9 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
         <div className="grid md:grid-cols-[1fr_280px] gap-5">
           <div className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between gap-2"><h2 className="text-sm font-semibold">1. Nhập danh sách</h2><button type="button" onClick={loadSample} className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer">Dùng dữ liệu mẫu</button></div>
-            <textarea value={rawInput} onChange={e => setRawInput(e.target.value)} placeholder="Dán từ Excel / Google Sheets...\nID\tHọ tên\tEmail\nHV001\tNguyễn Văn A\ta@gmail.com" className="w-full min-h-52 p-3 rounded-xl border border-neutral-200 bg-neutral-50 font-mono text-xs focus:outline-hidden focus:border-neutral-900" />
+            <textarea value={rawInput} onChange={e => setRawInput(e.target.value)} placeholder="Dán từ Excel / Google Sheets...
+ID\tHọ tên\tEmail
+HV001\tNguyễn Văn A\ta@gmail.com" className="w-full min-h-52 p-3 rounded-xl border border-neutral-200 bg-neutral-50 font-mono text-xs focus:outline-hidden focus:border-neutral-900" />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="text-[11px] text-neutral-500">Bắt buộc: ID, Họ tên. Dán trực tiếp từ Excel vẫn giữ cột.</span>
               <button type="button" onClick={importData} disabled={!rawInput.trim()} className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer disabled:opacity-40">Tiếp tục <ArrowRight className="inline w-3.5 h-3.5 ml-0.5" /></button>
