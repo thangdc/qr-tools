@@ -3,6 +3,7 @@ import { ArrowRight, CalendarCheck, Package, Boxes, Home, WalletCards, Printer }
 
 interface WorkflowHubProps {
   onOpenCheckin: () => void;
+  onOpenBulkPrint: () => void;
 }
 
 const workflows = [
@@ -16,7 +17,7 @@ const workflows = [
     icon: Printer,
     title: 'Tạo QR hàng loạt & In',
     description: 'Excel → tạo nhiều mã QR → chọn mẫu → in tem hoặc thẻ.',
-    status: 'coming',
+    status: 'active',
   },
   {
     icon: Package,
@@ -44,7 +45,7 @@ const workflows = [
   },
 ] as const;
 
-export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin }) => (
+export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint }) => (
   <div className="w-full max-w-5xl mx-auto space-y-8">
     <div className="pb-5 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -79,7 +80,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin }) => (
               {active ? (
                 <button
                   type="button"
-                  onClick={onOpenCheckin}
+                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : onOpenBulkPrint}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold hover:bg-black cursor-pointer"
                 >
                   Bắt đầu <ArrowRight className="w-3.5 h-3.5" />
