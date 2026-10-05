@@ -20,23 +20,17 @@ import {
 interface ScannerViewProps {
   onBackToGenerator: () => void;
   onLoadIntoGenerator: (data: DecodedQRData) => void;
-  onWorkflowScan?: (rawPayload: string) => void;
 }
 
 export const ScannerView: React.FC<ScannerViewProps> = ({
   onBackToGenerator,
   onLoadIntoGenerator,
-  onWorkflowScan,
 }) => {
   const { tx } = useLanguage();
   const [scanResult, setScanResult] = useState<DecodedQRData | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleDecoded = (decodedRaw: string) => {
-    if (decodedRaw.startsWith('qrtools:') && onWorkflowScan) {
-      onWorkflowScan(decodedRaw);
-      return;
-    }
     const parsed = parseRawQRPayload(decodedRaw);
     setScanResult(parsed);
     trackEvent('scanner_success', { source: 'camera', qr_type: parsed.type });
@@ -61,8 +55,6 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
     if (!decodedRaw) {
       trackEvent('scanner_failure', { source: 'upload' });
       alert('Không tìm thấy mã QR đọc được trong ảnh. Hãy thử ảnh rõ hơn hoặc dùng ảnh QR gốc.');
-    } else if (decodedRaw.startsWith('qrtools:') && onWorkflowScan) {
-      onWorkflowScan(decodedRaw);
     } else {
       const parsed = parseRawQRPayload(decodedRaw);
       setScanResult(parsed);
