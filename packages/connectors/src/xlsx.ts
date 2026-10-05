@@ -22,10 +22,7 @@ function decodeXml(value: string): string {
 }
 
 function getAttribute(tag: string, name: string): string | undefined {
-  const match = tag.match(
-    new RegExp(`\\b${name}="([^"]*)"`),
-  );
-
+  const match = tag.match(new RegExp(`\\b${name}="([^"]*)"`));
   return match?.[1];
 }
 
@@ -35,6 +32,10 @@ function getTagValue(xml: string, tagName: string): string | undefined {
   );
 
   return match?.[1];
+}
+
+function getFirstTag(xml: string, tagName: string): string | undefined {
+  return xml.match(new RegExp(`<${tagName}\\b[^>]*(?:/>|>[\\s\\S]*?</${tagName}>)`))?.[0];
 }
 
 function parseSharedStrings(xml: string): string[] {
@@ -94,7 +95,7 @@ export class XlsxParser implements ExcelParser {
     }
 
     const workbookXml = await workbookFile.async("string");
-    const firstSheet = getTagValue(workbookXml, "sheet");
+    const firstSheet = getFirstTag(workbookXml, "sheet");
     const relationshipId = firstSheet
       ? getAttribute(firstSheet, "r:id")
       : undefined;
