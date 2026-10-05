@@ -1,0 +1,45 @@
+import type {
+  ValidationResult,
+  WorkflowContext,
+  WorkflowDefinition,
+  WorkflowRecord,
+} from "../../types/src/index.ts";
+
+export interface WorkflowValidator {
+  validate(record: WorkflowRecord, definition: WorkflowDefinition): ValidationResult;
+}
+
+export interface WorkflowMapper {
+  map(
+    source: Record<string, unknown>,
+    definition: WorkflowDefinition,
+  ): Record<string, unknown>;
+}
+
+export interface WorkflowExecutor {
+  execute(context: WorkflowContext): Promise<WorkflowExecutionResult>;
+}
+
+export interface WorkflowExecutionResult {
+  record: WorkflowRecord;
+  outputs: WorkflowOutput[];
+}
+
+export interface WorkflowOutput {
+  type: string;
+  data: Record<string, unknown>;
+}
+
+export interface WorkflowEngine {
+  validate(
+    record: WorkflowRecord,
+    definition: WorkflowDefinition,
+  ): ValidationResult;
+
+  map(
+    source: Record<string, unknown>,
+    definition: WorkflowDefinition,
+  ): Record<string, unknown>;
+
+  execute(context: WorkflowContext): Promise<WorkflowExecutionResult>;
+}
