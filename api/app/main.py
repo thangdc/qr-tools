@@ -88,6 +88,62 @@ rate_limiter = RateLimiter()
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
+async def _record_api_request(
+    request: Request,
+    status_code: int,
+    duration_ms: int,
+) -> None:
+    """Best-effort telemetry for authenticated public API requests."""
+    api_key_id = getattr(request.state, "api_key_id", None)
+    if not api_key_id:
+        return
+
+    pool = getattr(app.state, "pool", None)
+    if pool is None:
+        return
+
+    try:
+        await pool.execute(
+            """
+            insert into public.api_request_logs (
+                api_key_id,
+                endpoint,
+                method,
+                status_code,
+                success,
+                duration_ms
+            )
+            values ($1, $2, $3, $4, $5, $6)
+            """,
+            api_key_id,
+            request.url.path,
+            request.method,
+            status_code,
+            200 <= status_code < 400,
+            duration_ms,
+        )
+    except Exception:
+        # Telemetry must never change the public API response.
+        return
+
+
+@app.middleware("http")
+async def api_request_telemetry(request: Request, call_next):
+    started = time.perf_counter()
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+    except Exception:
+        status_code = 500
+        duration_ms = max(0, int((time.perf_counter() - started) * 1000))
+        await _record_api_request(request, status_code, duration_ms)
+        raise
+
+    duration_ms = max(0, int((time.perf_counter() - started) * 1000))
+    await _record_api_request(request, status_code, duration_ms)
+    return response
+
+
 @app.on_event("startup")
 async def startup() -> None:
     database_url = os.getenv("DATABASE_URL")
