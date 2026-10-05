@@ -3,11 +3,6 @@ import type { WorkflowDefinition, WorkflowRecord } from "../../types/src/index.t
 import { DefaultScanRuntime } from "./scan.ts";
 import { PersistenceWorkflowRegistry, PersistenceWorkflowResolver } from "./supabase-runtime.ts";
 
-interface TestPersistence {
-  records: { get(workflowId: string, workflowVersion: number, recordId: string): Promise<WorkflowRecord | null> };
-  definitions: { get(workflowId: string, version: number): Promise<WorkflowDefinition | null> };
-}
-
 const definition: WorkflowDefinition = {
   id: "equipment-maintenance",
   version: 1,
@@ -35,18 +30,29 @@ const record: WorkflowRecord = {
   },
 };
 
-const persistence: TestPersistence = {
+const persistence = {
   records: {
-    async get(workflowId, workflowVersion, recordId) {
-      return workflowId === record.workflowId && workflowVersion === record.workflowVersion && recordId === record.recordId
+    async get(workflowId: string, workflowVersion: number, recordId: string) {
+      return workflowId === record.workflowId &&
+        workflowVersion === record.workflowVersion &&
+        recordId === record.recordId
         ? record
         : null;
     },
+    async save(_value: WorkflowRecord) {},
+    async delete(
+      _workflowId: string,
+      _workflowVersion: number,
+      _recordId: string,
+    ) {},
   },
   definitions: {
-    async get(workflowId, version) {
-      return workflowId === definition.id && version === definition.version ? definition : null;
+    async get(workflowId: string, version: number) {
+      return workflowId === definition.id && version === definition.version
+        ? definition
+        : null;
     },
+    async save(_value: WorkflowDefinition) {},
   },
 };
 
@@ -65,14 +71,21 @@ const payload = qrIdentityEngine.encode({
 
 const result = await runtime.scan(payload);
 
-if (result.record?.data.assetName !== "Air Conditioner") throw new Error("Expected equipment record.");
-if (result.actions[0]?.type !== "view") throw new Error("Expected view action.");
+if (result.record?.data.assetName !== "Air Conditioner") {
+  throw new Error("Expected equipment record.");
+}
 
-const missing = await runtime.scan(qrIdentityEngine.encode({
-  version: 1,
-  workflowId: record.workflowId,
-  recordId: "ASSET-MISSING",
-}));
+if (result.actions[0]?.type !== "view") {
+  throw new Error("Expected view action.");
+}
+
+const missing = await runtime.scan(
+  qrIdentityEngine.encode({
+    version: 1,
+    workflowId: record.workflowId,
+    recordId: "ASSET-MISSING",
+  }),
+);
 
 if (missing.record !== null || missing.actions.length !== 0) {
   throw new Error("Missing record should resolve without actions.");
