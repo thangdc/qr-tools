@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowLeft, ArrowRight, Camera, CheckCircle2, Download, FileSpreadsheet, Printer, Upload, XCircle, AlertTriangle } from 'lucide-react';
 import { useQRScanner } from '../hooks/useQRScanner';
 import { BatchCardPrintModal, BatchPrintItem } from './BatchCardPrintModal';
@@ -52,7 +53,11 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
   const persistence = useMemo<WorkflowPersistence>(() => ({ records: new SessionRepository(readRecords()), definitions }), []);
   const completed = useMemo(() => records.filter(r => Boolean(dataOf(r).maintenanceDate)).length, [records]);
 
-  useEffect(() => () => stopCamera(), []);
+  const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera, scanFile } = useQRScanner({
+    onDecoded: payload => { if (!payload.startsWith('qrtools:')) { setError('Đây không phải mã QR của workflow Bảo trì thiết bị.'); setLastScan('unknown'); return; } void handleScan(payload); },
+    stopAfterDecode: false,
+  });
+  useEffect(() => () => stopCamera(), [stopCamera]);
 
   const resolveRecord = async (payload: string) => {
     const runtime = new DefaultScanRuntime(qrPayloadDecoder, { async verify() { return true; } }, { async resolve(workflowId, workflowVersion, recordId) { return persistence.records.get(workflowId, workflowVersion, recordId); } }, { async get() { return equipmentMaintenanceWorkflow; } });
@@ -61,15 +66,12 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
 
   const handleScan = async (payload: string) => {
     try {
-      setError('');
-      const record = await resolveRecord(payload);
+      setError(''); const record = await resolveRecord(payload);
       if (!record) { setSelectedRecord(null); setLastScan('unknown'); return; }
       const d = dataOf(record); const duplicate = Boolean(d.maintenanceDate);
       setSelectedRecord(record); setMaintenanceDate(typeof d.maintenanceDate === 'string' ? String(d.maintenanceDate) : ''); setMaintenanceBy(typeof d.maintenanceBy === 'string' ? String(d.maintenanceBy) : ''); setMaintenanceNote(typeof d.maintenanceNote === 'string' ? String(d.maintenanceNote) : ''); setLastScan(duplicate ? 'duplicate' : 'success'); setScannedIds(prev => [record.recordId, ...prev.filter(id => id !== record.recordId)].slice(0, 8));
     } catch (e) { setError(e instanceof Error ? e.message : 'Không thể đọc mã QR.'); setLastScan('unknown'); }
   };
-
-  const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera, scanFile } = useQRScanner({ onDecoded: payload => { if (!payload.startsWith('qrtools:')) { setError('Đây không phải mã QR của workflow Bảo trì thiết bị.'); setLastScan('unknown'); return; } void handleScan(payload); }, stopAfterDecode: false });
 
   const importData = async (file?: File) => {
     if (!file) return; setLoading(true); setError('');
@@ -80,7 +82,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
     } catch (e) { setError(e instanceof Error ? e.message : 'Không thể import file Excel.'); } finally { setLoading(false); }
   };
 
-  const printItems: BatchPrintItem[] = records.map(r => { const d = dataOf(r); return { id: r.recordId, label: String(d.assetName ?? r.recordId), payload: qrPayloadEncoder.encode(r.workflowId, r.workflowVersion, r.recordId), type: 'text', subtitle: [r.recordId, d.location].filter(Boolean).join(' · ') }; });
+  const printItems: BatchPrintItem[] = records.map(r => { const d = dataOf(r); return { id: r.recordId, label: String(d.assetName ?? r.recordId), payload: qrPayloadEncoder.encode({ version: r.workflowVersion, workflowId: r.workflowId, recordId: r.recordId }), type: 'text', subtitle: [r.recordId, d.location].filter(Boolean).join(' · ') }; });
   const handlePrint = () => { if (!records.length) return; if (!isPro) { setProOpen(true); return; } setPrintOpen(true); };
 
   const saveMaintenance = async () => {
@@ -89,12 +91,8 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
     const updated: WorkflowRecord = { ...selectedRecord, data: { ...selectedRecord.data, maintenanceDate, maintenanceBy: maintenanceBy.trim(), maintenanceNote: maintenanceNote.trim() } };
     await persistence.records.save(updated); setRecords(readRecords()); setSelectedRecord(updated); setLastScan('success'); setError('');
   };
-
   const handleImageUpload = async (file?: File) => { if (!file) return; const payload = await scanFile(file); if (!payload) { setError('Không tìm thấy mã QR trong ảnh.'); setLastScan('unknown'); return; } await handleScan(payload); };
-  const exportCsv = () => {
-    const rows = [['Asset ID','Asset Name','Location','Maintenance Date','Maintenance By','Maintenance Note'], ...records.map(r => { const d = dataOf(r); return [r.recordId,d.assetName ?? '',d.location ?? '',d.maintenanceDate ?? '',d.maintenanceBy ?? '',d.maintenanceNote ?? '']; })];
-    const csv = rows.map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n'); const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download=`equipment-maintenance-${Date.now()}.csv`; a.click(); URL.revokeObjectURL(url);
-  };
+  const exportCsv = () => { const rows = [['Asset ID','Asset Name','Location','Maintenance Date','Maintenance By','Maintenance Note'], ...records.map(r => { const d = dataOf(r); return [r.recordId,d.assetName ?? '',d.location ?? '',d.maintenanceDate ?? '',d.maintenanceBy ?? '',d.maintenanceNote ?? '']; })]; const csv = rows.map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n'); const url = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download=`equipment-maintenance-${Date.now()}.csv`; a.click(); URL.revokeObjectURL(url); };
   const reset = () => { stopCamera(); setStep('data'); setRecords([]); writeRecords([]); setSelectedRecord(null); setLastScan(null); setScannedIds([]); setError(''); };
   const go = (target: Step) => { if (target !== 'data' && !records.length) return; if (target !== 'scan') stopCamera(); setStep(target); };
   const steps: Step[] = ['data','print','scan','result']; const labels = ['Nhập danh sách','Tạo & in QR','Bảo trì','Kết quả'];
@@ -112,7 +110,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
 
       {step==='result' && <div className="space-y-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-sm font-semibold">Kết quả bảo trì</h2><p className="text-xs text-neutral-500 mt-1">{completed}/{records.length} thiết bị đã có ghi nhận.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={exportCsv} className="h-9 px-3 rounded-lg border border-neutral-200 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><Download className="w-3.5 h-3.5"/>Xuất CSV</button><button type="button" onClick={()=>go('scan')} className="h-9 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Bảo trì tiếp <ArrowRight className="w-3.5 h-3.5"/></button></div></div><div className="bg-white border border-neutral-200 rounded-2xl overflow-x-auto"><table className="w-full text-xs"><thead className="bg-neutral-50 text-neutral-500"><tr><th className="text-left px-3 py-2 font-medium">Mã</th><th className="text-left px-3 py-2 font-medium">Thiết bị</th><th className="text-left px-3 py-2 font-medium">Vị trí</th><th className="text-left px-3 py-2 font-medium">Ngày</th><th className="text-left px-3 py-2 font-medium">Người thực hiện</th><th className="text-left px-3 py-2 font-medium">Ghi chú</th></tr></thead><tbody>{records.map(r=>{const d=dataOf(r);return <tr key={r.recordId} className="border-t border-neutral-100"><td className="px-3 py-2 font-mono">{r.recordId}</td><td className="px-3 py-2 font-medium">{String(d.assetName??'')}</td><td className="px-3 py-2">{String(d.location??'')}</td><td className="px-3 py-2">{d.maintenanceDate?String(d.maintenanceDate):'—'}</td><td className="px-3 py-2">{d.maintenanceBy?String(d.maintenanceBy):'—'}</td><td className="px-3 py-2 text-neutral-500">{d.maintenanceNote?String(d.maintenanceNote):'—'}</td></tr>})}</tbody></table></div><div className="flex items-center justify-between gap-2"><button type="button" onClick={()=>go('scan')} className="h-9 px-3 rounded-lg bg-neutral-100 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5"/>Quay lại bảo trì</button><button type="button" onClick={reset} className="text-xs text-neutral-500 hover:text-neutral-900 cursor-pointer">Bắt đầu workflow mới</button></div></div>}
     </div>
-    <BatchCardPrintModal isOpen={printOpen} onClose={()=>setPrintOpen(false)} items={printItems} templates={PREDEFINED_TEMPLATES} activeTemplateId={activeTemplateId} onSelectTemplate={setActiveTemplateId} outputSettings={DEFAULT_QR_OUTPUT_SETTINGS} />
-    <ProModal isOpen={proOpen} onClose={()=>setProOpen(false)} isPro={isPro} onTogglePro={value=>{setIsPro(value); localStorage.setItem('qr_tools_pro', value ? 'true' : 'false');}} />
+    {typeof document !== 'undefined' && createPortal(<BatchCardPrintModal isOpen={printOpen} onClose={()=>setPrintOpen(false)} items={printItems} templates={PREDEFINED_TEMPLATES} activeTemplateId={activeTemplateId} onSelectTemplate={setActiveTemplateId} outputSettings={DEFAULT_QR_OUTPUT_SETTINGS} />, document.body)}
+    {typeof document !== 'undefined' && createPortal(<ProModal isOpen={proOpen} onClose={()=>setProOpen(false)} isPro={isPro} onTogglePro={value=>{setIsPro(value); localStorage.setItem('qr_tools_pro', value ? 'true' : 'false');}} />, document.body)}
   </>;
 };
