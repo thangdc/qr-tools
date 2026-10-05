@@ -18,6 +18,8 @@
 - Resolve QR to workflow/record
 - Revocation
 - Basic scan/action flow
+  - scan result exposes allowed actions
+  - action execution is validated against the scan result before delegation
 
 ## Phase 3 — API
 - Versioned public API
