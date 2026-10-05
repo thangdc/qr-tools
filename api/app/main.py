@@ -22,7 +22,7 @@ DEFAULT_RATE_LIMIT = 60
 
 
 def _cors_origins() -> list[str]:
-    value = os.getenv("CORS_ORIGINS", "https://qr.thangdc.com")
+    value = os.getenv("CORS_ORIGINS", "https://qr.thangdc.com,https://client.thangdc.com")
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
