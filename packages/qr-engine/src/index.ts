@@ -144,3 +144,9 @@ export const qrIdentityEngine: QrEngine = {
 };
 
 export { QR_IDENTITY_PREFIX, QR_IDENTITY_FIELDS };
+
+export {
+  RevocationAwareQrIdentityVerifier,
+  getQrIdentityKey,
+} from "./revocation.ts";
+export type { QrIdentityRevocationStore } from "./revocation.ts";
