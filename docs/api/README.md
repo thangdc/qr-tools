@@ -2,6 +2,8 @@
 
 The QR Tools Public API exposes QR scan and workflow-action execution over HTTPS.
 
+> **Returning to this project after a break?** Read the [Public API Architecture & Project Context](../architecture/public-api.md) first. It records the project boundary, completed PRs, current status, and the next implementation step.
+
 ## Base URL
 
 Production:
@@ -37,6 +39,7 @@ See [Authentication](./authentication.md).
 - [Integration examples](./integration.md)
 - [Versioning](./versioning.md)
 - [Rate limits and API key lifecycle](./rate-limits.md)
+- [Architecture & project context](../architecture/public-api.md)
 
 ## Stability rule
 
