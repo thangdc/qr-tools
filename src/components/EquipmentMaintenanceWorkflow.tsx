@@ -205,7 +205,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({
     };
 
     await persistence.records.save(updated);
-    setRecords(persistence.records.all());
+    setRecords(readSessionRecords());
     setSelectedRecord(updated);
     setError('');
   };
