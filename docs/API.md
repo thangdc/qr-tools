@@ -1,42 +1,108 @@
 # Public API
 
-## Purpose
+QR Tools exposes a versioned API boundary for customer-owned applications.
 
-The API allows customers to use QR Tools infrastructure while building their own UI and business application.
+## Boundary
 
-## Intended Capabilities
+The public API is an application-layer boundary. It may call the Core, but the Core does not depend on HTTP, authentication providers, Supabase, or browser code.
 
-- Create/generate QR identities
-- Validate/map workflow data
-- Resolve a QR
-- Execute workflow actions
-- Retrieve workflow/record data where authorized
-- Configure or invoke supported connectors
-- Receive webhook events where supported
+Customer UI / Script → Public API → Workflow Engine → QR Engine / Persistence / Connectors
 
-## Example
+## Versioning
 
-POST /api/v1/qr/generate
+The current public API version is **v1**. The base path is `/v1`.
 
-{
-  "workflow": "asset",
-  "data": {
-    "assetId": "AC-001",
-    "location": "P101"
-  }
-}
+Breaking contract changes require a new API version. Additive, backward-compatible fields may be introduced within the same version.
 
-The exact endpoints and schemas are not finalized by this document.
+## Endpoints
 
-## Principles
+### POST /v1/qr/scan
 
-- Version the API.
-- Stable contracts over UI internals.
-- Authentication and authorization are mandatory for privileged operations.
-- Rate limiting and usage controls must be supported.
-- Never expose internal secrets.
-- API behavior should use the same workflow engine as the hosted UI.
+Resolve a QR payload to its workflow identity, record, and currently allowed actions.
 
-## Customer-owned UI
+Request:
 
-A customer may build React, Angular, mobile or server-rendered UI. QR Tools does not require the customer to use QR Tools UI.
+    {
+      "payload": "qrtools:..."
+    }
+
+Response:
+
+    {
+      "identity": {
+        "version": 1,
+        "workflowId": "equipment-maintenance",
+        "recordId": "ASSET-001"
+      },
+      "record": {
+        "workflowId": "equipment-maintenance",
+        "workflowVersion": 1,
+        "recordId": "ASSET-001",
+        "data": {}
+      },
+      "actions": [
+        {
+          "type": "view",
+          "data": { "recordId": "ASSET-001" }
+        }
+      ]
+    }
+
+A valid QR may resolve to no record. In that case `record` is `null` and `actions` is empty.
+
+### POST /v1/qr/actions/execute
+
+Execute one action that is currently allowed for the supplied QR payload.
+
+Request:
+
+    {
+      "payload": "qrtools:...",
+      "action": {
+        "type": "view",
+        "data": { "recordId": "ASSET-001" }
+      }
+    }
+
+The API must re-resolve and validate the QR/action combination before delegating to an action handler. A client must never be trusted to declare that an action is allowed.
+
+Response:
+
+    {
+      "success": true
+    }
+
+## Errors
+
+Errors use one stable envelope:
+
+    {
+      "error": {
+        "code": "QR_IDENTITY_INVALID",
+        "message": "QR identity verification failed."
+      }
+    }
+
+Error codes are part of the public contract. Error messages are informational and must not be used by clients for program logic.
+
+## Authentication
+
+Authentication is a separate API concern and is not implemented by this contract-only layer.
+
+Future authenticated requests will use `Authorization: Bearer <api-key>`.
+
+API keys and other secrets are never embedded in QR payloads or browser-side source code.
+
+## Customer integration goal
+
+The intended integration is deliberately simple:
+
+Customer system → POST /v1/qr/scan → render returned record/actions → POST /v1/qr/actions/execute
+
+This lets customers keep ownership of their UI while QR Tools provides QR resolution and workflow capabilities.
+
+## Source of truth
+
+The TypeScript contract lives at `apps/api/src/contracts/v1.ts`.
+
+The HTTP implementation, authentication, rate limiting, and infrastructure adapters will be added in later Phase 3 PRs.
