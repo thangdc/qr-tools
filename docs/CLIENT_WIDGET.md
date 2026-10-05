@@ -1,10 +1,10 @@
 # Client Workflow Widget
 
-The Client Widget is a **ready-to-use, dynamic workflow UI**, not a thin API renderer.
+The Client Widget is a **ready-to-use workflow UI** for embedding one QR Tools workflow into an existing customer website.
 
-It is designed so a customer can embed a QR Tools workflow into an existing website with one script and configuration. The widget owns the presentation and interaction flow while the QR Tools API remains responsible for business rules and authorization.
+It is not a thin API renderer and it is not a general-purpose low-code UI builder.
 
-See [DYNAMIC_CLIENT_WORKFLOW_WIDGET.md](./DYNAMIC_CLIENT_WORKFLOW_WIDGET.md) for the full contract.
+See [DYNAMIC_CLIENT_WORKFLOW_WIDGET.md](./DYNAMIC_CLIENT_WORKFLOW_WIDGET.md) for the full architecture.
 
 ## Quick start
 
@@ -20,95 +20,146 @@ See [DYNAMIC_CLIENT_WORKFLOW_WIDGET.md](./DYNAMIC_CLIENT_WORKFLOW_WIDGET.md) for
 ></script>
 ```
 
-The intended default experience is a step-based workflow:
+### One widget = one workflow
+
+The customer selects exactly one workflow in configuration.
+
+There is no workflow picker inside the widget.
+
+To change the experience, change:
+
+```html
+data-workflow="equipment-maintenance"
+```
+
+to another supported workflow and remount/reload the widget.
+
+## Controlled dynamic behavior
+
+The widget is dynamic **inside the selected workflow**, while the workflow itself is controlled by QR Tools.
+
+```
+Client config
+    ↓
+Workflow ID
+    ↓
+QR Tools workflow registry
+    ↓
+Curated workflow UI
+    ↓
+Public API / runtime
+```
+
+For example, `equipment-maintenance` can provide:
 
 ```
 Chọn dữ liệu
     ↓
 Tạo QR
     ↓
-Preview
-    ↓
-Download / Print
+In / Download
     ↓
 Quét QR
     ↓
 Kết quả
     ↓
-Action
+Ghi nhận bảo trì
 ```
 
-The actual steps are dynamic and come from the workflow definition.
+The customer does not define these steps, fields or components.
 
-## Dynamic inputs
+## Configuration boundary
 
-Workflows can expose different input sources, including:
+Supported configuration is intentionally small:
 
-- manual form
-- single/multiple records
-- CSV/XLSX
-- JSON
-- REST/API
-- customer-provided data
-- QR scan
-- previous-step output
+- `workflow`
+- `apiKey`
+- `container`
+- `theme`
+- `locale`
+- `initialData` where supported by the selected workflow
 
-The widget renders the appropriate selector or input UI automatically.
+The widget does **not** accept arbitrary:
 
-## Dynamic outputs
+- steps
+- fields
+- components
+- outputs
+- actions
+- business rules
+- server endpoints
 
-Workflows can expose:
-
-- PNG
-- SVG
-- print/printable layout
-- JSON
-- resolved record
-- action result
-- redirect
-- webhook/API response
-- downloadable data
+This prevents customer integrations from becoming uncontrolled custom workflow implementations.
 
 ## JavaScript API
 
 ```js
 QrToolsWidget.mount("#qr-workflow", {
   workflow: "equipment-maintenance",
-  apiKey: "CLIENT_KEY",
-  initialData: [...]
+  apiKey: "CLIENT_KEY"
 });
 ```
 
-Optional lifecycle callbacks include `onStepChange`, `onInput`, `onOutput`, `onScan`, `onAction`, `onComplete`, and `onError`.
+Optional configuration is only accepted when explicitly supported by the selected workflow.
+
+## Workflow registry
+
+QR Tools maintains a controlled workflow registry:
+
+```ts
+type ClientWorkflowId =
+  | "equipment-maintenance"
+  | "attendance"
+  | "payment";
+
+const workflowRegistry = {
+  "equipment-maintenance": EquipmentMaintenanceWorkflow,
+  "attendance": AttendanceWorkflow,
+  "payment": PaymentWorkflow,
+};
+```
+
+Adding a workflow means adding and testing its workflow implementation and registering its ID. The customer only changes `workflow` in their configuration.
+
+## Reuse existing QR Tools UI
+
+The widget should reuse existing QR Tools primitives where practical:
+
+- workflow forms
+- Excel import
+- QR rendering
+- QR preview
+- camera/image scanning
+- print / download
+- CSV export
+- validation
+- loading/error states
 
 ## Security
 
-Use only a client-safe/scoped API key in browser embeds. Never expose privileged server credentials.
+Only a client-safe/scoped API key belongs in the browser.
 
-Workflow validation, record authorization, action authorization and mutations remain server-side.
+Never expose privileged Supabase or server credentials.
 
-## Implementation direction
+The public API remains responsible for:
 
-Existing QR Tools QR engine and UI primitives should be reused where practical:
+- authentication
+- record authorization
+- validation
+- action authorization
+- mutations
+- external connectors
+- rate limits
 
-- QR rendering
-- QR preview
-- QR scanner
-- workflow-specific importers
-- print/export primitives
+The widget owns presentation and interaction; the server owns authorization and business rules.
 
-The long-term design is:
+The existing public contracts remain the foundation:
 
-```
-Workflow Definition
-       ↓
-Client Workflow Renderer
-       ↓
-Step-specific UI primitives
-       ↓
-QR Tools Public API
-       ↓
-Workflow Runtime / Connectors
-```
+- `POST /v1/scan`
+- `POST /v1/actions/execute`
 
-The current `/v1/scan` and `/v1/actions/execute` contracts remain the scan/result foundation. Dynamic data selection requires additional scoped public workflow runtime contracts.
+Workflow-specific runtime endpoints should be added only when a selected workflow actually requires them.
+
+## Core rule
+
+> **The client chooses which workflow to use. QR Tools controls how that workflow works. The API controls what the client is allowed to do.**
