@@ -94,7 +94,7 @@ function renderResult(element: HTMLElement, result: ScanResponse, config: QrTool
   ).join("") : "";
   const title = result.identity ? escapeHtml(result.identity.workflowId) + " · " + escapeHtml(result.identity.recordId) : "QR Tools";
   element.innerHTML = '<div class="qr-tools-widget" data-theme="' + (config.theme || "auto") + '"><div><strong>' + title + '</strong></div><div class="qr-tools-widget__grid">' + (rows || '<div class="qr-tools-widget__muted">Không có dữ liệu bản ghi.</div>') + '</div>' + (actions ? '<div class="qr-tools-widget__actions">' + actions + '</div>' : "") + '</div>';
-  element.querySelectorAll<HTMLElement>("[data-qr-action]").forEach((button) => {
+  element.querySelectorAll<HTMLButtonElement>("[data-qr-action]").forEach((button) => {
     button.addEventListener("click", async () => {
       const action = result.actions?.[Number(button.dataset.qrAction)];
       if (!action || !config.payload) return;
