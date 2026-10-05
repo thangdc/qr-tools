@@ -12,7 +12,7 @@ Example conceptual form:
 
 QT:<version>:<workflow>:<record>:<signature>
 
-The protocol is currently at version 1. Version 1 uses the `qrtools:` prefix and a base64url-encoded identity envelope. The Core accepts only supported protocol versions so future versions can be introduced without silently changing the meaning of existing QR codes.
+The protocol is currently at version 1. Version 1 uses the `qrtools:` prefix and a base64url-encoded identity envelope. The Core accepts only supported protocol versions so future versions can be introduced without silently changing the meaning of existing QR codes. Signing is exposed as a provider-independent Core contract, while the actual signing implementation remains server-side infrastructure.
 
 ## Requirements
 
