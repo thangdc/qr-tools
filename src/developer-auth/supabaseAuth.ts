@@ -121,7 +121,7 @@ export async function signUp(
     email,
     password,
     options: {
-      email_redirect_to: 'https://vietsofts.thangdc.com',
+      email_redirect_to: 'https://client.thangdc.com',
     },
   });
 
