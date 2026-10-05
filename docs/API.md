@@ -106,3 +106,47 @@ This lets customers keep ownership of their UI while QR Tools provides QR resolu
 The TypeScript contract lives at `apps/api/src/contracts/v1.ts`.
 
 The HTTP implementation, authentication, rate limiting, and infrastructure adapters will be added in later Phase 3 PRs.
+
+
+## Authentication boundary
+
+Every public API request that accesses customer data or workflow operations must be authenticated.
+
+The Core does not know how API keys are stored or validated. The API layer depends only on the provider-independent `ApiAuthenticator` contract:
+
+```ts
+interface ApiAuthenticator {
+  authenticate(request: {
+    authorization: string | null;
+  }): Promise<ApiPrincipal | null>;
+}
+```
+
+The request header is:
+
+```
+Authorization: Bearer <api-key>
+```
+
+The API layer converts a successful authentication into an `ApiPrincipal` containing a non-secret key identifier and granted scopes.
+
+Authentication implementations must never return or expose the raw API key after validation.
+
+### Authorization
+
+Authentication and authorization are separate:
+
+- authentication establishes the caller identity
+- scopes authorize a specific API capability
+
+The current boundary provides `requireScope(principal, scope)` for endpoint-level authorization. Scope names remain API policy and can evolve without coupling the Core to an authentication provider.
+
+### Security rules
+
+- API keys are server-side credentials.
+- Never place API keys in QR payloads.
+- Never expose raw API keys in API responses, logs, or browser bundles.
+- Invalid or missing credentials must be rejected before the request reaches privileged Core operations.
+- Storage, hashing, rotation, revocation, and rate limiting are infrastructure/policy concerns, not part of this contract.
+
+The HTTP middleware and concrete key store will be added separately.
