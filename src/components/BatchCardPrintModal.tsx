@@ -154,8 +154,8 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto print:static print:block print:bg-white print:p-0">
-      <div className="bg-white rounded-none sm:rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[95vh] min-h-0 flex flex-col overflow-hidden print:max-w-none print:w-auto print:max-h-none print:h-auto print:overflow-visible print:rounded-none print:border-0 print:shadow-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto print:static print:block print:bg-white print:p-0 print:overflow-visible">
+      <div className="bg-white rounded-none sm:rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[95vh] min-h-0 flex flex-col overflow-hidden print:max-w-none print:w-full print:max-h-none print:h-auto print:overflow-visible print:rounded-none print:border-0 print:shadow-none print:block">
         {/* Top Control Bar - Hidden in print */}
         <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white print:hidden">
           <div className="flex items-start gap-2 min-w-0 flex-1">
@@ -344,8 +344,8 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
         </div>
 
         {/* Printable Canvas Sheet Viewport */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-8 bg-neutral-100 print:flex-none print:overflow-visible print:bg-white print:p-0">
-          <div className="max-w-[210mm] mx-auto bg-white p-4 sm:p-8 rounded-lg shadow-sm print:max-w-none print:mx-0 print:shadow-none print:p-0">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-8 bg-neutral-100 print:flex-none print:overflow-visible print:bg-white print:p-0 print:block">
+          <div className="max-w-[210mm] mx-auto bg-white p-4 sm:p-8 rounded-lg shadow-sm print:max-w-[210mm] print:w-full print:mx-auto print:shadow-none print:p-0 print:block">
             {isRendering ? (
               <div className="p-12 text-center text-xs text-neutral-400">
                 {tx('Đang tạo', 'Đang tạo')} {items.length} {tx('mã QR', 'mã QR')}...
