@@ -36,7 +36,7 @@ export interface ScanResponse {
 }
 
 export interface ExecuteActionRequest {
-  payload: string;
+  scan_payload: string;
   action: ScanAction;
 }
 
@@ -135,14 +135,14 @@ export function createQrToolsClient(
   return {
     scan(request) {
       return post<ScanRequest, ScanResponse>(
-        "/v1/qr/scan",
+        "/v1/scan",
         request,
       );
     },
 
     executeAction(request) {
       return post<ExecuteActionRequest, ExecuteActionResponse>(
-        "/v1/qr/actions/execute",
+        "/v1/actions/execute",
         request,
       );
     },
