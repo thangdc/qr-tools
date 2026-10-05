@@ -452,11 +452,6 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
 
       {step === 'scan' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <button type="button" onClick={() => { stopCamera(); setStep('print'); }} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5" />Quay lại tạo & in QR</button>
-            <button type="button" onClick={() => { stopCamera(); setStep('result'); }} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-900 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Kết quả <ArrowRight className="w-3.5 h-3.5" /></button>
-          </div>
-
           <div className="grid lg:grid-cols-[1.2fr_.8fr] gap-5">
             <div className="bg-white border border-neutral-200 rounded-2xl p-5 space-y-4">
               <div className="relative aspect-video bg-neutral-900 rounded-xl overflow-hidden flex items-center justify-center">
@@ -519,6 +514,15 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <button type="button" onClick={() => { stopCamera(); setStep('print'); }} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+              <ArrowLeft className="w-3.5 h-3.5" />Quay lại tạo & in QR
+            </button>
+            <button type="button" onClick={() => { stopCamera(); setStep('result'); }} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-900 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+              Kết quả <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       )}
