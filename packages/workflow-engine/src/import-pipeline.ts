@@ -9,11 +9,8 @@ export interface WorkflowImportSource {
   load(): Promise<Record<string, unknown>[]>;
 }
 
-export interface WorkflowImportMapper {
-  map(
-    source: Record<string, unknown>,
-    definition: WorkflowDefinition,
-  ): Record<string, unknown>;
+export interface WorkflowImportMapper<TData> {
+  map(source: Record<string, unknown>, definition: WorkflowDefinition): TData;
 }
 
 export interface WorkflowImportValidator {
@@ -43,14 +40,12 @@ export interface WorkflowImportServiceOptions {
 export class WorkflowImportService {
   constructor(private readonly options: WorkflowImportServiceOptions) {}
 
-  async import(
+  async import<TData>(
     source: WorkflowImportSource,
     definition: WorkflowDefinition,
-    mapper: WorkflowImportMapper,
+    mapper: WorkflowImportMapper<TData>,
     validator: WorkflowImportValidator,
-    createRecord: (
-      data: Record<string, unknown>,
-    ) => WorkflowRecord,
+    createRecord: (data: TData) => WorkflowRecord,
   ): Promise<WorkflowImportResult> {
     const rows = await source.load();
     const records: WorkflowRecord[] = [];
