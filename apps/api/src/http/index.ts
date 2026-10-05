@@ -32,10 +32,15 @@ export async function authenticateAndRateLimit(
   dependencies: ApiHttpDependencies,
   policy: ApiRateLimitPolicy,
 ): Promise<ApiRequestContext | ApiHttpResponse> {
-  const authorization = request.headers.authorization ?? request.headers.Authorization ?? null;
+  const authorization =
+    request.headers.authorization ?? request.headers.Authorization ?? null;
+
   const principal = await dependencies.authenticate({
     ...request,
-    headers: { ...request.headers, authorization },
+    headers: {
+      ...request.headers,
+      authorization: authorization ?? undefined,
+    },
   });
 
   if (!principal) {
@@ -58,7 +63,12 @@ export async function authenticateAndRateLimit(
       status: 429,
       headers: {
         "Content-Type": "application/json",
-        "Retry-After": String(Math.max(0, rateLimit.resetAtEpochSeconds - Math.floor(Date.now() / 1000))),
+        "Retry-After": String(
+          Math.max(
+            0,
+            rateLimit.resetAtEpochSeconds - Math.floor(Date.now() / 1000),
+          ),
+        ),
       },
       body: {
         error: {
