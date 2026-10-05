@@ -1,4 +1,8 @@
-import {\n  RevocationAwareQrIdentityVerifier,\n  getQrIdentityKey,\n  qrIdentityEngine,\n} from "../../qr-engine/src/index.ts";
+import {
+  RevocationAwareQrIdentityVerifier,
+  getQrIdentityKey,
+  qrIdentityEngine,
+} from "../../qr-engine/src/index.ts";
 import type { WorkflowDefinition, WorkflowRecord } from "../../types/src/index.ts";
 import { DefaultScanRuntime } from "./scan.ts";
 import { PersistenceWorkflowRegistry, PersistenceWorkflowResolver } from "./supabase-runtime.ts";
