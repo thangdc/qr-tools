@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:sdk": "npm run build --prefix packages/sdk",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "npm run typecheck",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run build"
+    "check": "npm run typecheck && npm run build:sdk && npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
