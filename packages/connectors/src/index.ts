@@ -26,3 +26,12 @@ export interface ConnectorRegistry {
   getInput(type: string): InputConnector | undefined;
   getOutput(type: string): OutputConnector | undefined;
 }
+
+
+export {
+  createSupabaseWorkflowPersistence,
+  SupabaseWorkflowDefinitionRepository,
+  SupabaseWorkflowRecordRepository,
+} from "./supabase-workflow-persistence.ts";
+
+export type { SupabasePersistenceOptions, SupabaseRestClient } from "./supabase-workflow-persistence.ts";
