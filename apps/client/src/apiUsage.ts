@@ -9,7 +9,16 @@ async function request(session:DeveloperSession){
   });
   const data=await res.json().catch(()=>({}));
   if(!res.ok) throw new Error(data.error||`Request failed (${res.status})`);
-  return data as UsageData;
+  if(!data || typeof data !== 'object' || !data.summary || !data.summary.today || !data.summary.last7Days || !data.summary.last30Days){
+    throw new Error(data?.error || 'Usage response is invalid. Please try again.');
+  }
+  return {
+    summary:data.summary,
+    statusBreakdown:Array.isArray(data.statusBreakdown)?data.statusBreakdown:[],
+    endpointUsage:Array.isArray(data.endpointUsage)?data.endpointUsage:[],
+    keyUsage:Array.isArray(data.keyUsage)?data.keyUsage:[],
+    latestRequestAt:data.latestRequestAt ?? null,
+  } as UsageData;
 }
 
 export type UsagePeriod={requests:number;successful:number;errors4xx:number;errors5xx:number};
