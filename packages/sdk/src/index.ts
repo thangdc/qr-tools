@@ -101,16 +101,17 @@ export function createQrToolsClient(
     path: string,
     request: TRequest,
   ): Promise<TResponse> {
-    const authorization = options.apiKey
-      ? { Authorization: `Bearer ${options.apiKey}` }
-      : {};
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (options.apiKey) {
+      headers.Authorization = `Bearer ${options.apiKey}`;
+    }
 
     const response = await fetchImpl(`${baseUrl}${path}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...authorization,
-      },
+      headers,
       body: JSON.stringify(request),
     });
 
