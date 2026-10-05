@@ -67,15 +67,19 @@ export class EquipmentMaintenanceValidator implements WorkflowValidator {
 }
 
 export class EquipmentMaintenanceMapper implements WorkflowMapper {
-  map(source: Record<string, unknown>): Record<string, unknown> {
+  map(source: Record<string, unknown>): EquipmentMaintenanceData {
     return {
-      assetId: source["Asset ID"] ?? source.assetId,
-      assetName: source["Asset Name"] ?? source.assetName,
-      location: source.Location ?? source.location,
+      assetId: source["Asset ID"] as string,
+      assetName: source["Asset Name"] as string,
+      location: source.Location as string,
       maintenanceDate:
-        source["Maintenance Date"] ?? source.maintenanceDate,
+        (source["Maintenance Date"] ?? source.maintenanceDate) as
+          | string
+          | undefined,
       maintenanceNote:
-        source["Maintenance Note"] ?? source.maintenanceNote,
+        (source["Maintenance Note"] ?? source.maintenanceNote) as
+          | string
+          | undefined,
     };
   }
 }
