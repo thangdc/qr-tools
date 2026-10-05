@@ -550,7 +550,6 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
           </div>
         </div>
       )}
-    </div>
 
       {showPrintDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" role="dialog" aria-modal="true" aria-labelledby="equipment-print-title">
@@ -588,5 +587,6 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
           </div>
         </div>
       )}
+    </div>
   );
 };
