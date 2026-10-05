@@ -101,6 +101,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
   const [scannedIds, setScannedIds] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
 
   const persistence = useMemo<WorkflowPersistence>(() => ({
     records: new MemoryRecordRepository(readSessionRecords()),
@@ -252,6 +253,74 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
     URL.revokeObjectURL(url);
   };
 
+  const openPrintDialog = () => {
+    if (!records.length) return;
+    setShowPrintDialog(true);
+  };
+
+  const printQrLabels = () => {
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
+    if (!printWindow) {
+      setError('Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép popup rồi thử lại.');
+      return;
+    }
+
+    const items = records.map((record, index) => {
+      const data = getData(record);
+      const image = qrImages[index];
+      return `
+        <article class="qr-card">
+          ${image ? `<img src="${image}" alt="QR ${escapeHtml(record.recordId)}" />` : ''}
+          <div class="id">${escapeHtml(record.recordId)}</div>
+          <div class="name">${escapeHtml(String(data.assetName ?? ''))}</div>
+          <div class="location">${escapeHtml(String(data.location ?? ''))}</div>
+        </article>
+      `;
+    }).join('');
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>QR thiết bị</title>
+          <style>
+            @page { margin: 10mm; }
+            * { box-sizing: border-box; }
+            body { margin: 0; font-family: Arial, sans-serif; color: #111; }
+            .sheet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; }
+            .qr-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ddd; border-radius: 8px; padding: 6mm; text-align: center; }
+            .qr-card img { width: 42mm; height: 42mm; display: block; margin: 0 auto 4mm; }
+            .id { font: 10px monospace; color: #666; overflow-wrap: anywhere; }
+            .name { margin-top: 2mm; font-size: 13px; font-weight: 700; }
+            .location { margin-top: 1mm; font-size: 11px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <main class="sheet">${items}</main>
+          <script>
+            window.addEventListener('load', function () {
+              setTimeout(function () {
+                window.focus();
+                window.print();
+              }, 150);
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    setShowPrintDialog(false);
+  };
+
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
   const handleImageUpload = async (file?: File) => {
     if (!file) return;
     const payload = await scanFile(file);
@@ -367,7 +436,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
             <p>• Nếu đã dán QR từ trước, có thể bỏ qua bước in.</p>
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end gap-2">
-            <button type="button" onClick={() => window.print()} className="h-10 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+            <button type="button" onClick={openPrintDialog} className="h-10 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
               <Printer className="w-3.5 h-3.5" />Tạo & in QR
             </button>
             <button type="button" onClick={() => setStep('scan')} className="h-10 px-4 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
@@ -478,5 +547,42 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
         </div>
       )}
     </div>
+
+      {showPrintDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" role="dialog" aria-modal="true" aria-labelledby="equipment-print-title">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-neutral-200">
+            <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-neutral-200">
+              <div>
+                <h2 id="equipment-print-title" className="text-sm font-semibold">Tạo & in QR</h2>
+                <p className="text-xs text-neutral-500 mt-1">{records.length} mã QR sẽ được in.</p>
+              </div>
+              <button type="button" onClick={() => setShowPrintDialog(false)} className="h-8 w-8 rounded-lg bg-neutral-100 text-neutral-600 hover:text-neutral-900 text-lg leading-none cursor-pointer" aria-label="Đóng">×</button>
+            </div>
+
+            <div className="max-h-[65vh] overflow-auto p-5 bg-neutral-50">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {records.map((record, index) => {
+                  const data = getData(record);
+                  return (
+                    <div key={record.recordId} className="bg-white border border-neutral-200 rounded-xl p-3 text-center">
+                      {qrImages[index] ? <img src={qrImages[index]} alt={`QR ${record.recordId}`} className="w-32 h-32 mx-auto object-contain" /> : <QrCode className="w-16 h-16 mx-auto text-neutral-400" />}
+                      <p className="mt-2 text-[10px] font-mono text-neutral-500 break-all">{record.recordId}</p>
+                      <p className="mt-1 text-xs font-semibold truncate">{String(data.assetName ?? '')}</p>
+                      <p className="text-[11px] text-neutral-500 truncate">{String(data.location ?? '')}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-2 px-5 py-4 border-t border-neutral-200">
+              <button type="button" onClick={() => setShowPrintDialog(false)} className="h-9 px-4 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold cursor-pointer">Hủy</button>
+              <button type="button" onClick={printQrLabels} className="h-9 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+                <Printer className="w-3.5 h-3.5" />In {records.length} QR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 };
