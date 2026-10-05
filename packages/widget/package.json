@@ -1,0 +1,15 @@
+{
+  "name": "@qr-tools/widget",
+  "version": "0.1.0",
+  "description": "Zero-dependency browser widget for embedding QR Tools workflows",
+  "type": "module",
+  "main": "./dist/qr-tools-widget.js",
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "vite build",
+    "pack:check": "npm run build && npm pack --dry-run"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}
