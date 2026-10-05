@@ -19,11 +19,17 @@ from pydantic import BaseModel, Field
 
 API_VERSION = "v1"
 DEFAULT_RATE_LIMIT = 60
+REQUIRED_CORS_ORIGINS = {
+    "https://qr.thangdc.com",
+    "https://client.thangdc.com",
+}
 
 
 def _cors_origins() -> list[str]:
-    value = os.getenv("CORS_ORIGINS", "https://qr.thangdc.com,https://client.thangdc.com")
-    return [item.strip() for item in value.split(",") if item.strip()]
+    configured = os.getenv("CORS_ORIGINS", "")
+    origins = {item.strip() for item in configured.split(",") if item.strip()}
+    origins.update(REQUIRED_CORS_ORIGINS)
+    return sorted(origins)
 
 
 app = FastAPI(
@@ -118,7 +124,6 @@ async def _record_api_request(
             duration_ms,
         )
     except Exception as exc:
-        # Telemetry must never change the public API response.
         print(f"API request telemetry failed: {exc}", flush=True)
 
 
@@ -375,9 +380,6 @@ async def execute_action(
     if not _action_allowed(result["actions"], request.action):
         raise HTTPException(status_code=400, detail="Scan action is not available.")
 
-    # Phase 3 deliberately exposes only the existing core "view" action.
-    # Mutating workflow actions stay inside the workflow engine until their
-    # contracts are promoted to the public API.
     if request.action.type != "view":
         raise HTTPException(status_code=400, detail="Unsupported public action.")
 
