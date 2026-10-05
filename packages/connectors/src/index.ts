@@ -52,3 +52,8 @@ export type {
   TabularRow,
   TabularConnectorOptions,
 } from "./tabular.ts";
+
+export {
+  createXlsxParser,
+  XlsxParser,
+} from "./xlsx.ts";

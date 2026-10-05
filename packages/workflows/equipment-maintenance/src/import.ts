@@ -9,6 +9,10 @@ import {
   EquipmentMaintenanceValidator,
   equipmentMaintenanceWorkflow,
 } from "./index.ts";
+import {
+  createExcelDataSource,
+  createXlsxParser,
+} from "../../../connectors/src/index.ts";
 
 export function importEquipmentMaintenance(
   source: WorkflowImportSource,
@@ -21,4 +25,10 @@ export function importEquipmentMaintenance(
     new EquipmentMaintenanceValidator(),
     createEquipmentMaintenanceRecord,
   );
+}
+
+export function createEquipmentMaintenanceXlsxSource(
+  input: Uint8Array,
+): WorkflowImportSource {
+  return createExcelDataSource(input, createXlsxParser());
 }
