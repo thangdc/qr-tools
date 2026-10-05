@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Tools SDK Consumer Example</title>
+  </head>
+  <body>
+    <main>
+      <h1>QR Tools SDK Consumer Example</h1>
+      <p>Install the published SDK, configure a public API endpoint, and test the scan contract.</p>
+      <label>API base URL <input id="base-url" value="http://localhost:3001" /></label>
+      <label>API key <input id="api-key" type="password" placeholder="Client-scoped API key" /></label>
+      <label>QR payload <textarea id="payload">qrtools:v1:example</textarea></label>
+      <button id="scan">Scan QR</button>
+      <pre id="output">Ready.</pre>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>
