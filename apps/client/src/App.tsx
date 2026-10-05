@@ -67,7 +67,36 @@ function ApiTestPage(){
  return <div><div className="page-head"><div><div className="eyebrow">Developer</div><h1>API Test</h1><p className="muted">Test the public QR Tools API without leaving the Developer Portal.</p></div><button className="secondary" onClick={copyCurl} disabled={!apiKey.trim()||!payload.trim()}>Copy cURL</button></div><section className="api-test-card"><label>API key<input type="password" value={apiKey} onChange={e=>setApiKey(e.target.value)} placeholder="Paste your API key" autoComplete="off"/></label><label>QR payload<textarea value={payload} onChange={e=>setPayload(e.target.value)} placeholder="qrtools:..." rows={7}/></label><button className="primary" onClick={send} disabled={busy||!apiKey.trim()||!payload.trim()}>{busy?'Sending…':'Send request'}</button></section>{error&&<div className="error banner">{error}</div>}{result&&<section className="api-test-result"><div className="api-result-metrics"><div><span>Status</span><strong className={result.status>=400?'result-error':'result-success'}>{result.status}</strong></div><div><span>Response time</span><strong>{result.duration} ms</strong></div><div><span>Rate limit</span><strong>{result.remaining} / {result.limit}</strong></div>{result.retryAfter&&<div><span>Retry after</span><strong>{result.retryAfter}s</strong></div>}</div><pre>{result.body}</pre></section>}</div>;
 }
 
-function DocumentationPage(){\n const [copied,setCopied]=useState('');\n const base='https://api.thangdc.com';\n const examples:Record<string,string>={curl:\`curl -X POST \${base}/v1/scan -H \"Authorization: Bearer YOUR_API_KEY\" -H \"Content-Type: application/json\" -d '{\"payload\":\"qrtools:...\"}'\`,javascript:\`const response = await fetch('\${base}/v1/scan', {\n  method: 'POST',\n  headers: { Authorization: 'Bearer YOUR_API_KEY', 'Content-Type': 'application/json' },\n  body: JSON.stringify({ payload: 'qrtools:...' })\n});\nconst data = await response.json();\`,python:\`import requests\n\nresponse = requests.post(\n    \"\${base}/v1/scan\",\n    headers={\"Authorization\": \"Bearer YOUR_API_KEY\"},\n    json={\"payload\": \"qrtools:...\"},\n)\nprint(response.json())\`};\n async function copy(key:string){await navigator.clipboard.writeText(examples[key as keyof typeof examples]);setCopied(key);setTimeout(()=>setCopied(''),1200)}\n return <div><div className="page-head"><div><div className="eyebrow">Developer</div><h1>Documentation</h1><p className="muted">Integrate your system with the QR Tools Public API.</p></div></div><section className="docs-card"><h2>Authentication</h2><p>Send your API key as a Bearer token on every request.</p><pre>Authorization: Bearer YOUR_API_KEY</pre></section><section className="docs-card"><h2>Scan QR</h2><div className="endpoint"><span>POST</span><code>{base}/v1/scan</code></div><p>Resolve a QR Tools payload into its workflow, record and available actions.</p><h3>Request body</h3><pre>{\`{\n  "payload": "qrtools:..."\n}\`}</pre><h3>Response</h3><pre>{\`{\n  "success": true,\n  "identity": { "version": 1, "workflowId": "...", "recordId": "..." },\n  "record": { "workflowId": "...", "workflowVersion": 1 },\n  "action": { "type": "view", "data": { "recordId": "..." } }\n}\`}</pre></section><section className="docs-card"><h2>Code examples</h2>{Object.entries(examples).map(([key,value])=><div className="code-example" key={key}><div className="code-head"><strong>{key[0].toUpperCase()+key.slice(1)}</strong><button className="secondary" onClick={()=>copy(key)}>{copied===key?<><Check size={15}/>Copied</>:<><Copy size={15}/>Copy</>}</button></div><pre>{value}</pre></div>)}</section><section className="docs-card"><h2>Rate limits</h2><p>Each API key has its own requests-per-minute limit. Responses expose these headers:</p><ul><li><code>X-RateLimit-Limit</code> — configured limit</li><li><code>X-RateLimit-Remaining</code> — requests remaining in the current window</li><li><code>Retry-After</code> — seconds to wait after a 429 response</li></ul></section></div>\n}\n
+function DocumentationPage(){
+ const [copied,setCopied]=useState('');
+ const base='https://api.thangdc.com';
+ const examples:Record<string,string>={
+  curl:`curl -X POST ${base}/v1/scan -H "Authorization: Bearer YOUR_API_KEY" -H "Content-Type: application/json" -d '{"payload":"qrtools:..."}'`,
+  javascript:`const response = await fetch('${base}/v1/scan', {
+  method: 'POST',
+  headers: { Authorization: 'Bearer YOUR_API_KEY', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ payload: 'qrtools:...' })
+});
+const data = await response.json();`,
+  python:`import requests
+
+response = requests.post(
+    "${base}/v1/scan",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    json={"payload": "qrtools:..."},
+)
+print(response.json())`
+ };
+ async function copy(key:string){await navigator.clipboard.writeText(examples[key]);setCopied(key);setTimeout(()=>setCopied(''),1200)}
+ return <div><div className="page-head"><div><div className="eyebrow">Developer</div><h1>Documentation</h1><p className="muted">Integrate your system with the QR Tools Public API.</p></div></div><section className="docs-card"><h2>Authentication</h2><p>Send your API key as a Bearer token on every request.</p><pre>Authorization: Bearer YOUR_API_KEY</pre></section><section className="docs-card"><h2>Scan QR</h2><div className="endpoint"><span>POST</span><code>{base}/v1/scan</code></div><p>Resolve a QR Tools payload into its workflow, record and available actions.</p><h3>Request body</h3><pre>{`{
+  "payload": "qrtools:..."
+}`}</pre><h3>Response</h3><pre>{`{
+  "success": true,
+  "identity": { "version": 1, "workflowId": "...", "recordId": "..." },
+  "record": { "workflowId": "...", "workflowVersion": 1 },
+  "action": { "type": "view", "data": { "recordId": "..." } }
+}`}</pre></section><section className="docs-card"><h2>Code examples</h2>{Object.entries(examples).map(([key,value])=><div className="code-example" key={key}><div className="code-head"><strong>{key[0].toUpperCase()+key.slice(1)}</strong><button className="secondary" onClick={()=>copy(key)}>{copied===key?<><Check size={15}/>Copied</>:<><Copy size={15}/>Copy</>}</button></div><pre>{value}</pre></div>)}</section><section className="docs-card"><h2>Rate limits</h2><p>Each API key has its own requests-per-minute limit. Responses expose these headers:</p><ul><li><code>X-RateLimit-Limit</code> — configured limit</li><li><code>X-RateLimit-Remaining</code> — requests remaining in the current window</li><li><code>Retry-After</code> — seconds to wait after a 429 response</li></ul></section></div>;
+}
 function UsagePage({session}:{session:DeveloperSession}){
  const [data,setData]=useState<UsageData|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[range,setRange]=useState<'today'|'last7Days'|'last30Days'>('today');
  async function refresh(){setLoading(true);setError('');try{setData(await getUsage(session))}catch(e){setError(e instanceof Error?e.message:'Unable to load usage')}finally{setLoading(false)}}
