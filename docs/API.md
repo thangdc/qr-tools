@@ -202,4 +202,4 @@ The TypeScript public API contract lives at `apps/api/src/contracts/v1.ts`.
 
 Authentication lives at `apps/api/src/auth/index.ts`. Rate-limit policy lives at `apps/api/src/policy/rate-limit.ts`.
 
-The HTTP implementation, concrete credential store, rate-limit storage/algorithm, and infrastructure adapters remain separate Phase 3 concerns.
+The HTTP boundary is implemented by `apps/api/src/http/index.ts` and the versioned route dispatcher lives at `apps/api/src/http/router.ts`. The concrete credential store, rate-limit storage/algorithm, and infrastructure adapters remain separate concerns.
