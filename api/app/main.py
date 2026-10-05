@@ -11,7 +11,8 @@ from dataclasses import dataclass
 from typing import Any
 
 import asyncpg
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -84,6 +85,8 @@ class RateLimiter:
 
 rate_limiter = RateLimiter()
 
+bearer_scheme = HTTPBearer(auto_error=False)
+
 
 @app.on_event("startup")
 async def startup() -> None:
@@ -114,12 +117,12 @@ def _hash_api_key(raw_key: str) -> str:
 
 
 async def require_api_key(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> ApiKey:
-    if not authorization or not authorization.startswith("Bearer "):
+    if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Missing API key.")
 
-    raw_key = authorization[7:].strip()
+    raw_key = credentials.credentials.strip()
     if not raw_key:
         raise HTTPException(status_code=401, detail="Missing API key.")
 
