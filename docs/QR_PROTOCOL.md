@@ -32,3 +32,14 @@ Signing keys and privileged verification material must remain server-side where 
 ## Future Compatibility
 
 Protocol changes must be versioned and documented. Existing QR codes should remain resolvable for their supported lifetime.
+
+
+## Revocation
+
+QR identity revocation is an application/infrastructure concern, not a QR payload concern.
+
+The Core exposes a revocation boundary through `QrIdentityRevocationStore` and a verifier decorator. A revoked identity is rejected before workflow record resolution.
+
+The revocation store may be backed by Supabase or another persistence provider, while the Core remains provider-independent.
+
+Revocation keys are derived from QR identity version, workflow ID and record ID. Revoking an identity therefore does not require changing or reprinting the QR code.
