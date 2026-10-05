@@ -11,8 +11,9 @@
     "clean": "rm -rf dist",
     "lint": "npm run typecheck",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run pack:sdk && npm run build",
-    "pack:sdk": "npm run pack:check --prefix packages/sdk"
+    "check": "npm run typecheck && npm run pack:sdk && npm run build:sdk-example && npm run build",
+    "pack:sdk": "npm run pack:check --prefix packages/sdk",
+    "build:sdk-example": "npm install --prefix examples/sdk-consumer --no-audit --no-fund && npm run build --prefix examples/sdk-consumer"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
