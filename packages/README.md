@@ -7,6 +7,6 @@ This directory contains framework-independent boundaries for the QR Workflow Pla
 - qr-engine — QR identity/encode/decode/verify boundary
 - data-mapper — validation and field mapping boundary
 - connectors — external input/output adapters
-- sdk — future customer-facing browser/TypeScript SDK boundary
+- sdk — customer-facing browser/TypeScript SDK for the public API
 
-This PR intentionally adds contracts and boundaries only. Existing src/ application code is not migrated yet.
+The SDK is an API client, not a second workflow engine. Business rules remain in the public API and Core packages.
