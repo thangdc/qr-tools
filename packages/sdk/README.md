@@ -4,13 +4,11 @@ Customer-facing TypeScript SDK for the QR Tools public API.
 
 ## Install
 
-The package is intended to be installed from npm:
+The package is published on npm:
 
 ```bash
 npm install @qr-tools/sdk
 ```
-
-The package is currently prepared for publishing but is not published by this repository change.
 
 ## Usage
 
@@ -90,13 +88,13 @@ For the complete integration flow, see:
 
 ## Publishing
 
-Publishing is a separate release operation. This package change does **not** publish to npm.
+The SDK is published as the public npm package `@qr-tools/sdk`.
 
-Before the first release:
+For a new release:
 
-1. Verify the package metadata and package contents.
-2. Verify CI is green.
-3. Confirm the intended version.
+1. Update the package version intentionally.
+2. Run package validation and the repository checks.
+3. Confirm the intended version is not already published.
 4. Authenticate to npm using a secure release environment.
 5. Publish only the SDK package.
 6. Verify the published package can be installed by a clean consumer project.
