@@ -27,11 +27,28 @@ export interface ConnectorRegistry {
   getOutput(type: string): OutputConnector | undefined;
 }
 
-
 export {
   createSupabaseWorkflowPersistence,
   SupabaseWorkflowDefinitionRepository,
   SupabaseWorkflowRecordRepository,
 } from "./supabase-workflow-persistence.ts";
 
-export type { SupabasePersistenceOptions, SupabaseRestClient } from "./supabase-workflow-persistence.ts";
+export type {
+  SupabasePersistenceOptions,
+  SupabaseRestClient,
+} from "./supabase-workflow-persistence.ts";
+
+export {
+  createCsvDataSource,
+  createExcelDataSource,
+  ParsedTabularDataSource,
+} from "./tabular.ts";
+
+export type {
+  CsvParser,
+  ExcelParser,
+  TabularDataSource,
+  TabularParser,
+  TabularRow,
+  TabularConnectorOptions,
+} from "./tabular.ts";
