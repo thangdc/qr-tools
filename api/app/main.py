@@ -173,6 +173,7 @@ def _hash_api_key(raw_key: str) -> str:
 
 
 async def require_api_key(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> ApiKey:
     if credentials is None or credentials.scheme.lower() != "bearer":
@@ -198,6 +199,8 @@ async def require_api_key(
 
     if row is None:
         raise HTTPException(status_code=401, detail="Invalid API key.")
+
+    request.state.api_key_id = str(row["id"])
 
     limit = int(row["rate_limit_per_minute"] or os.getenv("RATE_LIMIT_PER_MINUTE", DEFAULT_RATE_LIMIT))
     allowed, retry_after = await rate_limiter.check(key_hash, limit)
