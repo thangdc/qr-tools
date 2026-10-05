@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import { ArrowLeft, CheckCircle2, FileSpreadsheet, QrCode, Upload } from 'lucide-react';
 import { createExcelDataSource, createXlsxParser } from '../../packages/connectors/src/index.ts';
 import { WorkflowImportService } from '../../packages/workflow-engine/src/index.ts';
-import { DefaultScanRuntime } from '../../packages/workflow-engine/src/scan-runtime.ts';
+import { DefaultScanRuntime } from '../../packages/workflow-engine/src/scan.ts';
 import type { WorkflowPersistence } from '../../packages/workflow-engine/src/persistence.ts';
 import {
   createEquipmentMaintenanceRecord,
@@ -119,8 +119,8 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
     const runtime = new DefaultScanRuntime(
       qrPayloadDecoder,
       { async verify() { return true; } },
-      registry,
       resolver,
+      registry,
     );
 
     try {
