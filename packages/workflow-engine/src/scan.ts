@@ -29,6 +29,13 @@ export interface ScanRuntime {
   scan(payload: string): Promise<ScanResult>;
 }
 
+export interface ScanActionHandler {
+  execute(
+    action: ScanAction,
+    context: { identity: QrIdentity; record: WorkflowRecord },
+  ): Promise<void>;
+}
+
 export interface WorkflowRegistry {
   get(workflowId: WorkflowId, version: number): Promise<WorkflowDefinition | null>;
 }
@@ -72,5 +79,30 @@ export class DefaultScanRuntime implements ScanRuntime {
         ? [{ type: "view", data: { recordId: record.recordId } }]
         : [],
     };
+  }
+
+  async executeAction(
+    result: ScanResult,
+    action: ScanAction,
+    handler: ScanActionHandler,
+  ): Promise<void> {
+    if (!result.record) {
+      throw new Error("Cannot execute action without a resolved workflow record.");
+    }
+
+    const allowedAction = result.actions.some(
+      (candidate) =>
+        candidate.type === action.type &&
+        JSON.stringify(candidate.data ?? {}) === JSON.stringify(action.data ?? {}),
+    );
+
+    if (!allowedAction) {
+      throw new Error("Scan action is not available.");
+    }
+
+    await handler.execute(action, {
+      identity: result.identity,
+      record: result.record,
+    });
   }
 }
