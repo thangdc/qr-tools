@@ -38,6 +38,77 @@ Deno.serve(async (req) => {
   const userId=userData.user.id;
 
   if(req.method==='GET'){
+    const action=new URL(req.url).searchParams.get('action')||'keys';
+
+    if(action==='usage'){
+      const {data:apiKeys,error:keyError}=await adminClient.from('api_keys')
+        .select('id,name,status,rate_limit_per_minute,created_at,last_used_at')
+        .eq('user_id',userId).order('created_at',{ascending:false});
+      if(keyError) return response({error:'usage_keys_failed'},500,origin);
+
+      const keys=apiKeys??[], keyIds=keys.map(key=>key.id), now=new Date();
+      const todayStart=new Date(now); todayStart.setHours(0,0,0,0);
+      const sevenDaysAgo=new Date(now.getTime()-7*24*60*60*1000);
+      const thirtyDaysAgo=new Date(now.getTime()-30*24*60*60*1000);
+      const minuteAgo=new Date(now.getTime()-60*1000);
+
+      type UsageLog={api_key_id:string;endpoint:string;status_code:number;success:boolean;duration_ms:number|null;created_at:string};
+      const logs:UsageLog[]=[];
+      if(keyIds.length){
+        let from=0; const pageSize=1000;
+        while(true){
+          const {data,error}=await adminClient.from('api_request_logs')
+            .select('api_key_id,endpoint,status_code,success,duration_ms,created_at')
+            .in('api_key_id',keyIds).gte('created_at',thirtyDaysAgo.toISOString())
+            .order('created_at',{ascending:false}).range(from,from+pageSize-1);
+          if(error) return response({error:'usage_logs_failed'},500,origin);
+          const page=(data??[]) as UsageLog[];
+          logs.push(...page);
+          if(page.length<pageSize) break;
+          from+=pageSize;
+        }
+      }
+
+      const count=(items:UsageLog[],predicate:(log:UsageLog)=>boolean)=>items.reduce((n,log)=>n+(predicate(log)?1:0),0);
+      const aggregate=(items:UsageLog[])=>({
+        requests:items.length,
+        successful:count(items,log=>log.success),
+        errors4xx:count(items,log=>log.status_code>=400&&log.status_code<500),
+        errors5xx:count(items,log=>log.status_code>=500&&log.status_code<600),
+      });
+
+      const endpointMap=new Map<string,UsageLog[]>(), statusMap=new Map<number,number>();
+      for(const log of logs){
+        const endpointLogs=endpointMap.get(log.endpoint)??[];
+        endpointLogs.push(log); endpointMap.set(log.endpoint,endpointLogs);
+        statusMap.set(log.status_code,(statusMap.get(log.status_code)??0)+1);
+      }
+      const endpointUsage=Array.from(endpointMap.entries())
+        .map(([endpoint,items])=>({endpoint,...aggregate(items)}))
+        .sort((a,b)=>b.requests-a.requests);
+
+      const minuteCounts=new Map<string,number>();
+      for(const log of logs) if(new Date(log.created_at)>=minuteAgo)
+        minuteCounts.set(log.api_key_id,(minuteCounts.get(log.api_key_id)??0)+1);
+
+      const keyUsage=keys.map(key=>{
+        const items=logs.filter(log=>log.api_key_id===key.id);
+        return {id:key.id,name:key.name,status:key.status,requests:items.length,lastUsedAt:key.last_used_at,
+          rateLimitPerMinute:key.rate_limit_per_minute,currentMinuteRequests:minuteCounts.get(key.id)??0};
+      });
+
+      return response({
+        summary:{
+          today:aggregate(logs.filter(log=>new Date(log.created_at)>=todayStart)),
+          last7Days:aggregate(logs.filter(log=>new Date(log.created_at)>=sevenDaysAgo)),
+          last30Days:aggregate(logs),
+        },
+        statusBreakdown:Array.from(statusMap.entries()).sort((a,b)=>a[0]-b[0])
+          .map(([statusCode,requests])=>({statusCode,requests})),
+        endpointUsage,keyUsage,latestRequestAt:logs[0]?.created_at??null,
+      },200,origin);
+    }
+
     const {data,error}=await adminClient.from('api_keys').select('id,name,key_prefix,status,rate_limit_per_minute,expires_at,created_at,last_used_at').eq('user_id',userId).order('created_at',{ascending:false});
     if(error) return response({error:'list_failed'},500,origin);
     return response({keys:(data??[]).map((key)=>({...key,key_masked:maskKey(key.key_prefix)}))},200,origin);
