@@ -67,7 +67,7 @@ class RateLimiter:
         self._events: dict[str, deque[float]] = {}
         self._lock = asyncio.Lock()
 
-    async def check(self, key_hash: str, limit: int) -> tuple[bool, int]:
+    async def check(self, key_hash: str, limit: int) -> tuple[bool, int, int]:
         now = time.monotonic()
         async with self._lock:
             events = self._events.setdefault(key_hash, deque())
@@ -77,10 +77,11 @@ class RateLimiter:
 
             if len(events) >= limit:
                 retry_after = max(1, int(events[0] + 60 - now))
-                return False, retry_after
+                return False, retry_after, 0
 
             events.append(now)
-            return True, 0
+            remaining = max(0, limit - len(events))
+            return True, 0, remaining
 
 
 rate_limiter = RateLimiter()
@@ -135,6 +136,14 @@ async def api_request_telemetry(request: Request, call_next):
 
     duration_ms = max(0, int((time.perf_counter() - started) * 1000))
     await _record_api_request(request, status_code, duration_ms)
+
+    rate_limit_limit = getattr(request.state, "rate_limit_limit", None)
+    if rate_limit_limit is not None:
+        response.headers["X-RateLimit-Limit"] = str(rate_limit_limit)
+        response.headers["X-RateLimit-Remaining"] = str(
+            getattr(request.state, "rate_limit_remaining", 0)
+        )
+
     return response
 
 
@@ -197,13 +206,20 @@ async def require_api_key(
     request.state.api_key_id = str(row["id"])
 
     limit = int(row["rate_limit_per_minute"] or os.getenv("RATE_LIMIT_PER_MINUTE", DEFAULT_RATE_LIMIT))
-    allowed, retry_after = await rate_limiter.check(key_hash, limit)
+    request.state.rate_limit_limit = limit
+    allowed, retry_after, remaining = await rate_limiter.check(key_hash, limit)
     if not allowed:
         raise HTTPException(
             status_code=429,
             detail="Rate limit exceeded.",
-            headers={"Retry-After": str(retry_after)},
+            headers={
+                "Retry-After": str(retry_after),
+                "X-RateLimit-Limit": str(limit),
+                "X-RateLimit-Remaining": "0",
+            },
         )
+
+    request.state.rate_limit_remaining = remaining
 
     await pool.execute(
         "update public.api_keys set last_used_at = now() where id = $1",
