@@ -212,6 +212,7 @@ export default function App() {
 
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance'>(deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
+  const [equipmentScanPayload, setEquipmentScanPayload] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeView === 'history') trackEvent('history_opened');
@@ -756,7 +757,11 @@ export default function App() {
 
         {/* Equipment Maintenance Workflow */}
         {activeView === 'equipment-maintenance' && (
-          <EquipmentMaintenanceWorkflow onBack={() => setActiveView('workflows')} />
+          <EquipmentMaintenanceWorkflow
+            onBack={() => setActiveView('workflows')}
+            initialScanPayload={equipmentScanPayload}
+            onOpenScanner={() => setActiveView('scanner')}
+          />
         )}
 
         {/* Payment Collection Workflow */}
@@ -921,6 +926,10 @@ export default function App() {
           <ScannerView
             onBackToGenerator={() => setActiveView('generator')}
             onLoadIntoGenerator={handleLoadFromScanner}
+            onWorkflowScan={(payload) => {
+              setEquipmentScanPayload(payload);
+              setActiveView('equipment-maintenance');
+            }}
           />
         )}
 
