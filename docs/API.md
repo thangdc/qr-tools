@@ -150,3 +150,56 @@ The current boundary provides `requireScope(principal, scope)` for endpoint-leve
 - Storage, hashing, rotation, revocation, and rate limiting are infrastructure/policy concerns, not part of this contract.
 
 The HTTP middleware and concrete key store will be added separately.
+
+
+## Rate limiting boundary
+
+Every authenticated public API request must pass through a rate-limit policy before privileged Core operations execute.
+
+Rate limiting is provider-independent. The API layer depends only on the `ApiRateLimiter` contract:
+
+```ts
+interface ApiRateLimiter {
+  check(request: {
+    principal: ApiPrincipal;
+    policy: {
+      maxRequests: number;
+      windowSeconds: number;
+    };
+    nowEpochSeconds?: number;
+  }): Promise<{
+    allowed: boolean;
+    limit: number;
+    remaining: number;
+    resetAtEpochSeconds: number;
+  }>;
+}
+```
+
+The default rate-limit identity is the authenticated `principal.keyId`. Raw API keys must never be used as externally visible rate-limit identifiers.
+
+Rate-limit policy is separate from storage and algorithm implementation. Redis, Supabase, in-memory counters, token buckets, fixed windows, and other implementations belong outside the Core and can be selected later.
+
+When a request is rejected by policy, the public API uses the stable error code:
+
+    RATE_LIMIT_EXCEEDED
+
+HTTP response headers such as `Retry-After` and rate-limit metadata are transport concerns and will be mapped by the HTTP implementation later.
+
+Rate limiting must not be implemented inside QR payloads, browser bundles, or workflow/domain code.
+
+## Customer integration goal
+
+The intended integration is deliberately simple:
+
+Customer system → authenticate → rate-limit check → POST /v1/qr/scan → render returned record/actions → POST /v1/qr/actions/execute
+
+This lets customers keep ownership of their UI while QR Tools provides QR resolution and workflow capabilities.
+
+## Source of truth
+
+The TypeScript public API contract lives at `apps/api/src/contracts/v1.ts`.
+
+Authentication lives at `apps/api/src/auth/index.ts`. Rate-limit policy lives at `apps/api/src/policy/rate-limit.ts`.
+
+The HTTP implementation, concrete credential store, rate-limit storage/algorithm, and infrastructure adapters remain separate Phase 3 concerns.
