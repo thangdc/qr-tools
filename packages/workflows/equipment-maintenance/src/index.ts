@@ -87,6 +87,6 @@ export function createEquipmentMaintenanceRecord(
     workflowId: equipmentMaintenanceWorkflow.id,
     workflowVersion: equipmentMaintenanceWorkflow.version,
     recordId: data.assetId,
-    data,
+    data: { ...data },
   };
 }
