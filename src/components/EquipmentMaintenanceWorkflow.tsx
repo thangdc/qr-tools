@@ -194,7 +194,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack }) => {
                       <p className="text-xs font-mono text-neutral-500">{record.recordId}</p>
                       <h3 className="text-sm font-semibold text-neutral-900">{String(data.assetName)}</h3>
                       <p className="text-xs text-neutral-500">{String(data.location)}</p>
-                      {data.maintenanceDate && <p className="text-xs text-neutral-500">Bảo trì: {String(data.maintenanceDate)}</p>}
+                      {typeof data.maintenanceDate === 'string' && <p className="text-xs text-neutral-500">Bảo trì: {data.maintenanceDate}</p>}
                     </div>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-2">
