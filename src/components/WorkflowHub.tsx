@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CalendarCheck, Package, Boxes, Home, WalletCards, Printer } from 'lucide-react';
+import { ArrowRight, CalendarCheck, Package, Boxes, Home, WalletCards, Printer, Wrench } from 'lucide-react';
 
 interface WorkflowHubProps {
   onOpenCheckin: () => void;
@@ -8,6 +8,7 @@ interface WorkflowHubProps {
   onOpenInventory: () => void;
   onOpenRooms: () => void;
   onOpenPayment: () => void;
+  onOpenEquipmentMaintenance: () => void;
 }
 
 const workflows = [
@@ -47,9 +48,15 @@ const workflows = [
     description: 'Tạo QR thanh toán → khách quét → theo dõi và đối soát.',
     status: 'active',
   },
+  {
+    icon: Wrench,
+    title: 'Bảo trì thiết bị',
+    description: 'Excel → lưu thiết bị → tạo QR → quét để tra cứu và ghi nhận bảo trì.',
+    status: 'active',
+  },
 ] as const;
 
-export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory, onOpenRooms, onOpenPayment }) => (
+export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory, onOpenRooms, onOpenPayment, onOpenEquipmentMaintenance }) => (
   <div className="w-full max-w-5xl mx-auto space-y-8">
     <div className="pb-5 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -84,7 +91,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
               {active ? (
                 <button
                   type="button"
-                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : title === 'Quản lý tài sản' ? onOpenAssets : title === 'Kiểm kê hàng hóa' ? onOpenInventory : title === 'Quản lý phòng / căn hộ' ? onOpenRooms : onOpenPayment}
+                  onClick={title === 'Điểm danh / Check-in' ? onOpenCheckin : title === 'Tạo QR hàng loạt & In' ? onOpenBulkPrint : title === 'Quản lý tài sản' ? onOpenAssets : title === 'Kiểm kê hàng hóa' ? onOpenInventory : title === 'Quản lý phòng / căn hộ' ? onOpenRooms : title === 'Thu tiền / Thanh toán' ? onOpenPayment : onOpenEquipmentMaintenance}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neutral-900 text-white text-xs font-semibold hover:bg-black cursor-pointer"
                 >
                   Bắt đầu <ArrowRight className="w-3.5 h-3.5" />
