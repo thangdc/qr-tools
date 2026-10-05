@@ -39,6 +39,28 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_PUBLISHABLE_KEY }}
         run: npm run check
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install API dependencies
+        run: python -m pip install --disable-pip-version-check -r api/requirements.txt
+
+      - name: Validate API source
+        run: |
+          python -m compileall -q api
+          python - <<'PY'
+          import base64
+          import json
+          from api.app.main import decode_qr_identity
+
+          identity = {"version": 1, "workflowId": "equipment-maintenance", "recordId": "EQ-API-001"}
+          raw = base64.urlsafe_b64encode(json.dumps(identity, separators=(",", ":")).encode()).decode().rstrip("=")
+          assert decode_qr_identity("qrtools:" + raw) == identity
+          print("API QR contract check passed")
+          PY
+
       - name: Upload Pages artifact
         if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
