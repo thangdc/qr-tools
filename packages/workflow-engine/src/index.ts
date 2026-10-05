@@ -43,3 +43,15 @@ export interface WorkflowEngine {
 
   execute(context: WorkflowContext): Promise<WorkflowExecutionResult>;
 }
+
+export {
+  WorkflowImportService,
+} from "./import-pipeline.ts";
+
+export type {
+  WorkflowImportMapper,
+  WorkflowImportResult,
+  WorkflowImportServiceOptions,
+  WorkflowImportSource,
+  WorkflowImportValidator,
+} from "./import-pipeline.ts";
