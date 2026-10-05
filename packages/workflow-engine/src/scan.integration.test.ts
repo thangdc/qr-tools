@@ -135,3 +135,17 @@ try {
     throw error;
   }
 }
+
+
+try {
+  await (await import("../../qr-engine/src/index.ts")).qrIdentitySigner.sign({
+    version: 1,
+    workflowId: record.workflowId,
+    recordId: record.recordId,
+  });
+  throw new Error("Infrastructure-owned signing should not be implemented by the core.");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "QR identity signing is infrastructure-owned.") {
+    throw error;
+  }
+}

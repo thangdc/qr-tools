@@ -19,6 +19,10 @@ export interface QrPayloadDecoder {
   decode(payload: string): QrIdentity;
 }
 
+export interface QrIdentitySigner {
+  sign(identity: QrIdentity): Promise<string>;
+}
+
 export interface QrIdentityVerifier {
   verify(identity: QrIdentity): Promise<boolean>;
 }
@@ -131,6 +135,15 @@ export const qrPayloadDecoder: QrPayloadDecoder = {
     assertSupportedProtocolVersion(parsed.version);
 
     return parsed;
+  },
+};
+
+export const qrIdentitySigner: QrIdentitySigner = {
+  async sign(identity) {
+    assertValidIdentity(identity);
+    assertSupportedProtocolVersion(identity.version);
+
+    throw new Error("QR identity signing is infrastructure-owned.");
   },
 };
 
