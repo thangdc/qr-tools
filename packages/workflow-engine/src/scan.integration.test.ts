@@ -121,3 +121,17 @@ try {
     throw error;
   }
 }
+
+
+try {
+  qrIdentityEngine.encode({
+    version: 2,
+    workflowId: record.workflowId,
+    recordId: record.recordId,
+  });
+  throw new Error("Unsupported QR protocol version should be rejected.");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "Unsupported QR protocol version: 2.") {
+    throw error;
+  }
+}
