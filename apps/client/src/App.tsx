@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react';
-import {Activity,BarChart3,Check,Clock3,Copy,KeyRound,LogOut,Plus,RotateCw,ShieldCheck,Trash2,BookOpen} from 'lucide-react';
+import {Activity,BarChart3,Check,Copy,KeyRound,LogOut,Plus,RotateCw,ShieldCheck,Trash2,BookOpen,Code as CodeIcon} from 'lucide-react';
 import type {DeveloperSession} from '../../../src/developer-auth/types';
 import {getStoredSession,login,logout,register} from './auth';
 import {createApiKey,listApiKeys,revokeApiKey,rotateApiKey,type ApiKey} from './apiKeys';
@@ -17,7 +17,7 @@ function AuthScreen({registerMode,setRegisterMode,onAuth}:{registerMode:boolean;
   return <main className="auth-shell"><section className="auth-card"><div className="brand"><div className="brand-mark"><KeyRound/></div><div><strong>QR Tools</strong><span>Developer Portal</span></div></div><h1>{registerMode?'Create developer account':'Sign in'}</h1><p className="muted">Manage API keys and integrate with the QR Tools API.</p><form onSubmit={submit}><label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="email"/></label><label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={6} autoComplete={registerMode?'new-password':'current-password'}/></label>{error&&<div className="error">{error}</div>}{success&&<div className="success">{success}</div>}<button className="primary" disabled={busy}>{busy?'Please wait…':registerMode?'Create account':'Sign in'}</button></form><button className="link" onClick={()=>{setRegisterMode(!registerMode);setError('');setSuccess('')}}>{registerMode?'Already have an account? Sign in':'Need an account? Create one'}</button></section></main>
 }
 
-type Page='keys'|'usage'|'api-test'|'docs';
+type Page='keys'|'usage'|'api-test'|'docs'|'integrations';
 function Dashboard({session,onLogout}:{session:DeveloperSession;onLogout:()=>void}){
   const [page,setPage]=useState<Page>('keys');
   const [keys,setKeys]=useState<ApiKey[]>([]);
@@ -36,7 +36,7 @@ function Dashboard({session,onLogout}:{session:DeveloperSession;onLogout:()=>voi
   async function rotate(id:string){if(!confirm('Rotate this API key? The current key will stop working.'))return;try{const d=await rotateApiKey(session,id);setSecret(d.key.secret);await refreshKeys()}catch(e){setError(e instanceof Error?e.message:'Rotate failed')}}
   async function copy(){await navigator.clipboard.writeText(secret);setCopied(true);setTimeout(()=>setCopied(false),1500)}
 
-  return <div className="app"><header><div className="brand"><div className="brand-mark"><KeyRound/></div><div><strong>QR Tools</strong><span>Developer Portal</span></div></div><div className="account"><span>{session.user.email}</span><button className="icon-button" title="Sign out" onClick={onLogout}><LogOut size={18}/></button></div></header><aside><nav><button className={page==='keys'?'nav-link active':'nav-link'} onClick={()=>setPage('keys')}><KeyRound size={17}/>API Keys</button><button className={page==='usage'?'nav-link active':'nav-link'} onClick={()=>setPage('usage')}><BarChart3 size={17}/>Usage</button><button className={page==='api-test'?'nav-link active':'nav-link'} onClick={()=>setPage('api-test')}><Activity size={17}/>API Test</button><button className={page==='docs'?'nav-link active':'nav-link'} onClick={()=>setPage('docs')}><BookOpen size={17}/>Documentation</button></nav></aside><main className="content">{error&&<div className="error banner">{error}</div>}{page==='keys'?<ApiKeysPage keys={keys} loading={loading} onCreate={()=>setShowCreate(true)} onRevoke={revoke} onRotate={rotate}/>:page==='usage'?<UsagePage session={session}/>:page==='api-test'?<ApiTestPage/>:<DocumentationPage/>}<p className="security-note"><ShieldCheck size={16}/> API keys are shown in full only once when created or rotated. Store them securely.</p></main>{(showCreate||secret)&&<div className="modal-backdrop"><div className="modal">{secret?<><h2>API key created</h2><p className="muted">Copy this key now. It will not be shown again.</p><div className="secret"><code>{secret}</code><button onClick={copy}>{copied?<Check size={17}/>:<Copy size={17}/>}</button></div><div className="warning">Treat this key like a password. Never commit it to source control.</div><button className="primary full" onClick={()=>setSecret('')}>Done</button></>:<><h2>Create API key</h2><label>Key name<input value={name} onChange={e=>setName(e.target.value)} placeholder="Production integration" autoFocus maxLength={100}/></label><div className="modal-actions"><button className="secondary" onClick={()=>setShowCreate(false)}>Cancel</button><button className="primary" onClick={create} disabled={!name.trim()}>Create key</button></div></>}</div></div>}</div>
+  return <div className="app"><header><div className="brand"><div className="brand-mark"><KeyRound/></div><div><strong>QR Tools</strong><span>Developer Portal</span></div></div><div className="account"><span>{session.user.email}</span><button className="icon-button" title="Sign out" onClick={onLogout}><LogOut size={18}/></button></div></header><aside><nav><button className={page==='keys'?'nav-link active':'nav-link'} onClick={()=>setPage('keys')}><KeyRound size={17}/>API Keys</button><button className={page==='usage'?'nav-link active':'nav-link'} onClick={()=>setPage('usage')}><BarChart3 size={17}/>Usage</button><button className={page==='api-test'?'nav-link active':'nav-link'} onClick={()=>setPage('api-test')}><Activity size={17}/>API Test</button><button className={page==='docs'?'nav-link active':'nav-link'} onClick={()=>setPage('docs')}><BookOpen size={17}/>Documentation</button><button className={page==='integrations'?'nav-link active':'nav-link'} onClick={()=>setPage('integrations')}><CodeIcon size={17}/>Integrations</button></nav></aside><main className="content">{error&&<div className="error banner">{error}</div>}{page==='keys'?<ApiKeysPage keys={keys} loading={loading} onCreate={()=>setShowCreate(true)} onRevoke={revoke} onRotate={rotate}/>:page==='usage'?<UsagePage session={session}/>:page==='api-test'?<ApiTestPage/>:page==='docs'?<DocumentationPage/>:<IntegrationsPage/>}<p className="security-note"><ShieldCheck size={16}/> API keys are shown in full only once when created or rotated. Store them securely.</p></main>{(showCreate||secret)&&<div className="modal-backdrop"><div className="modal">{secret?<><h2>API key created</h2><p className="muted">Copy this key now. It will not be shown again.</p><div className="secret"><code>{secret}</code><button onClick={copy}>{copied?<Check size={17}/>:<Copy size={17}/>}</button></div><div className="warning">Treat this key like a password. Never commit it to source control.</div><button className="primary full" onClick={()=>setSecret('')}>Done</button></>:<><h2>Create API key</h2><label>Key name<input value={name} onChange={e=>setName(e.target.value)} placeholder="Production integration" autoFocus maxLength={100}/></label><div className="modal-actions"><button className="secondary" onClick={()=>setShowCreate(false)}>Cancel</button><button className="primary" onClick={create} disabled={!name.trim()}>Create key</button></div></>}</div></div>}</div>
 }
 
 function ApiKeysPage({keys,loading,onCreate,onRevoke,onRotate}:{keys:ApiKey[];loading:boolean;onCreate:()=>void;onRevoke:(id:string)=>void;onRotate:(id:string)=>void}){
@@ -65,6 +65,45 @@ function ApiTestPage(){
   await navigator.clipboard.writeText(command);
  }
  return <div><div className="page-head"><div><div className="eyebrow">Developer</div><h1>API Test</h1><p className="muted">Test the public QR Tools API without leaving the Developer Portal.</p></div><button className="secondary" onClick={copyCurl} disabled={!apiKey.trim()||!payload.trim()}>Copy cURL</button></div><section className="api-test-card"><label>API key<input type="password" value={apiKey} onChange={e=>setApiKey(e.target.value)} placeholder="Paste your API key" autoComplete="off"/></label><label>QR payload<textarea value={payload} onChange={e=>setPayload(e.target.value)} placeholder="qrtools:..." rows={7}/></label><button className="primary" onClick={send} disabled={busy||!apiKey.trim()||!payload.trim()}>{busy?'Sending…':'Send request'}</button></section>{error&&<div className="error banner">{error}</div>}{result&&<section className="api-test-result"><div className="api-result-metrics"><div><span>Status</span><strong className={result.status>=400?'result-error':'result-success'}>{result.status}</strong></div><div><span>Response time</span><strong>{result.duration} ms</strong></div><div><span>Rate limit</span><strong>{result.remaining} / {result.limit}</strong></div>{result.retryAfter&&<div><span>Retry after</span><strong>{result.retryAfter}s</strong></div>}</div><pre>{result.body}</pre></section>}</div>;
+}
+
+function IntegrationsPage(){
+ const [workflow,setWorkflow]=useState('equipment-maintenance');
+ const [action,setAction]=useState('view');
+ const [recordId,setRecordId]=useState('EQ-API-001');
+ const [type,setType]=useState<'javascript'|'html'|'curl'>('javascript');
+ const [copied,setCopied]=useState(false);
+ const snippets={
+  javascript:`const QR_API_KEY = 'YOUR_API_KEY';
+const response = await fetch('https://api.thangdc.com/v1/scan', {
+  method: 'POST',
+  headers: {
+    Authorization: \`Bearer \${QR_API_KEY}\`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ payload: 'qrtools:\${workflow}:\${recordId}' })
+});
+const data = await response.json();
+console.log(data);`,
+  html:`<script src="https://api.thangdc.com/sdk/qr-tools.js"></script>
+<div
+  data-qr-tools="\${workflow}"
+  data-record-id="\${recordId}"
+></div>`,
+  curl:`curl -X POST https://api.thangdc.com/v1/scan \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"payload":"qrtools:\${workflow}:\${recordId}"}'`
+ };
+ async function copy(){await navigator.clipboard.writeText(snippets[type]);setCopied(true);setTimeout(()=>setCopied(false),1200)}
+ return <div><div className="page-head"><div><div className="eyebrow">Developer</div><h1>Integrations</h1><p className="muted">Generate ready-to-copy code for your client website or application.</p></div></div>
+ <section className="integration-card"><div className="integration-grid">
+ <label>Workflow<select value={workflow} onChange={e=>setWorkflow(e.target.value)}><option value="equipment-maintenance">Equipment Maintenance</option><option value="attendance">Attendance</option><option value="asset">Asset Management</option></select></label>
+ <label>Action<select value={action} onChange={e=>setAction(e.target.value)}><option value="view">View</option><option value="execute">Execute</option></select></label>
+ <label>Record ID<input value={recordId} onChange={e=>setRecordId(e.target.value)} placeholder="EQ-API-001"/></label>
+ <label>Integration<select value={type} onChange={e=>setType(e.target.value as typeof type)}><option value="javascript">JavaScript API</option><option value="html">HTML Embed</option><option value="curl">cURL</option></select></label>
+ </div><div className="generated-head"><div><h2>Generated code</h2><p className="muted">Replace <code>YOUR_API_KEY</code> with the key created in API Keys.</p></div><button className="secondary" onClick={copy}>{copied?<><Check size={15}/>Copied</>:<><Copy size={15}/>Copy code</>}</button></div><pre className="integration-code">{snippets[type]}</pre></section>
+ <section className="docs-card"><h2>How it works</h2><ol><li>Select the workflow and action your client needs.</li><li>Copy the generated integration code.</li><li>Paste it into the client page or application.</li><li>Keep the API key on a trusted server when the integration requires a secret.</li></ol></section></div>;
 }
 
 function DocumentationPage(){
