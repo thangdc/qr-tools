@@ -1,4 +1,8 @@
-import { qrIdentityEngine } from "../../qr-engine/src/index.ts";
+import {
+  RevocationAwareQrIdentityVerifier,
+  getQrIdentityKey,
+  qrIdentityEngine,
+} from "../../qr-engine/src/index.ts";
 import type { WorkflowDefinition, WorkflowRecord } from "../../types/src/index.ts";
 import { DefaultScanRuntime } from "./scan.ts";
 import { PersistenceWorkflowRegistry, PersistenceWorkflowResolver } from "./supabase-runtime.ts";
@@ -89,4 +93,31 @@ const missing = await runtime.scan(
 
 if (missing.record !== null || missing.actions.length !== 0) {
   throw new Error("Missing record should resolve without actions.");
+}
+
+
+const revokedKeys = new Set([getQrIdentityKey({
+  version: 1,
+  workflowId: record.workflowId,
+  recordId: record.recordId,
+})]);
+
+const revokedRuntime = new DefaultScanRuntime(
+  qrIdentityEngine,
+  new RevocationAwareQrIdentityVerifier(qrIdentityEngine, {
+    async isRevoked(identity) {
+      return revokedKeys.has(getQrIdentityKey(identity));
+    },
+  }),
+  new PersistenceWorkflowResolver(persistence),
+  new PersistenceWorkflowRegistry(persistence),
+);
+
+try {
+  await revokedRuntime.scan(payload);
+  throw new Error("Revoked QR identity should be rejected.");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "QR identity verification failed.") {
+    throw error;
+  }
 }
