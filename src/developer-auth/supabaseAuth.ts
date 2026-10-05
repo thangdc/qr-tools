@@ -5,13 +5,13 @@ import type {
 } from './types';
 
 interface SupabaseAuthResponse {
-  access_token: string;
-  refresh_token: string;
+  access_token?: string;
+  refresh_token?: string;
   expires_in?: number;
   user?: {
     id: string;
     email?: string | null;
-  };
+  } | null;
 }
 
 function getConfig(): AuthConfig {
@@ -32,8 +32,8 @@ function authUrl(config: AuthConfig, path: string): string {
 }
 
 function toSession(response: SupabaseAuthResponse): DeveloperSession {
-  if (!response.user) {
-    throw new Error('Authentication response did not include a user.');
+  if (!response.user || !response.access_token || !response.refresh_token) {
+    throw new Error('Authentication response did not include a complete session.');
   }
 
   const user: DeveloperUser = {
@@ -92,11 +92,23 @@ export function signIn(
   return request('token?grant_type=password', {email, password}).then(toSession);
 }
 
-export function signUp(
+export async function signUp(
   email: string,
   password: string,
-): Promise<DeveloperSession> {
-  return request('signup', {email, password}).then(toSession);
+): Promise<DeveloperSession | null> {
+  const response = await request('signup', {
+    email,
+    password,
+    options: {
+      email_redirect_to: window.location.origin,
+    },
+  });
+
+  if (!response.access_token || !response.refresh_token) {
+    return null;
+  }
+
+  return toSession(response);
 }
 
 export function refreshSession(
