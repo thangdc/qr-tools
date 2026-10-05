@@ -1,59 +1,114 @@
-# Client Widget
+# Client Workflow Widget
 
-QR Tools provides a copy-paste browser widget for customers who want to embed a workflow UI without writing API integration code.
+The Client Widget is a **ready-to-use, dynamic workflow UI**, not a thin API renderer.
+
+It is designed so a customer can embed a QR Tools workflow into an existing website with one script and configuration. The widget owns the presentation and interaction flow while the QR Tools API remains responsible for business rules and authorization.
+
+See [DYNAMIC_CLIENT_WORKFLOW_WIDGET.md](./DYNAMIC_CLIENT_WORKFLOW_WIDGET.md) for the full contract.
 
 ## Quick start
 
 ```html
-<div data-qr-tools data-payload="qrtools:YOUR_QR_PAYLOAD"></div>
+<div id="qr-workflow"></div>
 
 <script
   src="https://client.thangdc.com/widget/v1/qr-tools-widget.js"
-  data-api-key="YOUR_CLIENT_SAFE_API_KEY"
-  data-base-url="https://api.thangdc.com"
+  data-api-key="CLIENT_KEY"
+  data-workflow="equipment-maintenance"
+  data-container="#qr-workflow"
   defer
 ></script>
 ```
 
-The script automatically finds `[data-qr-tools]` elements, calls `POST /v1/scan`, renders the record, and shows the allowed actions. Action buttons call `POST /v1/actions/execute`.
+The intended default experience is a step-based workflow:
 
-## Configuration
+```
+Chọn dữ liệu
+    ↓
+Tạo QR
+    ↓
+Preview
+    ↓
+Download / Print
+    ↓
+Quét QR
+    ↓
+Kết quả
+    ↓
+Action
+```
 
-Script-level configuration:
+The actual steps are dynamic and come from the workflow definition.
 
-- `data-api-key`: required client-safe/scoped key.
-- `data-base-url`: optional; defaults to `https://api.thangdc.com`.
-- `data-selector`: optional; defaults to `[data-qr-tools]`.
-- `data-theme`: `light`, `dark`, or `auto`.
-- `data-show-actions`: `false` hides action buttons.
-- `data-auto-init="false"`: disables automatic initialization.
+## Dynamic inputs
 
-Element-level configuration can override `data-api-key`, `data-base-url`, `data-payload`, `data-workflow-id`, `data-theme`, and `data-show-actions`.
+Workflows can expose different input sources, including:
+
+- manual form
+- single/multiple records
+- CSV/XLSX
+- JSON
+- REST/API
+- customer-provided data
+- QR scan
+- previous-step output
+
+The widget renders the appropriate selector or input UI automatically.
+
+## Dynamic outputs
+
+Workflows can expose:
+
+- PNG
+- SVG
+- print/printable layout
+- JSON
+- resolved record
+- action result
+- redirect
+- webhook/API response
+- downloadable data
 
 ## JavaScript API
 
 ```js
-QrToolsWidget.init({
-  apiKey: "YOUR_CLIENT_SAFE_API_KEY",
-  baseUrl: "https://api.thangdc.com",
-});
-
-await QrToolsWidget.scan(payload, {
-  apiKey: "YOUR_CLIENT_SAFE_API_KEY",
-  baseUrl: "https://api.thangdc.com",
+QrToolsWidget.mount("#qr-workflow", {
+  workflow: "equipment-maintenance",
+  apiKey: "CLIENT_KEY",
+  initialData: [...]
 });
 ```
 
-## Security boundary
+Optional lifecycle callbacks include `onStepChange`, `onInput`, `onOutput`, `onScan`, `onAction`, `onComplete`, and `onError`.
 
-Browser embeds must use a client-safe API key whose scope and server policy allow browser use. Never expose a privileged server key in HTML, JavaScript, or a public repository.
+## Security
 
-The widget is intentionally thin: workflow rules and action authorization stay on `api.thangdc.com`; the widget only consumes the public contract and renders it.
+Use only a client-safe/scoped API key in browser embeds. Never expose privileged server credentials.
 
-## Hosting
+Workflow validation, record authorization, action authorization and mutations remain server-side.
 
-The widget package builds an IIFE bundle named `qr-tools-widget.js`. The planned public distribution URL is:
+## Implementation direction
 
-`https://client.thangdc.com/widget/v1/qr-tools-widget.js`
+Existing QR Tools QR engine and UI primitives should be reused where practical:
 
-Deployment of that static asset is separate from the public API and should not require exposing server credentials.
+- QR rendering
+- QR preview
+- QR scanner
+- workflow-specific importers
+- print/export primitives
+
+The long-term design is:
+
+```
+Workflow Definition
+       ↓
+Client Workflow Renderer
+       ↓
+Step-specific UI primitives
+       ↓
+QR Tools Public API
+       ↓
+Workflow Runtime / Connectors
+```
+
+The current `/v1/scan` and `/v1/actions/execute` contracts remain the scan/result foundation. Dynamic data selection requires additional scoped public workflow runtime contracts.
