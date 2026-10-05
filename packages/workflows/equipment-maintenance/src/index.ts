@@ -66,7 +66,8 @@ export class EquipmentMaintenanceValidator implements WorkflowValidator {
   }
 }
 
-export class EquipmentMaintenanceMapper implements WorkflowMapper {
+export class EquipmentMaintenanceMapper
+  implements WorkflowMapper<EquipmentMaintenanceData> {
   map(source: Record<string, unknown>): EquipmentMaintenanceData {
     return {
       assetId: source["Asset ID"] as string,
