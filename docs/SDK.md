@@ -81,7 +81,7 @@ Clients should branch on the stable `code`, not the human-readable message.
 
 ## Contract boundary
 
-The SDK contains only serialized public API DTO shapes and HTTP client behavior. It does not import Core implementation modules.
+The SDK contains only serialized public API DTO shapes and HTTP client behavior. It does not import Core implementation modules. See the [reference integration example](./SDK_EXAMPLE.md) for the complete scan → render → execute flow.
 
 The public API contract remains the source of truth:
 
