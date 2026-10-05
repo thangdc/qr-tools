@@ -9,11 +9,11 @@ export interface WorkflowValidator {
   validate(record: WorkflowRecord, definition: WorkflowDefinition): ValidationResult;
 }
 
-export interface WorkflowMapper {
+export interface WorkflowMapper<TOutput = Record<string, unknown>> {
   map(
     source: Record<string, unknown>,
     definition: WorkflowDefinition,
-  ): Record<string, unknown>;
+  ): TOutput;
 }
 
 export interface WorkflowExecutor {
