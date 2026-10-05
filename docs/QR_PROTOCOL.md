@@ -12,7 +12,7 @@ Example conceptual form:
 
 QT:<version>:<workflow>:<record>:<signature>
 
-The exact wire format is not finalized by this document.
+The protocol is currently at version 1. Version 1 uses the `qrtools:` prefix and a base64url-encoded identity envelope. The Core accepts only supported protocol versions so future versions can be introduced without silently changing the meaning of existing QR codes.
 
 ## Requirements
 
@@ -21,13 +21,14 @@ The exact wire format is not finalized by this document.
 - Tamper-evident
 - Verifiable server-side
 - Supports revocation
+- Rejects unsupported protocol versions
 - Supports workflow/record resolution
 - Does not expose secrets
 - Does not require reprinting when backend record data changes
 
 ## Security
 
-Signing keys and privileged verification material must remain server-side where feasible. Do not place private keys in SDK/browser bundles.
+Signing keys and privileged verification material must remain server-side where feasible. Do not place private keys in SDK/browser bundles. The current Core version boundary does not itself provide cryptographic signing; signing remains an infrastructure-owned concern.
 
 ## Future Compatibility
 
