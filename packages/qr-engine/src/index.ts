@@ -1,7 +1,8 @@
 import type { RecordId, WorkflowId } from "../../types/src/index.ts";
 
-const QR_IDENTITY_PREFIX = "qrtools:";
-const QR_IDENTITY_FIELDS = ["version", "workflowId", "recordId"] as const;
+export const QR_IDENTITY_PREFIX = "qrtools:";
+export const QR_PROTOCOL_VERSION = 1;
+export const QR_IDENTITY_FIELDS = ["version", "workflowId", "recordId"] as const;
 
 export interface QrIdentity {
   version: number;
@@ -79,9 +80,16 @@ function assertValidIdentity(identity: unknown): asserts identity is QrIdentity 
   }
 }
 
+function assertSupportedProtocolVersion(version: number): void {
+  if (version !== QR_PROTOCOL_VERSION) {
+    throw new Error(`Unsupported QR protocol version: ${version}.`);
+  }
+}
+
 export const qrPayloadEncoder: QrPayloadEncoder = {
   encode(identity) {
     assertValidIdentity(identity);
+    assertSupportedProtocolVersion(identity.version);
 
     return (
       QR_IDENTITY_PREFIX +
@@ -120,6 +128,7 @@ export const qrPayloadDecoder: QrPayloadDecoder = {
     }
 
     assertValidIdentity(parsed);
+    assertSupportedProtocolVersion(parsed.version);
 
     return parsed;
   },
@@ -136,14 +145,13 @@ export const qrIdentityEngine: QrEngine = {
 
   async verify(identity) {
     assertValidIdentity(identity);
+    assertSupportedProtocolVersion(identity.version);
 
     // Cryptographic verification is intentionally infrastructure-owned.
     // The core engine only validates the identity shape.
     return true;
   },
 };
-
-export { QR_IDENTITY_PREFIX, QR_IDENTITY_FIELDS };
 
 export {
   RevocationAwareQrIdentityVerifier,
