@@ -4,14 +4,18 @@ import type {
   DeveloperUser,
 } from './types';
 
+interface SupabaseAuthUser {
+  id: string;
+  email?: string | null;
+}
+
 interface SupabaseAuthResponse {
   access_token?: string;
   refresh_token?: string;
   expires_in?: number;
-  user?: {
-    id: string;
-    email?: string | null;
-  } | null;
+  user?: SupabaseAuthUser | null;
+  id?: string;
+  email?: string | null;
 }
 
 function getConfig(): AuthConfig {
@@ -31,14 +35,31 @@ function authUrl(config: AuthConfig, path: string): string {
   return config.supabaseUrl.replace(/\/$/, '') + '/auth/v1/' + path;
 }
 
+function getUser(response: SupabaseAuthResponse): SupabaseAuthUser | null {
+  if (response.user?.id) {
+    return response.user;
+  }
+
+  if (response.id) {
+    return {
+      id: response.id,
+      email: response.email ?? null,
+    };
+  }
+
+  return null;
+}
+
 function toSession(response: SupabaseAuthResponse): DeveloperSession {
-  if (!response.user || !response.access_token || !response.refresh_token) {
+  const responseUser = getUser(response);
+
+  if (!responseUser || !response.access_token || !response.refresh_token) {
     throw new Error('Authentication response did not include a complete session.');
   }
 
   const user: DeveloperUser = {
-    id: response.user.id,
-    email: response.user.email ?? null,
+    id: responseUser.id,
+    email: responseUser.email ?? null,
   };
 
   return {
@@ -100,7 +121,7 @@ export async function signUp(
     email,
     password,
     options: {
-      email_redirect_to: window.location.origin,
+      email_redirect_to: 'https://client.thangdc.com',
     },
   });
 
