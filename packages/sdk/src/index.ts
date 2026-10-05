@@ -1,6 +1,20 @@
-import type { QrIdentity } from "../../qr-engine/src/index.ts";
-import type { ScanAction } from "../../workflow-engine/src/scan.ts";
-import type { WorkflowRecord } from "../../types/src/index.ts";
+export interface QrIdentity {
+  version: number;
+  workflowId: string;
+  recordId: string;
+}
+
+export interface ScanAction {
+  type: string;
+  data?: Record<string, unknown>;
+}
+
+export interface WorkflowRecord {
+  workflowId: string;
+  workflowVersion: number;
+  recordId: string;
+  data: Record<string, unknown>;
+}
 
 export interface QrToolsClientOptions {
   /** Public API origin, for example https://api.example.com. */
