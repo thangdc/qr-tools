@@ -12,7 +12,7 @@ import type {
   ScanActionHandler,
   ScanResult,
   ScanRuntime,
-} from "../../../packages/workflow-engine/src/scan.ts";
+} from "../../../../packages/workflow-engine/src/scan.ts";
 
 export const API_SCOPE_QR_SCAN = "qr:scan" as const;
 export const API_SCOPE_QR_ACTION_EXECUTE = "qr:action:execute" as const;
