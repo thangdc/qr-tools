@@ -149,3 +149,29 @@ try {
     throw error;
   }
 }
+
+
+let executedAction = false;
+await runtime.executeAction(result, result.actions[0], {
+  async execute(action, context) {
+    if (action.type !== "view" || context.record.recordId !== record.recordId) {
+      throw new Error("Unexpected scan action context.");
+    }
+    executedAction = true;
+  },
+});
+
+if (!executedAction) {
+  throw new Error("Expected scan action to execute.");
+}
+
+try {
+  await runtime.executeAction(result, { type: "delete" }, {
+    async execute() {},
+  });
+  throw new Error("Unavailable scan action should be rejected.");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "Scan action is not available.") {
+    throw error;
+  }
+}
