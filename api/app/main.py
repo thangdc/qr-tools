@@ -105,15 +105,9 @@ async def _record_api_request(
     try:
         await pool.execute(
             """
-            insert into public.api_request_logs (
-                api_key_id,
-                endpoint,
-                method,
-                status_code,
-                success,
-                duration_ms
+            select public.record_api_request(
+                $1, $2, $3, $4, $5, $6
             )
-            values ($1, $2, $3, $4, $5, $6)
             """,
             api_key_id,
             request.url.path,
@@ -122,9 +116,9 @@ async def _record_api_request(
             200 <= status_code < 400,
             duration_ms,
         )
-    except Exception:
+    except Exception as exc:
         # Telemetry must never change the public API response.
-        return
+        print(f"API request telemetry failed: {exc}", flush=True)
 
 
 @app.middleware("http")
