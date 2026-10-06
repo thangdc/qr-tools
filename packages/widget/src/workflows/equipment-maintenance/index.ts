@@ -2,6 +2,7 @@ import QRCode from "qrcode";
 import jsQR from "jsqr";
 import type { QrToolsWidgetConfig } from "../../widget/WidgetConfig";
 import { renderShell, type WidgetStep } from "../../widget/WidgetShell";
+import { hasCapability, type WorkflowCapabilities } from "../../widget/WorkflowCapabilities";
 
 interface EquipmentRecord {
   assetId: string;
@@ -15,6 +16,16 @@ interface ScanResponse {
   actions?: Array<{ type: string; data?: Record<string, unknown> }>;
   error?: { message?: string };
 }
+
+const capabilities: WorkflowCapabilities = [
+  "qr.generate",
+  "qr.customize",
+  "qr.download",
+  "qr.print",
+  "qr.scan.camera",
+  "qr.scan.upload",
+  "api.scan",
+];
 
 const steps: WidgetStep[] = [
   { id: "data", label: "① Chọn dữ liệu" },
@@ -98,14 +109,14 @@ async function renderQr(element: HTMLElement, config: QrToolsWidgetConfig, recor
   `);
   const canvas = element.querySelector<HTMLCanvasElement>("#qrw-canvas");
   if (canvas) await QRCode.toCanvas(canvas, payload, { width: 240, margin: 2 });
-  element.querySelector<HTMLButtonElement>("[data-download]")?.addEventListener("click", () => {
+  if (hasCapability(capabilities, "qr.download")) element.querySelector<HTMLButtonElement>("[data-download]")?.addEventListener("click", () => {
     if (!canvas) return;
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
     link.download = `${record.assetId}.png`;
     link.click();
   });
-  element.querySelector<HTMLButtonElement>("[data-print]")?.addEventListener("click", () => {
+  if (hasCapability(capabilities, "qr.print")) element.querySelector<HTMLButtonElement>("[data-print]")?.addEventListener("click", () => {
     if (!canvas) return;
     const win = window.open("", "_blank", "noopener,noreferrer");
     if (!win) return;
@@ -113,7 +124,9 @@ async function renderQr(element: HTMLElement, config: QrToolsWidgetConfig, recor
     win.document.close();
   });
   element.querySelector<HTMLButtonElement>("[data-back]")?.addEventListener("click", () => renderInput(element, config, [record]));
-  element.querySelector<HTMLButtonElement>("[data-next]")?.addEventListener("click", () => renderScan(element, config, payload, record));
+  if (hasCapability(capabilities, "qr.scan.camera") || hasCapability(capabilities, "qr.scan.upload")) {
+    element.querySelector<HTMLButtonElement>("[data-next]")?.addEventListener("click", () => renderScan(element, config, payload, record));
+  }
 }
 
 async function renderScan(element: HTMLElement, config: QrToolsWidgetConfig, payload: string, record: EquipmentRecord): Promise<void> {
@@ -145,6 +158,7 @@ async function renderScan(element: HTMLElement, config: QrToolsWidgetConfig, pay
     try {
       stopCamera();
       renderShell(element, config, "Bảo trì thiết bị", "QR Tools · Equipment Maintenance", steps, "scan", '<div class="qrw__result">Đang quét…</div>');
+      if (!hasCapability(capabilities, "api.scan")) throw new Error("Workflow scan API is not enabled.");
       const result = await apiPost(config, "/v1/scan", { payload: value });
       renderResult(element, config, result, value, record);
     } catch (error) {
