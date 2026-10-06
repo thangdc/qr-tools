@@ -127,6 +127,20 @@
   font-weight: 600;
 }
 
+.qr-tools-print-root button {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+.qr-tools-print-root button:hover {
+  box-shadow: none !important;
+  transform: none !important;
+  filter: brightness(0.98) !important;
+}
+
 .qrw-print-control {
   appearance: none !important;
   -webkit-appearance: none !important;
