@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, ArrowRight, Camera, CheckCircle2, Download, FileSpreadsheet, Printer, Upload, XCircle, AlertTriangle } from 'lucide-react';
+import './EquipmentMaintenanceWorkflow.css';
 import { useQRScanner } from '../hooks/useQRScanner';
 import { BatchCardPrintModal, BatchPrintItem } from './BatchCardPrintModal';
 import { ProModal } from './ProModal';
