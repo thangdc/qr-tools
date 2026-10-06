@@ -28,11 +28,10 @@ const capabilities: WorkflowCapabilities = [
 ];
 
 const steps: WidgetStep[] = [
-  { id: "data", label: "① Chọn dữ liệu" },
-  { id: "qr", label: "② Tạo QR" },
-  { id: "print", label: "③ In / Download" },
-  { id: "scan", label: "④ Quét QR" },
-  { id: "result", label: "⑤ Kết quả" },
+  { id: "data", label: "1. Nhập dữ liệu" },
+  { id: "qr", label: "2. Tạo & tùy chỉnh QR" },
+  { id: "scan", label: "3. Quét QR" },
+  { id: "result", label: "4. Kết quả" },
 ];
 
 function escapeHtml(value: unknown): string {
@@ -74,13 +73,17 @@ function readForm(root: HTMLElement): EquipmentRecord {
 
 function renderInput(element: HTMLElement, config: QrToolsWidgetConfig, existing: EquipmentRecord[] = []): void {
   const record = existing[0] || { assetId: "EQ-API-001", assetName: "Máy lạnh phòng 101", location: "Phòng 101" };
-  renderShell(element, config, "Bảo trì thiết bị", "QR Tools · Equipment Maintenance", steps, "data", `
-    <div class="qrw__grid">
-      <label class="qrw__field"><span>Mã thiết bị</span><input name="assetId" value="${escapeHtml(record.assetId)}" placeholder="EQ-001"></label>
-      <label class="qrw__field"><span>Tên thiết bị</span><input name="assetName" value="${escapeHtml(record.assetName)}" placeholder="Máy lạnh tầng 1"></label>
-      <label class="qrw__field qrw__field--full"><span>Vị trí</span><input name="location" value="${escapeHtml(record.location)}" placeholder="Tầng 1"></label>
-    </div>
-    <div class="qrw__toolbar"><button class="qrw__primary" data-generate>Tạo QR</button></div>
+  renderShell(element, config, "Bảo trì thiết bị", "Danh sách → tạo & in QR → quét → ghi nhận bảo trì.", steps, "data", `
+    <section class="qrw__card">
+      <div class="qrw__section-title">1. Thông tin thiết bị</div>
+      <div class="qrw__section-note">Nhập thông tin sẽ được gắn với mã QR của thiết bị.</div>
+      <div class="qrw__grid" style="margin-top:16px">
+        <label class="qrw__field"><span>Mã thiết bị</span><input name="assetId" value="${escapeHtml(record.assetId)}" placeholder="EQ-001"></label>
+        <label class="qrw__field"><span>Tên thiết bị</span><input name="assetName" value="${escapeHtml(record.assetName)}" placeholder="Máy lạnh tầng 1"></label>
+        <label class="qrw__field qrw__field--full"><span>Vị trí</span><input name="location" value="${escapeHtml(record.location)}" placeholder="Tầng 1"></label>
+      </div>
+      <div class="qrw__toolbar"><button class="qrw__primary" data-generate>Tạo QR</button></div>
+    </section>
   `);
   element.querySelector<HTMLButtonElement>("[data-generate]")?.addEventListener("click", () => {
     const next = readForm(element);
@@ -97,18 +100,50 @@ function renderInput(element: HTMLElement, config: QrToolsWidgetConfig, existing
 
 async function renderQr(element: HTMLElement, config: QrToolsWidgetConfig, record: EquipmentRecord): Promise<void> {
   const payload = makePayload(record.assetId);
-  renderShell(element, config, "Bảo trì thiết bị", "QR Tools · Equipment Maintenance", steps, "qr", `
-    <div class="qrw__result"><strong>Thiết bị đã chọn</strong><div>${escapeHtml(record.assetName)} · ${escapeHtml(record.assetId)} · ${escapeHtml(record.location)}</div></div>
-    <div class="qrw__preview"><canvas id="qrw-canvas"></canvas><div class="qrw__muted">${escapeHtml(payload)}</div></div>
-    <div class="qrw__toolbar">
-      <button class="qrw__primary" data-next>Tiếp tục</button>
-      <button data-download>Tải PNG</button>
-      <button data-print>In QR</button>
-      <button data-back>Quay lại</button>
+  renderShell(element, config, "Bảo trì thiết bị", "Tạo mã QR theo đúng workflow, không cần History hay tài khoản.", steps, "qr", `
+    <div class="qrw__columns">
+      <section class="qrw__card">
+        <div class="qrw__section-title">2. Xem trước mã QR</div>
+        <div class="qrw__section-note">${escapeHtml(record.assetName)} · ${escapeHtml(record.assetId)} · ${escapeHtml(record.location)}</div>
+        <div class="qrw__preview" style="margin-top:14px"><canvas id="qrw-canvas"></canvas></div>
+        <div class="qrw__qr-meta">${escapeHtml(payload)}</div>
+      </section>
+      <section class="qrw__card">
+        <div class="qrw__section-title">Tùy chỉnh</div>
+        <div class="qrw__section-note">Các tùy chỉnh cần thiết cho QR của workflow.</div>
+        <div class="qrw__customize" style="margin-top:14px">
+          <label class="qrw__field"><span>Kích thước</span><select data-size><option value="240">Nhỏ</option><option value="360" selected>Vừa</option><option value="512">Lớn</option></select></label>
+          <div class="qrw__color-row">
+            <label class="qrw__field qrw__color"><span>Màu QR</span><input data-fg type="color" value="#171717"></label>
+            <label class="qrw__field qrw__color"><span>Nền</span><input data-bg type="color" value="#ffffff"></label>
+          </div>
+          <label class="qrw__field"><span>Độ sửa lỗi</span><select data-ecc><option value="M" selected>Trung bình</option><option value="Q">Cao</option><option value="H">Rất cao</option></select></label>
+        </div>
+        <div class="qrw__toolbar">
+          <button class="qrw__primary" data-next>Tiếp tục quét</button>
+          <button data-download>Tải PNG</button>
+          <button data-print>In QR</button>
+          <button data-back>Quay lại</button>
+        </div>
+      </section>
     </div>
   `);
   const canvas = element.querySelector<HTMLCanvasElement>("#qrw-canvas");
-  if (canvas) await QRCode.toCanvas(canvas, payload, { width: 240, margin: 2 });
+  const fg = element.querySelector<HTMLInputElement>("[data-fg]");
+  const bg = element.querySelector<HTMLInputElement>("[data-bg]");
+  const size = element.querySelector<HTMLSelectElement>("[data-size]");
+  const ecc = element.querySelector<HTMLSelectElement>("[data-ecc]");
+  const render = async () => {
+    if (!canvas) return;
+    await QRCode.toCanvas(canvas, payload, {
+      width: Number(size?.value || 360),
+      margin: 2,
+      errorCorrectionLevel: (ecc?.value || "M") as "L" | "M" | "Q" | "H",
+      color: { dark: fg?.value || "#171717", light: bg?.value || "#ffffff" },
+    });
+  };
+  await render();
+  [fg, bg, size, ecc].forEach((control) => control?.addEventListener("input", () => void render()));
   if (hasCapability(capabilities, "qr.download")) element.querySelector<HTMLButtonElement>("[data-download]")?.addEventListener("click", () => {
     if (!canvas) return;
     const link = document.createElement("a");
