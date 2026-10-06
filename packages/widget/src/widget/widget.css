@@ -116,3 +116,91 @@
   box-shadow: none !important;
   filter: brightness(0.98);
 }
+
+
+/* The print dialog is portaled to <body>, so it is outside .qr-tools-embedded.
+   Explicitly isolate it from host-page styles and print only the generated sheets. */
+.qr-tools-embedded .qr-tools-step1-layout {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 280px !important;
+  align-items: start !important;
+  isolation: isolate;
+}
+
+.qr-tools-embedded .qr-tools-step1-layout > .qr-tools-process-card {
+  position: static !important;
+  inset: auto !important;
+  float: none !important;
+  transform: none !important;
+  grid-column: auto !important;
+  align-self: start !important;
+}
+
+.qr-tools-embedded-print {
+  font-family: inherit;
+}
+
+.qr-tools-embedded-print button,
+.qr-tools-embedded-print label {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+  border-radius: 0.5rem !important;
+}
+
+.qr-tools-embedded-print button {
+  border: 1px solid #e5e5e5 !important;
+}
+
+.qr-tools-embedded-print button.bg-neutral-900 {
+  background: #171717 !important;
+  border-color: #171717 !important;
+  color: #fff !important;
+}
+
+.qr-tools-embedded-print button.bg-white {
+  background: #fff !important;
+  border-color: #d4d4d4 !important;
+  color: #262626 !important;
+}
+
+.qr-tools-embedded-print button.bg-neutral-100 {
+  background: #f5f5f5 !important;
+  border-color: #e5e5e5 !important;
+  color: #262626 !important;
+}
+
+@media print {
+  body.qr-tools-printing > * {
+    display: none !important;
+  }
+
+  body.qr-tools-printing > .qr-tools-print-root {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  body.qr-tools-printing > .qr-tools-print-root .print\:hidden {
+    display: none !important;
+  }
+
+  body.qr-tools-printing > .qr-tools-print-root .print\:block {
+    display: block !important;
+  }
+
+  body.qr-tools-printing > .qr-tools-print-root .print\:flex {
+    display: flex !important;
+  }
+}
