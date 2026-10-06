@@ -54,6 +54,14 @@
 }
 
 .qrw-workflow--embedded .qrw-process {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: auto !important;
+  transform: none !important;
   width: 100%;
   margin: 1rem 0 0;
   padding: 0.875rem 0 0;
