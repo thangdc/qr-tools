@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react';
+import React,{useEffect,useState} from 'react';
 import {Activity,BarChart3,Check,Copy,KeyRound,LogOut,Plus,RotateCw,ShieldCheck,Trash2,BookOpen,Code as CodeIcon} from 'lucide-react';
 import type {DeveloperSession} from '../../../src/developer-auth/types';
 import {getStoredSession,login,logout,register} from './auth';
@@ -73,7 +73,7 @@ function IntegrationsPage(){
  const [showPreview,setShowPreview]=useState(false);
  const [copied,setCopied]=useState(false);
  const previewRef=React.useRef<HTMLDivElement|null>(null);
- const workflows:Record<string,string>={'equipment-maintenance':'Equipment Maintenance',attendance:'Attendance',asset:'Asset Management'};
+ const workflows:Record<string,string>={'equipment-maintenance':'Equipment Maintenance'};
  const embedCode=`<div id="qr-workflow"></div>\n\n<script\n  src="https://client.thangdc.com/widget/v1/qr-tools-widget.js"\n  data-api-key="YOUR_API_KEY"\n  data-workflow="${workflow}"\n  data-container="#qr-workflow"\n  defer>\n</script>`;
  useEffect(()=>{
   if(!showPreview||!apiKey.trim()||!previewRef.current)return;
