@@ -1,10 +1,10 @@
 import type {DeveloperSession} from '../../../src/developer-auth/types';
-import {authHeader} from './auth';
+import {authHeader,authenticatedFetch} from './auth';
 
 const FUNCTION_URL=`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/developer-api-keys`;
 
 async function request(session:DeveloperSession){
-  const res=await fetch(`${FUNCTION_URL}?action=usage`,{
+  const res=await authenticatedFetch(`${FUNCTION_URL}?action=usage`,{
     headers:{...authHeader(session),'Content-Type':'application/json'},
   });
   const data=await res.json().catch(()=>({}));
