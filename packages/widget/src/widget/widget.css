@@ -3,19 +3,103 @@
 @import "tailwindcss/theme.css";
 @import "tailwindcss/utilities.css";
 
-/* The embedded workflow lives inside the Developer Portal. Keep its layout
-   inside the preview and never let sticky utilities pin content to the host. */
+/* Embedded workflow must stay inside the live integration card. */
 .qr-tools-embedded {
   position: relative;
   width: 100%;
   max-width: 100%;
   overflow: visible;
 }
+
 .qr-tools-embedded .sticky,
 .qr-tools-embedded [class~="sticky"] {
   position: static !important;
 }
+
 .qr-tools-embedded .fixed,
 .qr-tools-embedded [class~="fixed"] {
   position: absolute !important;
+}
+
+/* Keep the Step 1 process helper compact and in normal document flow. */
+.qr-tools-embedded aside {
+  position: static !important;
+  align-self: start;
+  max-height: none;
+}
+
+.qr-tools-embedded aside ol {
+  margin: 0;
+  padding-left: 1.15rem;
+  line-height: 1.55 !important;
+}
+
+.qr-tools-embedded aside li + li {
+  margin-top: 0.2rem;
+}
+
+/* Modern, flat controls for the embedded workflow. Avoid browser/host 3D button styling. */
+.qr-tools-embedded button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-image: none !important;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 100ms ease, opacity 140ms ease;
+}
+
+.qr-tools-embedded button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.qr-tools-embedded button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Neutral secondary buttons: crisp border, no bevel. */
+.qr-tools-embedded button[class*="bg-white"] {
+  border: 1px solid #d4d4d8 !important;
+  background: #fff !important;
+  color: #27272a !important;
+}
+
+.qr-tools-embedded button[class*="bg-white"]:hover:not(:disabled) {
+  background: #fafafa !important;
+  border-color: #a1a1aa !important;
+}
+
+.qr-tools-embedded button[class*="bg-neutral-100"] {
+  border: 1px solid #e4e4e7 !important;
+  background: #f4f4f5 !important;
+  color: #27272a !important;
+}
+
+.qr-tools-embedded button[class*="bg-neutral-100"]:hover:not(:disabled) {
+  background: #e4e4e7 !important;
+  border-color: #d4d4d8 !important;
+}
+
+/* Primary buttons remain dark but lose the heavy/beveled appearance. */
+.qr-tools-embedded button[class*="bg-neutral-900"] {
+  border: 1px solid #18181b !important;
+  background: #18181b !important;
+  color: #fff !important;
+}
+
+.qr-tools-embedded button[class*="bg-neutral-900"]:hover:not(:disabled) {
+  background: #27272a !important;
+  border-color: #27272a !important;
+}
+
+/* Destructive controls keep a clean flat red treatment. */
+.qr-tools-embedded button[class*="bg-red-600"] {
+  border: 1px solid #dc2626 !important;
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+
+.qr-tools-embedded button[class*="bg-red-600"]:hover:not(:disabled) {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
 }
