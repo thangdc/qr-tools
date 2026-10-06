@@ -1,4 +1,4 @@
-import "../../../../../src/index.css";
+import "../../widget/widget.css";
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { LanguageProvider } from "../../../../../src/i18n";
@@ -19,11 +19,8 @@ export const capabilities: WorkflowCapabilities = [
 const roots = new WeakMap<HTMLElement, Root>();
 
 /**
- * Embedded workflow adapter.
- *
- * The standalone QR Tools application owns the canonical Equipment Maintenance
- * workflow UI and behavior. The widget deliberately mounts that same React
- * workflow instead of maintaining a second DOM implementation.
+ * Embedded workflow adapter. Reuses the canonical workflow without importing
+ * the standalone application's global Tailwind preflight.
  */
 export function renderEquipmentMaintenance(
   element: HTMLElement,
@@ -41,7 +38,7 @@ export function renderEquipmentMaintenance(
       null,
       React.createElement(EquipmentMaintenanceWorkflow, {
         onBack: () => undefined,
-        commercialMode: 'embedded',
+        commercialMode: "embedded",
       }),
     ),
   );
