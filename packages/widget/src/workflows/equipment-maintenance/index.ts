@@ -62,7 +62,7 @@ function readForm(root: HTMLElement): EquipmentRecord {
 }
 
 function renderInput(element: HTMLElement, config: QrToolsWidgetConfig, existing: EquipmentRecord[] = []): void {
-  const record = existing[0] || { assetId: "", assetName: "", location: "" };
+  const record = existing[0] || { assetId: "EQ-API-001", assetName: "Máy lạnh phòng 101", location: "Phòng 101" };
   renderShell(element, config, "Bảo trì thiết bị", "QR Tools · Equipment Maintenance", steps, "data", `
     <div class="qrw__grid">
       <label class="qrw__field"><span>Mã thiết bị</span><input name="assetId" value="${escapeHtml(record.assetId)}" placeholder="EQ-001"></label>
@@ -118,11 +118,32 @@ async function renderQr(element: HTMLElement, config: QrToolsWidgetConfig, recor
 
 async function renderScan(element: HTMLElement, config: QrToolsWidgetConfig, payload: string, record: EquipmentRecord): Promise<void> {
   renderShell(element, config, "Bảo trì thiết bị", "QR Tools · Equipment Maintenance", steps, "scan", `
-    <div class="qrw__result"><strong>Sẵn sàng quét</strong><p>Quét mã QR bằng camera hoặc chọn ảnh QR.</p><input type="file" accept="image/*" data-qr-image></div>
-    <div class="qrw__toolbar"><button class="qrw__primary" data-scan-payload>Quét QR vừa tạo</button><button data-back>Quay lại</button></div>
+    <div class="qrw__scan">
+      <video class="qrw__camera" data-camera autoplay muted playsinline></video>
+      <div class="qrw__scan-status" data-scan-status>Camera chưa khởi động.</div>
+    </div>
+    <div class="qrw__toolbar">
+      <button class="qrw__primary" data-camera-start>Bật camera</button>
+      <label class="qrw__file-button">Tải ảnh QR<input type="file" accept="image/*" data-qr-image hidden></label>
+      <button data-scan-payload>Quét QR vừa tạo</button>
+      <button data-back>Quay lại</button>
+    </div>
   `);
+  let stream: MediaStream | null = null;
+  let scanning = false;
+  let animationFrame = 0;
+  const stopCamera = () => {
+    scanning = false;
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    stream?.getTracks().forEach((track) => track.stop());
+    stream = null;
+    const video = element.querySelector<HTMLVideoElement>("[data-camera]");
+    if (video) video.srcObject = null;
+  };
   const scan = async (value: string) => {
     try {
+      stopCamera();
       renderShell(element, config, "Bảo trì thiết bị", "QR Tools · Equipment Maintenance", steps, "scan", '<div class="qrw__result">Đang quét…</div>');
       const result = await apiPost(config, "/v1/scan", { payload: value });
       renderResult(element, config, result, value, record);
@@ -131,24 +152,70 @@ async function renderScan(element: HTMLElement, config: QrToolsWidgetConfig, pay
       element.querySelector<HTMLButtonElement>("[data-back]")?.addEventListener("click", () => renderInput(element, config, [record]));
     }
   };
+  const startCamera = async () => {
+    const video = element.querySelector<HTMLVideoElement>("[data-camera]");
+    const status = element.querySelector<HTMLElement>("[data-scan-status]");
+    if (!video || !navigator.mediaDevices?.getUserMedia) {
+      if (status) status.textContent = "Trình duyệt không hỗ trợ camera.";
+      return;
+    }
+    try {
+      stopCamera();
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+      video.srcObject = stream;
+      await video.play();
+      scanning = true;
+      if (status) status.textContent = "Đưa mã QR vào khung hình…";
+      const tick = () => {
+        if (!scanning) return;
+        if (video.videoWidth && video.videoHeight) {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const result = jsQR(image.data, image.width, image.height, { inversionAttempts: "attemptBoth" });
+            if (result?.data) {
+              stopCamera();
+              void scan(result.data);
+              return;
+            }
+          }
+        }
+        animationFrame = requestAnimationFrame(tick);
+      };
+      animationFrame = requestAnimationFrame(tick);
+    } catch (error) {
+      if (status) status.textContent = error instanceof Error && error.name === "NotAllowedError"
+        ? "Camera bị từ chối. Hãy cấp quyền camera hoặc dùng Tải ảnh QR."
+        : "Không thể mở camera. Hãy thử Tải ảnh QR.";
+    }
+  };
+  element.querySelector<HTMLButtonElement>("[data-camera-start]")?.addEventListener("click", () => void startCamera());
   element.querySelector<HTMLButtonElement>("[data-scan-payload]")?.addEventListener("click", () => void scan(payload));
   element.querySelector<HTMLInputElement>("[data-qr-image]")?.addEventListener("change", async (event) => {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const bitmap = await createImageBitmap(file);
-    const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width; canvas.height = bitmap.height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(bitmap, 0, 0);
-    const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const result = jsQR(image.data, image.width, image.height);
-    if (!result) { alert("Không đọc được mã QR từ ảnh."); return; }
-    await scan(result.data);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = bitmap.width; canvas.height = bitmap.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) throw new Error("Không thể đọc ảnh QR.");
+      ctx.drawImage(bitmap, 0, 0);
+      const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const result = jsQR(image.data, image.width, image.height, { inversionAttempts: "attemptBoth" });
+      if (!result) throw new Error("Không đọc được mã QR từ ảnh.");
+      await scan(result.data);
+    } catch (error) {
+      const status = element.querySelector<HTMLElement>("[data-scan-status]");
+      if (status) status.textContent = error instanceof Error ? error.message : "Không đọc được mã QR.";
+    }
   });
-  element.querySelector<HTMLButtonElement>("[data-back]")?.addEventListener("click", () => renderInput(element, config, [record]));
+  element.querySelector<HTMLButtonElement>("[data-back]")?.addEventListener("click", () => { stopCamera(); renderInput(element, config, [record]); });
 }
-
 function renderResult(element: HTMLElement, config: QrToolsWidgetConfig, result: ScanResponse, payload: string, record: EquipmentRecord): void {
   const values = result.record || {};
   const rows = Object.entries(values).map(([key, value]) =>
