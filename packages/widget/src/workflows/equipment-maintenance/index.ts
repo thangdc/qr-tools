@@ -41,6 +41,7 @@ export function renderEquipmentMaintenance(
       null,
       React.createElement(EquipmentMaintenanceWorkflow, {
         onBack: () => undefined,
+        commercialMode: 'embedded',
       }),
     ),
   );
