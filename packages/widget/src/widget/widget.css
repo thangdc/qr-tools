@@ -1,5 +1,5 @@
-/* Widget Tailwind styles. Source the canonical workflow so its utility classes are emitted. */
-@source "../../../../src";
+/* Widget Tailwind styles. Scan the canonical workflow sources without importing global preflight. */
+@source "../../../../src/**/*.{ts,tsx}";
 @import "tailwindcss/theme.css";
 @import "tailwindcss/utilities.css";
 
