@@ -74,24 +74,51 @@ function IntegrationsPage(){
  const [copied,setCopied]=useState(false);
  const previewRef=React.useRef<HTMLDivElement|null>(null);
  const workflows:Record<string,string>={'equipment-maintenance':'Equipment Maintenance'};
- const embedCode=`<div id="qr-workflow"></div>\n\n<script\n  src="https://client.thangdc.com/widget/v1/qr-tools-widget.js"\n  data-api-key="YOUR_API_KEY"\n  data-workflow="${workflow}"\n  data-container="#qr-workflow"\n  defer>\n</script>`;
+ const embedCode=`<div id="qr-workflow"></div>
+
+<script
+  src="https://client.thangdc.com/widget/v1/qr-tools-widget.js"
+  data-api-key="YOUR_API_KEY"
+  data-workflow="${workflow}"
+  data-container="#qr-workflow"
+  defer>
+</script>`;
  useEffect(()=>{
   if(!showPreview||!apiKey.trim()||!previewRef.current)return;
   let cancelled=false; const container=previewRef.current; container.innerHTML='';
-  const script=document.createElement('script'); script.src='https://client.thangdc.com/widget/v1/qr-tools-widget.js'; script.dataset.apiKey=apiKey.trim(); script.dataset.workflow=workflow; script.dataset.autoInit='false';
+  const script=document.createElement('script');
+  script.src='https://client.thangdc.com/widget/v1/qr-tools-widget.js';
+  script.dataset.apiKey=apiKey.trim();
+  script.dataset.workflow=workflow;
+  script.dataset.autoInit='false';
   script.onload=()=>{if(cancelled)return; const widget=(window as Window & {QrToolsWidget?:{mount:(element:HTMLElement,config?:{apiKey:string;workflowId?:string})=>void}}).QrToolsWidget; if(widget)widget.mount(container,{apiKey:apiKey.trim(),workflowId:workflow});};
-  script.onerror=()=>{container.innerHTML='<div class="error">Unable to load the QR Tools widget.</div>';}; document.head.appendChild(script);
+  script.onerror=()=>{container.innerHTML='<div class="error">Unable to load the QR Tools widget.</div>';};
+  document.head.appendChild(script);
   return()=>{cancelled=true;script.remove();container.innerHTML='';};
  },[showPreview,apiKey,workflow]);
  async function copy(){await navigator.clipboard.writeText(embedCode);setCopied(true);setTimeout(()=>setCopied(false),1200)}
- return <div><div className="page-head"><div><div className="eyebrow">Developer</div><h1>Integrations</h1><p className="muted">Run the real QR Tools workflow here, then copy the embed code for your client.</p></div></div>
- <section className="integration-card"><div className="integration-grid"><label>Workflow<select value={workflow} onChange={e=>{setWorkflow(e.target.value);setShowPreview(false)}}>{Object.entries(workflows).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label><label>API key<input type="password" value={apiKey} onChange={e=>setApiKey(e.target.value)} placeholder="Paste your API key" autoComplete="off"/></label></div>
- <div className="generated-head"><div><h2>Live integration</h2><p className="muted">This is the actual browser widget served from <code>client.thangdc.com</code>. API calls run from this production origin.</p></div><button className="primary" onClick={()=>setShowPreview(true)} disabled={!apiKey.trim()}>Run integration</button></div>
- <div ref={previewRef} className="integration-preview">{!showPreview&&<div className="empty"><CodeIcon size={30}/><h2>Ready to run</h2><p>Enter an API key and click Run integration to load the real workflow.</p></div>}</div></section>
- <section className="integration-card"><div className="generated-head"><div><h2>Embed code</h2><p className="muted">Use the same workflow and replace <code>YOUR_API_KEY</code> with your API key.</p></div><button className="secondary" onClick={copy}>{copied?<><Check size={15}/>Copied</>:<><Copy size={15}/>Copy code</>}</button></div><pre className="integration-code">{embedCode}</pre></section>
- <section className="docs-card"><h2>How it works</h2><ol><li>Select the workflow and enter an API key.</li><li>Click <strong>Run integration</strong> to load the real widget.</li><li>Complete the workflow directly in this page.</li><li>Copy the embed code when you are ready to integrate it into your client website.</li></ol></section></div>;
+ return <div>
+  <div className="page-head"><div><div className="eyebrow">Developer</div><h1>Integrations</h1><p className="muted">Run the real QR Tools workflow here, then copy the embed code for your client.</p></div></div>
+  <div className="integration-stack">
+   <section className="integration-card integration-card--setup">
+    <div className="integration-grid">
+     <label>Workflow<select value={workflow} onChange={e=>{setWorkflow(e.target.value);setShowPreview(false)}}>{Object.entries(workflows).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label>
+     <label>API key<input type="password" value={apiKey} onChange={e=>setApiKey(e.target.value)} placeholder="Paste your API key" autoComplete="off"/></label>
+    </div>
+    <div className="integration-actions"><button className="primary" onClick={()=>setShowPreview(true)} disabled={!apiKey.trim()}>Run integration</button></div>
+   </section>
+   <section className="integration-card integration-card--live">
+    <div className="generated-head"><div><h2>Live Widget</h2><p className="muted">The real browser widget served from <code>client.thangdc.com</code>.</p></div></div>
+    <div ref={previewRef} className="integration-preview">{!showPreview&&<div className="empty"><CodeIcon size={30}/><h2>Ready to run</h2><p>Enter an API key above and click Run integration.</p></div>}</div>
+   </section>
+   <section className="integration-card integration-card--embed">
+    <div className="generated-head"><div><h2>Embed code</h2><p className="muted">Use the same workflow and replace <code>YOUR_API_KEY</code> with your API key.</p></div><button className="secondary" onClick={copy}>{copied?<><Check size={15}/>Copied</>:<><Copy size={15}/>Copy code</>}</button></div>
+    <pre className="integration-code">{embedCode}</pre>
+   </section>
+   <section className="docs-card"><h2>How it works</h2><ol><li>Select the workflow and enter an API key.</li><li>Run the real widget in the Live Widget card.</li><li>Complete Input → Generate QR → Camera/Upload → Scan → Result.</li><li>Copy the embed code when ready.</li></ol></section>
+  </div>
+ </div>;
 }
-
 function DocumentationPage(){
  const [copied,setCopied]=useState('');
  const base='https://api.thangdc.com';
