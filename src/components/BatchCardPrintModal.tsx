@@ -188,6 +188,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
 
           <div className="flex items-center justify-end gap-2 shrink-0">
             <button
+              className="qrw-print-control"
               type="button"
               onClick={handleExportZip}
               disabled={isZipping || isRendering}
@@ -199,19 +200,21 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             </button>
 
             <button
+              className="qrw-print-control"
               type="button"
               onClick={handlePrint}
               disabled={isRendering}
-              className="h-8 px-4 bg-neutral-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-40"
+              className="qrw-print-control h-8 px-4 bg-neutral-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>{tx('In tất cả (', 'In tất cả (')}{items.length})</span>
             </button>
 
             <button
+              className="qrw-print-control"
               type="button"
               onClick={onClose}
-              className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer ml-1"
+              className="qrw-print-control p-1.5 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer ml-1"
             >
               <X className="w-4 h-4" />
             </button>
@@ -227,9 +230,10 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             </span>
             <div className="flex p-0.5 bg-neutral-200/60 rounded-lg">
               <button
+              className="qrw-print-control"
                 type="button"
                 onClick={() => setPrintFormatMode('card')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`qrw-print-control px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
                   printFormatMode === 'card'
                     ? 'bg-white text-neutral-900 shadow-xs font-semibold'
                     : 'text-neutral-600 hover:text-neutral-900'
@@ -240,9 +244,10 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               </button>
 
               <button
+              className="qrw-print-control"
                 type="button"
                 onClick={() => setPrintFormatMode('sticker')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`qrw-print-control px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
                   printFormatMode === 'sticker'
                     ? 'bg-white text-neutral-900 shadow-xs font-semibold'
                     : 'text-neutral-600 hover:text-neutral-900'
@@ -262,10 +267,11 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 <div className="flex gap-1">
                   {[2, 4, 6].map((num) => (
                     <button
+              className="qrw-print-control"
                       key={num}
                       type="button"
                       onClick={() => setCardsPerPage(num as any)}
-                      className={`px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
+                      className={`qrw-print-control px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
                         cardsPerPage === num
                           ? 'bg-neutral-900 text-white font-medium'
                           : 'bg-white border border-neutral-200 text-neutral-700'
@@ -282,10 +288,11 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 <div className="flex gap-1">
                   {[9, 12, 16].map((num) => (
                     <button
+              className="qrw-print-control"
                       key={num}
                       type="button"
                       onClick={() => setStickersPerPage(num as any)}
-                      className={`px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
+                      className={`qrw-print-control px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
                         stickersPerPage === num
                           ? 'bg-neutral-900 text-white font-medium'
                           : 'bg-white border border-neutral-200 text-neutral-700'
