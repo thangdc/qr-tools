@@ -1,10 +1,10 @@
 import type { DeveloperSession } from '../../../src/developer-auth/types';
-import { authHeader } from './auth';
+import { authHeader, authenticatedFetch } from './auth';
 
 const FUNCTION_URL=`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/developer-api-keys`;
 
 async function request(session:DeveloperSession, init?:RequestInit){
-  const res=await fetch(FUNCTION_URL,{...init,headers:{...authHeader(session),'Content-Type':'application/json',...(init?.headers??{})}});
+  const res=await authenticatedFetch(FUNCTION_URL,{...init,headers:{...authHeader(session),'Content-Type':'application/json',...(init?.headers??{})}});
   const data=await res.json().catch(()=>({}));
   if(!res.ok) throw new Error(data.error||`Request failed (${res.status})`);
   return data;
