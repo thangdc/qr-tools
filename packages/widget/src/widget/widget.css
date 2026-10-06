@@ -1,0 +1,3 @@
+/* Widget-scoped Tailwind layers only. Do not import tailwindcss as a whole: its preflight is global and would reset the host page. */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
