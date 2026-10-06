@@ -8,6 +8,9 @@ const root = fileURLToPath(new URL(".", import.meta.url));
 export default defineConfig({
   root,
   plugins: [react(), tailwindcss()],
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
   build: {
     lib: {
       entry: fileURLToPath(new URL("./src/index.ts", import.meta.url)),
