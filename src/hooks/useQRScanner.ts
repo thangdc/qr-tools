@@ -6,14 +6,41 @@ interface UseQRScannerOptions {
   stopAfterDecode?: boolean;
 }
 
+const SCAN_COOLDOWN_MS = 1500;
+
+function playScanBeep() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const context = new AudioContextClass();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, context.currentTime);
+    gain.gain.setValueAtTime(0.08, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.12);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.12);
+    oscillator.addEventListener('ended', () => {
+      void context.close();
+    }, { once: true });
+  } catch {
+    // Audio feedback is optional; scanning must continue if the browser blocks audio.
+  }
+}
+
 export function useQRScanner({ onDecoded, stopAfterDecode = true }: UseQRScannerOptions) {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const scanBusyRef = useRef(false);
-  const lastDecodedRef = useRef<{ raw: string; at: number } | null>(null);
+  const cooldownUntilRef = useRef(0);
   const callbackRef = useRef(onDecoded);
   callbackRef.current = onDecoded;
 
@@ -22,16 +49,18 @@ export function useQRScanner({ onDecoded, stopAfterDecode = true }: UseQRScanner
     streamRef.current = null;
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     animationFrameRef.current = null;
-    scanBusyRef.current = false;
     setIsCameraActive(false);
   }, []);
 
   const requestScan = useCallback(() => {
-    if (scanBusyRef.current) return;
-    scanBusyRef.current = true;
     const video = videoRef.current;
     if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) {
-      scanBusyRef.current = false;
+      animationFrameRef.current = requestAnimationFrame(requestScan);
+      return;
+    }
+
+    const now = Date.now();
+    if (now < cooldownUntilRef.current) {
       animationFrameRef.current = requestAnimationFrame(requestScan);
       return;
     }
@@ -44,29 +73,26 @@ export function useQRScanner({ onDecoded, stopAfterDecode = true }: UseQRScanner
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const raw = scanImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
       if (raw) {
-        const now = Date.now();
-        const last = lastDecodedRef.current;
-        if (!last || last.raw !== raw || now - last.at > 1200) {
-          lastDecodedRef.current = { raw, at: now };
-          callbackRef.current(raw);
-        }
+        cooldownUntilRef.current = Date.now() + SCAN_COOLDOWN_MS;
+        playScanBeep();
+        callbackRef.current(raw);
+
         if (stopAfterDecode) {
           stopCamera();
-          scanBusyRef.current = false;
           return;
         }
-        scanBusyRef.current = false;
+
         animationFrameRef.current = requestAnimationFrame(requestScan);
         return;
       }
     }
 
-    scanBusyRef.current = false;
     animationFrameRef.current = requestAnimationFrame(requestScan);
   }, [stopAfterDecode, stopCamera]);
 
   const startCamera = useCallback(async () => {
     setCameraError(null);
+    cooldownUntilRef.current = 0;
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error('CAMERA_UNAVAILABLE');
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -94,7 +120,10 @@ export function useQRScanner({ onDecoded, stopAfterDecode = true }: UseQRScanner
 
   const scanFile = useCallback(async (file: File) => {
     const raw = await scanImageFile(file);
-    if (raw) callbackRef.current(raw);
+    if (raw) {
+      playScanBeep();
+      callbackRef.current(raw);
+    }
     return raw;
   }, []);
 
