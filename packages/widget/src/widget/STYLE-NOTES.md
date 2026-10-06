@@ -1,1 +1,0 @@
-Widget styles are emitted from widget.css. The canonical workflow source is explicitly included with @source so Tailwind utilities used by the shared workflow are present in the browser bundle.
