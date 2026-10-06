@@ -160,7 +160,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
   };
 
   return (
-    <div className={`qr-tools-print-root ${embedded ? 'qr-tools-embedded-print' : ''} fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto print:static print:block print:bg-white print:p-0 print:overflow-visible">
+    <div className={`qr-tools-print-root ${embedded ? 'qr-tools-embedded-print' : ''} fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto print:static print:block print:bg-white print:p-0 print:overflow-visible`}>
       <div className="bg-white rounded-none sm:rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[95vh] min-h-0 flex flex-col overflow-hidden print:max-w-none print:w-full print:max-h-none print:h-auto print:overflow-visible print:rounded-none print:border-0 print:shadow-none print:block">
         {/* Top Control Bar - Hidden in print */}
         <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white print:hidden">
