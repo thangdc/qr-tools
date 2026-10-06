@@ -1,3 +1,21 @@
-/* Widget-scoped Tailwind layers only. Do not import tailwindcss as a whole: its preflight is global and would reset the host page. */
+/* Widget Tailwind styles. Scan the canonical workflow sources without importing global preflight. */
+@source "../../../../src/**/*.{ts,tsx}";
 @import "tailwindcss/theme.css";
 @import "tailwindcss/utilities.css";
+
+/* The embedded workflow lives inside the Developer Portal. Keep its layout
+   inside the preview and never let sticky utilities pin content to the host. */
+.qr-tools-embedded {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+.qr-tools-embedded .sticky,
+.qr-tools-embedded [class~="sticky"] {
+  position: static !important;
+}
+.qr-tools-embedded .fixed,
+.qr-tools-embedded [class~="fixed"] {
+  position: absolute !important;
+}

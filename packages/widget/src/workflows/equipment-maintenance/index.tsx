@@ -18,10 +18,6 @@ export const capabilities: WorkflowCapabilities = [
 
 const roots = new WeakMap<HTMLElement, Root>();
 
-/**
- * Embedded workflow adapter. Reuses the canonical workflow without importing
- * the standalone application's global Tailwind preflight.
- */
 export function renderEquipmentMaintenance(
   element: HTMLElement,
   _config: QrToolsWidgetConfig,
@@ -33,13 +29,13 @@ export function renderEquipmentMaintenance(
   }
 
   root.render(
-    React.createElement(
-      LanguageProvider,
-      null,
-      React.createElement(EquipmentMaintenanceWorkflow, {
-        onBack: () => undefined,
-        commercialMode: "embedded",
-      }),
-    ),
+    <div className="qr-tools-embedded">
+      <LanguageProvider>
+        <EquipmentMaintenanceWorkflow
+          onBack={() => undefined}
+          commercialMode="embedded"
+        />
+      </LanguageProvider>
+    </div>,
   );
 }
