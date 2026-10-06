@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import {Activity,BarChart3,Check,Copy,KeyRound,LogOut,Plus,RotateCw,ShieldCheck,Trash2,BookOpen,Code as CodeIcon} from 'lucide-react';
 import type {DeveloperSession} from '../../../src/developer-auth/types';
-import {getStoredSession,login,logout,register} from './auth';
+import {AUTH_EXPIRED_EVENT,getStoredSession,login,logout,register,scheduleSessionRefresh} from './auth';
 import {createApiKey,listApiKeys,revokeApiKey,rotateApiKey,type ApiKey} from './apiKeys';
 import {getUsage,type UsageData} from './apiUsage';
 
@@ -14,6 +14,13 @@ function readPage():Page{const value=readState(STATE_KEYS.page,'keys');return ['
 function App(){
   const [session,setSession]=useState<DeveloperSession|null>(getStoredSession());
   const [registerMode,setRegisterMode]=useState(false);
+  useEffect(()=>{
+    if(!session) return;
+    const handleExpired=()=>{logout();setSession(null);};
+    window.addEventListener(AUTH_EXPIRED_EVENT,handleExpired);
+    const cancelRefresh=scheduleSessionRefresh(session,setSession,handleExpired);
+    return()=>{window.removeEventListener(AUTH_EXPIRED_EVENT,handleExpired);cancelRefresh();};
+  },[session]);
   if(!session) return <AuthScreen registerMode={registerMode} setRegisterMode={setRegisterMode} onAuth={setSession}/>;
   return <Dashboard session={session} onLogout={()=>{logout();setSession(null)}}/>;
 }
