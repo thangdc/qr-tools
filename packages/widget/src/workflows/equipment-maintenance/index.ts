@@ -1,3 +1,4 @@
+import "../../../../../../src/index.css";
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { LanguageProvider } from "../../../../../src/i18n";
