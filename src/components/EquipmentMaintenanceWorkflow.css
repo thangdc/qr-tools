@@ -154,3 +154,61 @@
   transform: none !important;
   filter: brightness(0.98) !important;
 }
+
+
+/* Embedded host reset: prevent host-site button styles from leaking into workflow controls. */
+.qrw-workflow--embedded button.qrw-button,
+.qrw-workflow--embedded button.qrw-step-tab,
+.qrw-workflow--embedded button.qrw-print-control {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+  background-image: none !important;
+}
+.qrw-workflow--embedded button.qrw-print-control:hover,
+.qrw-workflow--embedded button.qrw-button:hover,
+.qrw-workflow--embedded button.qrw-step-tab:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.qr-tools-embedded-print button.qrw-print-control,
+.qr-tools-embedded-print button.qrw-print-format-control,
+.qr-tools-embedded-print button.qrw-density-control {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+  background-image: none !important;
+}
+.qr-tools-embedded-print button.qrw-print-control:hover,
+.qr-tools-embedded-print button.qrw-print-format-control:hover,
+.qr-tools-embedded-print button.qrw-density-control:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.qrw-print-header-copy { min-width: 0; }
+.qrw-print-header-copy h2 { margin: 0; line-height: 1.25; }
+.qrw-print-header-copy p { margin-top: 0.25rem; }
+.qrw-print-header-actions { flex-wrap: wrap; }
+@media (min-width: 640px) {
+  .qr-tools-embedded-print .qrw-print-header-actions { flex-shrink: 0; }
+}
+
+/* Prevent host-page table rules (especially min-width: 800px) from forcing horizontal scrollbars. */
+.qrw-workflow--embedded table {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.qrw-workflow--embedded .overflow-x-auto {
+  min-width: 0;
+  max-width: 100%;
+}
