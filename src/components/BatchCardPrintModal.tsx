@@ -163,8 +163,8 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
     <div className={`qr-tools-print-root ${embedded ? 'qr-tools-embedded-print' : ''} fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto print:static print:block print:bg-white print:p-0 print:overflow-visible`}>
       <div className="bg-white rounded-none sm:rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[95vh] min-h-0 flex flex-col overflow-hidden print:max-w-none print:w-full print:max-h-none print:h-auto print:overflow-visible print:rounded-none print:border-0 print:shadow-none print:block">
         {/* Top Control Bar - Hidden in print */}
-        <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white print:hidden">
-          <div className="flex items-start gap-2 min-w-0 flex-1">
+        <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-start gap-2 bg-white print:hidden">
+          <div className="qrw-print-header-copy flex items-start gap-2 min-w-0">
             <span className="p-1.5 rounded-lg bg-neutral-900 text-white shrink-0">
               <Printer className="w-4 h-4" />
             </span>
@@ -180,13 +180,13 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-neutral-500 leading-4">
                 {tx('Tải xuống nhiều QR hoặc in theo mẫu.', 'Download multiple QR codes or print them with a template.')}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 shrink-0">
+          <div className="qrw-print-header-actions flex items-center justify-end gap-1.5 shrink-0 sm:ml-3">
             <button
               type="button"
               onClick={handleExportZip}
@@ -231,7 +231,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                 onClick={() => setPrintFormatMode('card')}
                 className={`qrw-print-format-control px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
                   printFormatMode === 'card'
-                    ? 'bg-white text-neutral-900 shadow-xs font-semibold'
+                    ? 'bg-white text-neutral-900 font-semibold'
                     : 'text-neutral-600 hover:text-neutral-900'
                 }`}
               >
@@ -242,7 +242,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               <button
                 type="button"
                 onClick={() => setPrintFormatMode('sticker')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`qrw-print-format-control px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
                   printFormatMode === 'sticker'
                     ? 'bg-white text-neutral-900 shadow-xs font-semibold'
                     : 'text-neutral-600 hover:text-neutral-900'

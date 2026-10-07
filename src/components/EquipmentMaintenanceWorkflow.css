@@ -89,13 +89,13 @@
 .qr-tools-embedded-print button.qrw-print-format-control:hover,
 .qr-tools-embedded-print button.qrw-density-control:hover { box-shadow: none !important; transform: none !important; }
 
-/* Some host themes add decorative 3D layers with button pseudo-elements. */
-.qr-tools-embedded-print button.qrw-print-control::before,
-.qr-tools-embedded-print button.qrw-print-control::after,
-.qr-tools-embedded-print button.qrw-print-format-control::before,
-.qr-tools-embedded-print button.qrw-print-format-control::after,
-.qr-tools-embedded-print button.qrw-density-control::before,
-.qr-tools-embedded-print button.qrw-density-control::after {
+/* Prevent host themes from adding decorative 3D layers to any print-dialog control. */
+.qr-tools-print-root button::before,
+.qr-tools-print-root button::after,
+.qr-tools-print-root button.qrw-print-format-control::before,
+.qr-tools-print-root button.qrw-print-format-control::after,
+.qr-tools-print-root button.qrw-density-control::before,
+.qr-tools-print-root button.qrw-density-control::after {
   content: none !important;
   display: none !important;
 }
