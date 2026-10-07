@@ -202,3 +202,13 @@
 @media (min-width: 640px) {
   .qr-tools-embedded-print .qrw-print-header-actions { flex-shrink: 0; }
 }
+
+/* Prevent host-page table rules (especially min-width: 800px) from forcing horizontal scrollbars. */
+.qrw-workflow--embedded table {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.qrw-workflow--embedded .overflow-x-auto {
+  min-width: 0;
+  max-width: 100%;
+}
