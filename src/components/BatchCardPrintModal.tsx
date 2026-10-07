@@ -164,7 +164,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
       <div className="bg-white rounded-none sm:rounded-2xl border border-neutral-200 shadow-2xl max-w-5xl w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[95vh] min-h-0 flex flex-col overflow-hidden print:max-w-none print:w-full print:max-h-none print:h-auto print:overflow-visible print:rounded-none print:border-0 print:shadow-none print:block">
         {/* Top Control Bar - Hidden in print */}
         <div className="p-4 border-b border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-start gap-2 bg-white print:hidden">
-          <div className="qrw-print-header-copy flex items-start gap-2 min-w-0">
+          <div className="qrw-print-header-copy flex items-start gap-2 min-w-0 flex-1">
             <span className="p-1.5 rounded-lg bg-neutral-900 text-white shrink-0">
               <Printer className="w-4 h-4" />
             </span>
@@ -211,7 +211,9 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="qrw-print-control p-1.5 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer ml-1"
+              className="qrw-print-close p-1 text-neutral-400 hover:text-neutral-700 cursor-pointer ml-1"
+              aria-label={tx('Đóng', 'Đóng')}
+              title={tx('Đóng', 'Đóng')}
             >
               <X className="w-4 h-4" />
             </button>
