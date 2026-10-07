@@ -100,7 +100,7 @@
   display: none !important;
 }
 
-.qrw-print-header-copy { min-width: 0; }
+.qrw-print-header-copy { min-width: 0; flex: 1 1 auto; }
 .qrw-print-header-copy h2 { margin: 0; line-height: 1.25; }
 .qrw-print-header-copy p { margin-top: 0.25rem; }
 .qrw-print-header-actions { flex-wrap: wrap; }
@@ -109,3 +109,38 @@
 /* Prevent host-page table rules (especially min-width: 800px) from forcing horizontal scrollbars. */
 .qrw-workflow--embedded table { width: 100% !important; min-width: 0 !important; }
 .qrw-workflow--embedded .overflow-x-auto { min-width: 0; max-width: 100%; }
+
+/* The print-dialog close affordance is an icon-only control, not a styled action button. */
+.qr-tools-print-root button.qrw-print-close {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0.25rem !important;
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+.qr-tools-print-root button.qrw-print-close:hover,
+.qr-tools-print-root button.qrw-print-close:focus,
+.qr-tools-print-root button.qrw-print-close:active {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+.qr-tools-print-root button.qrw-print-close::before,
+.qr-tools-print-root button.qrw-print-close::after {
+  content: none !important;
+  display: none !important;
+}
