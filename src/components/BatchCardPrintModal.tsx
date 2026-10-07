@@ -191,7 +191,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               type="button"
               onClick={handleExportZip}
               disabled={isZipping || isRendering}
-              className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-40"
+              className="qrw-print-control h-8 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs disabled:opacity-40"
               title={tx('Tải tất cả thẻ dưới dạng PNG trong tệp ZIP', 'Download all cards as PNGs in a ZIP')}
             >
               <FileArchive className="w-3.5 h-3.5 text-neutral-500" />
@@ -202,7 +202,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               type="button"
               onClick={handlePrint}
               disabled={isRendering}
-              className="h-8 px-4 bg-neutral-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-40"
+              className="qrw-print-control h-8 px-4 bg-neutral-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-40"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>{tx('In tất cả (', 'In tất cả (')}{items.length})</span>
@@ -211,7 +211,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer ml-1"
+              className="qrw-print-control p-1.5 text-neutral-400 hover:text-neutral-700 rounded-md cursor-pointer ml-1"
             >
               <X className="w-4 h-4" />
             </button>
@@ -229,7 +229,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
               <button
                 type="button"
                 onClick={() => setPrintFormatMode('card')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`qrw-print-format-control px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
                   printFormatMode === 'card'
                     ? 'bg-white text-neutral-900 shadow-xs font-semibold'
                     : 'text-neutral-600 hover:text-neutral-900'
@@ -265,7 +265,7 @@ export const BatchCardPrintModal: React.FC<BatchCardPrintModalProps> = ({
                       key={num}
                       type="button"
                       onClick={() => setCardsPerPage(num as any)}
-                      className={`px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
+                      className={`qrw-density-control px-2 py-0.5 rounded text-xs transition-colors cursor-pointer ${
                         cardsPerPage === num
                           ? 'bg-neutral-900 text-white font-medium'
                           : 'bg-white border border-neutral-200 text-neutral-700'
