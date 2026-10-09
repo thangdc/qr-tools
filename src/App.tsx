@@ -211,6 +211,7 @@ export default function App() {
     });
   }, []);
 
+  const [workflowConfigId, setWorkflowConfigId] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance' | 'workflow-config'>(deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
 
@@ -704,12 +705,16 @@ export default function App() {
             onOpenRooms={() => setActiveView('rooms')}
             onOpenPayment={() => setActiveView('payment')}
             onOpenEquipmentMaintenance={() => setActiveView('equipment-maintenance')}
-            onOpenConfiguration={() => setActiveView('workflow-config')}
+            onOpenConfiguration={(workflowId) => setWorkflowConfigId(workflowId)}
           />
         )}
 
         {activeView === 'workflow-config' && (
           <WorkflowConfigurationView onBack={() => setActiveView('workflows')} />
+        )}
+
+        {workflowConfigId && (
+          <WorkflowConfigurationView isModal initialWorkflowId={workflowConfigId} onClose={() => setWorkflowConfigId(null)} />
         )}
 
         {/* Bulk QR Print Workflow */}
