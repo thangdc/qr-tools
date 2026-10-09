@@ -18,11 +18,15 @@ import {
 } from 'lucide-react';
 
 interface ScannerViewProps {
+  isPro: boolean;
+  onOpenPro: (source?: string) => void;
   onBackToGenerator: () => void;
   onLoadIntoGenerator: (data: DecodedQRData) => void;
 }
 
 export const ScannerView: React.FC<ScannerViewProps> = ({
+  isPro,
+  onOpenPro,
   onBackToGenerator,
   onLoadIntoGenerator,
 }) => {
@@ -31,6 +35,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   const [copied, setCopied] = useState(false);
 
   const handleDecoded = (decodedRaw: string) => {
+    if (!isPro) { stopCamera(); onOpenPro('scanner_scan'); return; }
     const parsed = parseRawQRPayload(decodedRaw);
     setScanResult(parsed);
     trackEvent('scanner_success', { source: 'camera', qr_type: parsed.type });
@@ -46,8 +51,17 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
   } = useQRScanner({ onDecoded: handleDecoded, stopAfterDecode: true });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleStartCamera = () => {
+    if (!isPro) { onOpenPro('scanner_scan'); return; }
+    void startCamera();
+  };
+  const handleOpenFilePicker = () => {
+    if (!isPro) { onOpenPro('scanner_scan'); return; }
+    fileInputRef.current?.click();
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isPro) { e.target.value = ''; onOpenPro('scanner_scan'); return; }
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -135,7 +149,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
             {!isCameraActive ? (
               <button
                 type="button"
-                onClick={startCamera}
+                onClick={handleStartCamera}
                 className="flex-1 h-9 px-3 bg-neutral-900 hover:bg-neutral-800 text-white rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Camera className="w-3.5 h-3.5" />
@@ -153,7 +167,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({
 
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleOpenFilePicker}
               className="flex-1 h-9 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
