@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../i18n';
-import { ProFeatureHint } from './ProFeatureHint';
 import { QRTemplate, QROutputSettings } from '../types/qr';
 import { QRRenderingService } from '../services/qrRenderingService';
 import { X, Ruler, Download } from 'lucide-react';
@@ -165,16 +164,6 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
               <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider">
                 {tx('Kích thước ảnh', 'Image Size')}
               </label>
-              {!isPro && (
-                <ProFeatureHint
-                  compact
-                  title={tx('Tải ảnh QR độ phân giải cao', 'High-resolution QR image export')}
-                  description={tx('Kích thước 2048 × 2048 phù hợp cho in ấn chất lượng cao và chỉ có trong gói Pro.', '2048 × 2048 output is suited to high-quality printing and is available with Pro.')}
-                  source="single_download_2048"
-                  onUpgrade={onOpenPro}
-                  actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')}
-                />
-              )}
             </div>
             <div className="grid grid-cols-3 gap-2">
               {IMAGE_SIZES.map((size) => (
@@ -188,8 +177,8 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
                       : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
                   }`}
                 >
-                  {size} × {size}
-                  {size === 2048 && <span className="block text-[9px] opacity-70">PRO</span>}
+                  <span>{size} × {size}</span>
+                  {size === 2048 && !isPro && <span className={`ml-1 rounded px-1 py-0.5 text-[9px] font-bold ${outputSettings.imageSize === size ? 'bg-white/15 text-white' : 'bg-amber-100 text-amber-800'}`}>PRO</span>}
                 </button>
               ))}
             </div>
@@ -292,7 +281,7 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
           </button>
           <button
             type="button"
-            disabled={isExporting || !isPro}
+            disabled={isExporting}
             onClick={handleDownloadMetricPNG}
             className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-40 text-white rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
           >
@@ -300,9 +289,8 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
             <span>
               {isExporting
                 ? tx('Đang tạo...', 'Generating...')
-                : !isPro
-                ? tx('Mở Pro để xuất 300 DPI', 'Unlock Pro for 300 DPI export')
                 : tx(`Xuất ${outputSettings.printSizeMm}mm (${outputSettings.dpi} DPI)`, `Export ${outputSettings.printSizeMm}mm (${outputSettings.dpi} DPI)`)}
+              {!isPro && <span className="rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}
             </span>
           </button>
         </div>
