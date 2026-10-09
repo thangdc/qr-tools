@@ -398,7 +398,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
                 <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>
                   {cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}
                 </button>
-                <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
+                <label onClick={event=>{if(!isPro){event.preventDefault();onOpenPro('workflow_payment_scan');}}} className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
                   <Upload className="w-3.5 h-3.5" />Quét bằng ảnh
                   <input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} />
                 </label>
