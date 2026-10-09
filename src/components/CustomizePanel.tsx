@@ -23,6 +23,8 @@ interface CustomizePanelProps {
   design: QRDesignOptions;
   onChange: (design: QRDesignOptions) => void;
   isPaymentType?: boolean;
+  isPro: boolean;
+  onOpenPro: (source?: string) => void;
 }
 
 const COLOR_PRESETS = [
@@ -48,6 +50,8 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
   design,
   onChange,
   isPaymentType,
+  isPro,
+  onOpenPro,
 }) => {
   const { tx } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -411,108 +415,110 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
           {/* Center Logo */}
           <div>
             <label className="block text-[11px] font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">
-              Center Emblem / Logo
+              {tx('Logo ở giữa mã QR', 'Center Logo')}
             </label>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() =>
-                  onChange({ ...design, centerLogo: 'none', customLogoUrl: null })
-                }
-                className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
-                  design.centerLogo === 'none'
-                    ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
-                    : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                }`}
-              >
-                {tx('Không có', 'None')}
-              </button>
-
-              {isPaymentType && (
+            {!isPro ? (
+              <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
+                <img
+                  src="https://raw.githubusercontent.com/thangdc/VietSoft/gh-pages/images/logo.png"
+                  alt="VietSofts"
+                  className="h-9 w-9 rounded-lg bg-white object-contain p-1"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-neutral-900">
+                    {tx('Logo VietSofts được thêm tự động ở bản miễn phí', 'VietSofts branding is included on the free plan')}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
+                    {tx('Nâng cấp Pro để dùng logo riêng hoặc bỏ logo thương hiệu.', 'Upgrade to Pro to use your own logo or remove the branding.')}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => onOpenPro('custom_logo')}
+                    className="mt-2 inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700"
+                  >
+                    {tx('Nâng cấp Pro', 'Upgrade to Pro')}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={() =>
-                    onChange({
-                      ...design,
-                      centerLogo: 'bank',
-                      errorCorrectionLevel: 'H',
-                    })
-                  }
+                  onClick={() => onChange({ ...design, centerLogo: 'none', customLogoUrl: null })}
                   className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
-                    design.centerLogo === 'bank'
-                      ? 'border-emerald-700 bg-emerald-50 text-emerald-900 font-semibold'
+                    design.centerLogo === 'none'
+                      ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
                       : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
                   }`}
                 >
-                  VietQR Emblem
+                  {tx('Không có', 'None')}
                 </button>
-              )}
 
-              <button
-                type="button"
-                onClick={() =>
-                  onChange({
-                    ...design,
-                    centerLogo: 'wifi',
-                    errorCorrectionLevel: 'H',
-                  })
-                }
-                className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
-                  design.centerLogo === 'wifi'
-                    ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
-                    : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                }`}
-              >
-                Wi-Fi Symbol
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  onChange({
-                    ...design,
-                    centerLogo: 'link',
-                    errorCorrectionLevel: 'H',
-                  })
-                }
-                className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
-                  design.centerLogo === 'link'
-                    ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
-                    : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                }`}
-              >
-                Link Symbol
-              </button>
-
-              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-dashed border-neutral-300 hover:border-neutral-500 bg-white text-neutral-700 cursor-pointer transition-colors">
-                <Upload className="w-3.5 h-3.5" />
-                <span>{tx('Tải tệp lên...', 'Upload file...')}</span>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </label>
-
-              {design.centerLogo === 'custom' && design.customLogoUrl && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-neutral-100 rounded-md text-xs text-neutral-700">
-                  <img
-                    src={design.customLogoUrl}
-                    alt="Custom logo"
-                    className="w-4 h-4 object-contain rounded"
-                  />
-                  <span>{tx('Tệp tùy chỉnh', 'Custom file')}</span>
+                {isPaymentType && (
                   <button
                     type="button"
-                    onClick={removeLogo}
-                    className="text-neutral-400 hover:text-red-600 ml-1 cursor-pointer"
+                    onClick={() => onChange({ ...design, centerLogo: 'bank', errorCorrectionLevel: 'H' })}
+                    className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
+                      design.centerLogo === 'bank'
+                        ? 'border-emerald-700 bg-emerald-50 text-emerald-900 font-semibold'
+                        : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
+                    }`}
                   >
-                    <X className="w-3 h-3" />
+                    VietQR Emblem
                   </button>
-                </div>
-              )}
-            </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...design, centerLogo: 'wifi', errorCorrectionLevel: 'H' })}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
+                    design.centerLogo === 'wifi'
+                      ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
+                      : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
+                  }`}
+                >
+                  Wi-Fi Symbol
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...design, centerLogo: 'link', errorCorrectionLevel: 'H' })}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-all cursor-pointer ${
+                    design.centerLogo === 'link'
+                      ? 'border-neutral-900 bg-neutral-900 text-white font-medium'
+                      : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
+                  }`}
+                >
+                  Link Symbol
+                </button>
+
+                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-dashed border-neutral-300 hover:border-neutral-500 bg-white text-neutral-700 cursor-pointer transition-colors">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{tx('Tải logo riêng...', 'Upload custom logo...')}</span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/svg+xml"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {design.centerLogo === 'custom' && design.customLogoUrl && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-neutral-100 rounded-md text-xs text-neutral-700">
+                    <img src={design.customLogoUrl} alt="Custom logo" className="w-4 h-4 object-contain rounded" />
+                    <span>{tx('Logo tùy chỉnh', 'Custom logo')}</span>
+                    <button
+                      type="button"
+                      onClick={removeLogo}
+                      className="text-neutral-400 hover:text-red-600 ml-1 cursor-pointer"
+                      aria-label={tx('Xóa logo tùy chỉnh', 'Remove custom logo')}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
