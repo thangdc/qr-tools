@@ -7,6 +7,7 @@ import { PREDEFINED_TEMPLATES } from '../utils/defaultTemplates';
 import { renderTemplatedQR } from '../utils/templateRenderer';
 import { Search, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown, FileArchive } from 'lucide-react';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
+import { ProFeatureHint } from './ProFeatureHint';
 
 interface HistoryViewProps {
   items: QRHistoryItem[];
@@ -218,7 +219,18 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
           <button type="button" onClick={() => onBatchPrint(actionItems)} disabled={!actionItems.length} className="h-8 px-3 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><Printer className="w-3.5 h-3.5" />{selectedItems.length ? tx('Xuất & in đã chọn', 'Export & print selected') : tx('Xuất & in tất cả', 'Export & print all')}</button>
           <button type="button" onClick={() => void handleExportZip()} disabled={!actionItems.length} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><FileArchive className="w-3.5 h-3.5" />{selectedItems.length ? tx('Tải ZIP đã chọn', 'Download selected ZIP') : tx('Tải ZIP tất cả', 'Download all ZIP')}</button>
           <button type="button" onClick={handleExportCsv} disabled={!actionItems.length} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><FileDown className="w-3.5 h-3.5" />{selectedItems.length ? tx('Xuất CSV đã chọn', 'Export selected CSV') : tx('Xuất CSV tất cả', 'Export all CSV')}</button>
-        </div>    </div>
+        </div>
+      </div>
+
+      {!isPro && items.length > 0 && (
+        <ProFeatureHint
+          title={tx('Xuất và in QR hàng loạt với Pro', 'Batch export and print with Pro')}
+          description={tx('Tải toàn bộ mã QR thành ZIP, xuất danh sách CSV hoặc in nhiều mã trong một lần thao tác. Bạn vẫn có thể xem và quản lý lịch sử miễn phí.', 'Download QR codes as a ZIP, export a CSV list, or print multiple codes in one go. Viewing and managing your history remains free.')}
+          source="history_productivity"
+          onUpgrade={onOpenPro}
+          actionLabel={tx('Khám phá Pro', 'Explore Pro')}
+        />
+      )}
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
