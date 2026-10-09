@@ -243,7 +243,18 @@ export async function renderCustomQRCode(
       img.src = design.customLogoUrl;
       await new Promise<void>((resolve) => {
         img.onload = () => {
-          ctx.drawImage(img, x, y, logoSize, logoSize);
+          // Preserve the VietSofts wordmark aspect ratio inside the square logo mask.
+          const aspect = (img.naturalWidth || img.width || 1) / (img.naturalHeight || img.height || 1);
+          const maxLogoSize = logoSize * 0.88;
+          const logoWidth = aspect >= 1 ? maxLogoSize : maxLogoSize * aspect;
+          const logoHeight = aspect >= 1 ? maxLogoSize / aspect : maxLogoSize;
+          ctx.drawImage(
+            img,
+            center - logoWidth / 2,
+            centerY - logoHeight / 2,
+            logoWidth,
+            logoHeight
+          );
           resolve();
         };
         img.onerror = () => resolve();
