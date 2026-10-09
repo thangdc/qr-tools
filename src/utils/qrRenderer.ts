@@ -240,7 +240,6 @@ export async function renderCustomQRCode(
     if (design.centerLogo === 'custom' && design.customLogoUrl) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.src = design.customLogoUrl;
       await new Promise<void>((resolve) => {
         img.onload = () => {
           // Preserve the VietSofts wordmark aspect ratio inside the square logo mask.
@@ -258,6 +257,7 @@ export async function renderCustomQRCode(
           resolve();
         };
         img.onerror = () => resolve();
+        img.src = design.customLogoUrl!;
       });
     } else if (design.centerLogo === 'bank') {
       ctx.fillStyle = '#005f33';
