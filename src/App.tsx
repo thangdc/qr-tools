@@ -34,6 +34,7 @@ import { QRPreview } from './components/QRPreview';
 import { HistoryView } from './components/HistoryView';
 import { ScannerView } from './components/ScannerView';
 import { WorkflowHub } from './components/WorkflowHub';
+import { WorkflowConfigurationView } from './components/WorkflowConfigurationView';
 import { CheckinView } from './components/CheckinView';
 import { BulkPrintWorkflow } from './components/BulkPrintWorkflow';
 import { AssetWorkflow } from './components/AssetWorkflow';
@@ -167,13 +168,13 @@ const DEEP_LINK_TYPES: Partial<Record<QRType, true>> = {
   email: true, phone: true, sms: true, location: true, event: true,
 };
 
-function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance'; type?: QRType; source?: string } {
+function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance' | 'workflow-config'; type?: QRType; source?: string } {
   if (typeof window === 'undefined') return { view: 'generator' };
   const params = new URLSearchParams(window.location.search);
   const requestedType = params.get('type') as QRType | null;
   const viewParam = params.get('view');
   return {
-    view: viewParam === 'history' || viewParam === 'scanner' || viewParam === 'workflows' || viewParam === 'checkin' || viewParam === 'bulk-print' || viewParam === 'assets' || viewParam === 'inventory' || viewParam === 'rooms' || viewParam === 'payment' || viewParam === 'equipment-maintenance' ? viewParam : 'generator',
+    view: viewParam === 'history' || viewParam === 'scanner' || viewParam === 'workflows' || viewParam === 'checkin' || viewParam === 'bulk-print' || viewParam === 'assets' || viewParam === 'inventory' || viewParam === 'rooms' || viewParam === 'payment' || viewParam === 'equipment-maintenance' || viewParam === 'workflow-config' ? viewParam : 'generator',
     type: requestedType && DEEP_LINK_TYPES[requestedType] ? requestedType : undefined,
     source: params.get('source') || undefined,
   };
@@ -210,7 +211,7 @@ export default function App() {
     });
   }, []);
 
-  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance'>(deepLink.view);
+  const [activeView, setActiveView] = useState<'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance' | 'workflow-config'>(deepLink.view);
   const [selectedType, setSelectedType] = useState<QRType>(deepLink.type || 'url');
 
   useEffect(() => {
@@ -703,7 +704,12 @@ export default function App() {
             onOpenRooms={() => setActiveView('rooms')}
             onOpenPayment={() => setActiveView('payment')}
             onOpenEquipmentMaintenance={() => setActiveView('equipment-maintenance')}
+            onOpenConfiguration={() => setActiveView('workflow-config')}
           />
+        )}
+
+        {activeView === 'workflow-config' && (
+          <WorkflowConfigurationView onBack={() => setActiveView('workflows')} />
         )}
 
         {/* Bulk QR Print Workflow */}
