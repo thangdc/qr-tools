@@ -727,7 +727,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Asset Management Workflow */}
         {activeView === 'assets' && (
@@ -743,7 +743,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Inventory Counting Workflow */}
         {activeView === 'inventory' && (
@@ -759,7 +759,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Room Management Workflow */}
         {activeView === 'rooms' && (
@@ -775,7 +775,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Equipment Maintenance Workflow */}
         {activeView === 'equipment-maintenance' && (
@@ -786,7 +786,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Payment Collection Workflow */}
         {activeView === 'payment' && (
@@ -802,7 +802,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Check-in Workflow */}
         {activeView === 'checkin' && (
@@ -823,7 +823,7 @@ export default function App() {
           />
 
           </div>
-}
+        )}
 
         {/* Generator View */}
         {activeView === 'generator' && (
