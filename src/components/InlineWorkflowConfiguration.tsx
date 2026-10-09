@@ -82,7 +82,7 @@ function downloadCsv(rows: WorkflowRecord[], fields: WorkflowFieldDefinition[]) 
 
 interface Props { workflowId: string; }
 export const InlineWorkflowConfiguration: React.FC<Props> = ({ workflowId }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [definition, setDefinition] = useState<InlineDefinition>(() => loadDefinition(workflowId));
   const [input, setInput] = useState('');
   const [source, setSource] = useState<'excel' | 'json' | 'google-sheets' | 'api'>('excel');
