@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { FileSpreadsheet, Upload, X, Plus, Trash2 } from 'lucide-react';
 import { BulkQRItem, QRHistoryItem, QRType } from '../types/qr';
 import { useLanguage } from '../i18n';
-import { ProFeatureHint } from './ProFeatureHint';
 import { trackEvent } from '../utils/analytics';
 import { generatePayload } from '../utils/qrPayload';
 
@@ -190,16 +189,6 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto">
-          {!isPro && (
-            <ProFeatureHint
-              compact
-              title={tx('Import nhiều QR với Pro', 'Bulk QR import with Pro')}
-              description={tx('Nạp danh sách từ CSV/TSV hoặc dán dữ liệu từ bảng tính để quản lý nhiều mã QR cùng lúc.', 'Import a CSV/TSV list or paste spreadsheet data to manage multiple QR codes at once.')}
-              source="history_import"
-              onUpgrade={onOpenPro}
-              actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')}
-            />
-          )}
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
             <textarea
               rows={4}
