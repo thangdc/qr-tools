@@ -7,6 +7,7 @@ import { PREDEFINED_TEMPLATES } from '../utils/defaultTemplates';
 import { renderTemplatedQR } from '../utils/templateRenderer';
 import { Search, Download, Printer, Trash2, ArrowLeft, Upload, CheckSquare, Square, FileDown, FileArchive } from 'lucide-react';
 import { ImportHistoryPanel } from './ImportHistoryPanel';
+import { ProFeatureHint } from './ProFeatureHint';
 
 interface HistoryViewProps {
   items: QRHistoryItem[];
@@ -214,11 +215,15 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         </div>
         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
           {items.length > 0 && <button type="button" onClick={onClearAll} className="h-8 px-3 text-xs font-medium text-red-600 bg-white hover:bg-red-50 border border-red-200 rounded-md transition-colors cursor-pointer">{tx('Xóa tất cả', 'Clear all')}</button>}
+          {!isPro && <ProFeatureHint compact title={tx('Import danh sách QR', 'Import QR lists')} description={tx('Nhập nhiều mã từ CSV/TSV hoặc bảng tính để tiết kiệm thời gian.', 'Import multiple QR codes from CSV/TSV or a spreadsheet to save time.')} source="history_import" onUpgrade={onOpenPro} actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')} />}
           <button type="button" onClick={() => setIsImportOpen(true)} className="h-8 px-3 text-xs font-semibold text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" /><span>{tx('Import', 'Import')}</span></button>
           <button type="button" onClick={() => onBatchPrint(actionItems)} disabled={!actionItems.length} className="h-8 px-3 text-xs font-semibold text-white bg-neutral-900 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><Printer className="w-3.5 h-3.5" />{selectedItems.length ? tx('Xuất & in đã chọn', 'Export & print selected') : tx('Xuất & in tất cả', 'Export & print all')}</button>
+          {!isPro && <ProFeatureHint compact title={tx('Tải QR thành ZIP', 'Download QR codes as ZIP')} description={tx('Tải nhiều mã QR cùng lúc thành một file ZIP.', 'Download multiple QR codes together in one ZIP file.')} source="history_export_zip" onUpgrade={onOpenPro} actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')} />}
           <button type="button" onClick={() => void handleExportZip()} disabled={!actionItems.length} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><FileArchive className="w-3.5 h-3.5" />{selectedItems.length ? tx('Tải ZIP đã chọn', 'Download selected ZIP') : tx('Tải ZIP tất cả', 'Download all ZIP')}</button>
+          {!isPro && <ProFeatureHint compact title={tx('Xuất dữ liệu lịch sử CSV', 'Export history data to CSV')} description={tx('Xuất thông tin các mã QR đã lưu để xử lý hoặc lưu trữ trong bảng tính.', 'Export saved QR details for spreadsheet workflows or archiving.')} source="history_export_csv" onUpgrade={onOpenPro} actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')} />}
           <button type="button" onClick={handleExportCsv} disabled={!actionItems.length} className="h-8 px-3 text-xs font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"><FileDown className="w-3.5 h-3.5" />{selectedItems.length ? tx('Xuất CSV đã chọn', 'Export selected CSV') : tx('Xuất CSV tất cả', 'Export all CSV')}</button>
-        </div>    </div>
+        </div>
+      </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">

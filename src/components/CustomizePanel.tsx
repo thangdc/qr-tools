@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../i18n';
+import { ProFeatureHint } from './ProFeatureHint';
 import {
   QRDesignOptions,
   ErrorCorrectionLevel,
@@ -418,28 +419,14 @@ export const CustomizePanel: React.FC<CustomizePanelProps> = ({
               {tx('Logo ở giữa mã QR', 'Center Logo')}
             </label>
             {!isPro ? (
-              <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
-                <img
-                  src="https://raw.githubusercontent.com/thangdc/VietSoft/gh-pages/images/logo.png"
-                  alt="VietSofts"
-                  className="h-9 w-9 rounded-lg bg-white object-contain p-1"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-neutral-900">
-                    {tx('Logo VietSofts được thêm tự động ở bản miễn phí', 'VietSofts branding is included on the free plan')}
-                  </p>
-                  <p className="mt-1 text-[11px] leading-relaxed text-neutral-600">
-                    {tx('Nâng cấp Pro để dùng logo riêng hoặc bỏ logo thương hiệu.', 'Upgrade to Pro to use your own logo or remove the branding.')}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => onOpenPro('custom_logo')}
-                    className="mt-2 inline-flex items-center rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700"
-                  >
-                    {tx('Nâng cấp Pro', 'Upgrade to Pro')}
-                  </button>
-                </div>
-              </div>
+              <ProFeatureHint
+                title={tx('Logo VietSofts được thêm tự động ở bản miễn phí', 'VietSofts branding is included on the free plan')}
+                description={tx('Nâng cấp Pro để dùng logo riêng hoặc bỏ logo thương hiệu.', 'Upgrade to Pro to use your own logo or remove the branding.')}
+                source="custom_logo"
+                onUpgrade={onOpenPro}
+                imageSrc="https://raw.githubusercontent.com/thangdc/VietSoft/gh-pages/images/logo.png"
+                actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')}
+              />
             ) : (
               <div className="flex flex-wrap items-center gap-1.5">
                 <button
