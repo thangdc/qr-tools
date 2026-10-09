@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../i18n';
+import { ProFeatureHint } from './ProFeatureHint';
 import { trackEvent } from '../utils/analytics';
 import QRCode from 'qrcode';
 import { QRType, QRTemplate, QROutputSettings } from '../types/qr';
@@ -752,6 +753,16 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
                 {outputSettings.imageSize}px
               </span>
             </button>
+            {outputSettings.imageSize >= 2048 && !isPro && (
+              <ProFeatureHint
+                compact
+                title={tx('Tải PNG độ phân giải cao', 'High-resolution PNG export')}
+                description={tx('Nâng cấp Pro để tải mã QR ở độ phân giải 2048px trở lên, phù hợp cho in ấn chất lượng cao.', 'Upgrade to Pro to export QR codes at 2048px or higher for high-quality print output.')}
+                source="single_download_2048"
+                onUpgrade={onOpenPro}
+                actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')}
+              />
+            )}
           </div>
 
           {/* Copy PNG */}
