@@ -34,7 +34,6 @@ import { QRPreview } from './components/QRPreview';
 import { HistoryView } from './components/HistoryView';
 import { ScannerView } from './components/ScannerView';
 import { WorkflowHub } from './components/WorkflowHub';
-import { WorkflowConfigurationView } from './components/WorkflowConfigurationView';
 import { InlineWorkflowConfiguration } from './components/InlineWorkflowConfiguration';
 import { CheckinView } from './components/CheckinView';
 import { BulkPrintWorkflow } from './components/BulkPrintWorkflow';
@@ -705,12 +704,7 @@ export default function App() {
             onOpenRooms={() => setActiveView('rooms')}
             onOpenPayment={() => setActiveView('payment')}
             onOpenEquipmentMaintenance={() => setActiveView('equipment-maintenance')}
-            onOpenConfiguration={() => setActiveView('workflow-config')}
           />
-        )}
-
-        {activeView === 'workflow-config' && (
-          <WorkflowConfigurationView onBack={() => setActiveView('workflows')} />
         )}
 
         {/* Bulk QR Print Workflow */}
