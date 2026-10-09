@@ -894,6 +894,8 @@ export default function App() {
                   design={activeTemplate.design}
                   onChange={handleUpdateDesign}
                   isPaymentType={selectedType === 'payment'}
+                  isPro={isPro}
+                  onOpenPro={openProModal}
                 />
               </div>
 
