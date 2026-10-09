@@ -9,6 +9,7 @@ interface WorkflowHubProps {
   onOpenRooms: () => void;
   onOpenPayment: () => void;
   onOpenEquipmentMaintenance: () => void;
+  onOpenConfiguration: () => void;
 }
 
 const workflows = [
@@ -56,7 +57,7 @@ const workflows = [
   },
 ] as const;
 
-export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory, onOpenRooms, onOpenPayment, onOpenEquipmentMaintenance }) => (
+export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenBulkPrint, onOpenAssets, onOpenInventory, onOpenRooms, onOpenPayment, onOpenEquipmentMaintenance, onOpenConfiguration }) => (
   <div className="w-full max-w-5xl mx-auto space-y-8">
     <div className="pb-5 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -106,6 +107,14 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
           </article>
         );
       })}
+    </div>
+
+    <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div>
+        <h2 className="text-sm font-semibold text-neutral-900">Cần tùy chỉnh quy trình?</h2>
+        <p className="mt-1.5 text-xs leading-6 text-neutral-500">Cấu hình field đầu vào, mapping Excel/QR, validation và nhiều kiểu đầu ra.</p>
+      </div>
+      <button type="button" onClick={onOpenConfiguration} className="inline-flex h-9 shrink-0 items-center justify-center rounded-lg bg-blue-700 px-3 text-xs font-semibold text-white hover:bg-blue-800">Cấu hình dữ liệu</button>
     </div>
 
     <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
