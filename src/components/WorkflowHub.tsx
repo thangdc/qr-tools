@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CalendarCheck, Package, Boxes, Home, WalletCards, Printer, Wrench } from 'lucide-react';
+import { ArrowRight, CalendarCheck, Package, Boxes, Home, WalletCards, Printer, Wrench, Settings2 } from 'lucide-react';
 
 interface WorkflowHubProps {
   onOpenCheckin: () => void;
@@ -9,47 +9,54 @@ interface WorkflowHubProps {
   onOpenRooms: () => void;
   onOpenPayment: () => void;
   onOpenEquipmentMaintenance: () => void;
-  onOpenConfiguration: () => void;
+  onOpenConfiguration: (workflowId: string) => void;
 }
 
 const workflows = [
   {
+    id: 'checkin',
     icon: CalendarCheck,
     title: 'Điểm danh / Check-in',
     description: 'Danh sách → QR → quét liên tục → ghi nhận thời gian → xuất kết quả.',
     status: 'active',
   },
   {
+    id: 'bulk-print',
     icon: Printer,
     title: 'Tạo QR hàng loạt & In',
     description: 'Excel → tạo nhiều mã QR → chọn mẫu → in tem hoặc thẻ.',
     status: 'active',
   },
   {
+    id: 'assets',
     icon: Package,
     title: 'Quản lý tài sản',
     description: 'Dán QR lên tài sản → quét để tra cứu và ghi nhận kiểm kê.',
     status: 'active',
   },
   {
+    id: 'inventory',
     icon: Boxes,
     title: 'Kiểm kê hàng hóa',
     description: 'Quét từng mã → ghi nhận số lượng → đối chiếu và xuất kết quả.',
     status: 'active',
   },
   {
+    id: 'rooms',
     icon: Home,
     title: 'Quản lý phòng / căn hộ',
     description: 'Mỗi phòng một QR → tra cứu thông tin và các khoản cần xử lý.',
     status: 'active',
   },
   {
+    id: 'payment',
     icon: WalletCards,
     title: 'Thu tiền / Thanh toán',
     description: 'Tạo QR thanh toán → khách quét → theo dõi và đối soát.',
     status: 'active',
   },
   {
+    id: 'equipment-maintenance',
     icon: Wrench,
     title: 'Bảo trì thiết bị',
     description: 'Excel → lưu thiết bị → tạo QR → quét để tra cứu và ghi nhận bảo trì.',
@@ -70,7 +77,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
     </div>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {workflows.map(({ icon: Icon, title, description, status }) => {
+      {workflows.map(({ id, icon: Icon, title, description, status }) => {
         const active = status === 'active';
         return (
           <article
@@ -88,7 +95,7 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
             </div>
             <h2 className="text-sm font-semibold text-neutral-900">{title}</h2>
             <p className="text-xs leading-5 text-neutral-500 mt-1.5 min-h-10">{description}</p>
-            <div className="mt-5 flex items-center justify-between gap-2">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
               {active ? (
                 <button
                   type="button"
@@ -102,19 +109,11 @@ export const WorkflowHub: React.FC<WorkflowHubProps> = ({ onOpenCheckin, onOpenB
                   Sắp ra mắt
                 </span>
               )}
-              {active && <span className="text-[11px] text-emerald-700 font-medium">Đang sử dụng</span>}
+              {active && <button type="button" data-testid={"configure-workflow-" + id} onClick={() => onOpenConfiguration(id)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 text-xs font-semibold text-neutral-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"><Settings2 className="h-3.5 w-3.5" /> Cấu hình</button>}
             </div>
           </article>
         );
       })}
-    </div>
-
-    <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-      <div>
-        <h2 className="text-sm font-semibold text-neutral-900">Cần tùy chỉnh quy trình?</h2>
-        <p className="mt-1.5 text-xs leading-6 text-neutral-500">Cấu hình field đầu vào, mapping Excel/QR, validation và nhiều kiểu đầu ra.</p>
-      </div>
-      <button type="button" onClick={onOpenConfiguration} className="inline-flex h-9 shrink-0 items-center justify-center rounded-lg bg-blue-700 px-3 text-xs font-semibold text-white hover:bg-blue-800">Cấu hình dữ liệu</button>
     </div>
 
     <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
