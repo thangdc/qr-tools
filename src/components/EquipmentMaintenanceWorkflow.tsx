@@ -97,7 +97,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack, commerci
   const handleImageUpload = async (file?: File) => { if (commercialMode === 'standalone' && !isPro) { setProOpen(true); return; } if (!file) return; const payload = await scanFile(file); if (!payload) { setError('Không tìm thấy mã QR trong ảnh.'); setLastScan('unknown'); return; } await handleScan(payload); };
   const exportCsv = () => { const rows = [['Asset ID','Asset Name','Location','Maintenance Date','Maintenance By','Maintenance Note'], ...records.map(r => { const d = dataOf(r); return [r.recordId,d.assetName ?? '',d.location ?? '',d.maintenanceDate ?? '',d.maintenanceBy ?? '',d.maintenanceNote ?? '']; })]; const csv = rows.map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n'); const url = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download=`equipment-maintenance-${Date.now()}.csv`; a.click(); URL.revokeObjectURL(url); };
   const reset = () => { stopCamera(); setStep('data'); setRecords([]); writeRecords([]); setSelectedRecord(null); setLastScan(null); setScannedIds([]); setError(''); };
-  const go = (target: Step) => { if (target !== 'data' && !records.length) return; if (target !== 'scan') stopCamera(); setStep(target); };
+  const go = (target: Step) => { if (target !== 'data' && !records.length) return; if (target === 'scan' && commercialMode === 'standalone' && !isPro) { setProOpen(true); return; } if (target !== 'scan') stopCamera(); setStep(target); };
   const steps: Step[] = ['data','print','scan','result']; const labels = ['Nhập danh sách','Tạo & in QR','Bảo trì','Kết quả'];
 
   return <>
