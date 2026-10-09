@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../i18n';
+import { ProFeatureHint } from './ProFeatureHint';
 import { QRTemplate, QROutputSettings } from '../types/qr';
 import { QRRenderingService } from '../services/qrRenderingService';
 import { X, Ruler, Download } from 'lucide-react';
@@ -160,9 +161,21 @@ export const PrintHandoffModal: React.FC<PrintHandoffModalProps> = ({
 
         <div className="p-4 space-y-4 text-xs">
           <div>
-            <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider mb-2">
-              {tx('Kích thước ảnh', 'Image Size')}
-            </label>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <label className="block text-xs font-semibold text-neutral-800 uppercase tracking-wider">
+                {tx('Kích thước ảnh', 'Image Size')}
+              </label>
+              {!isPro && (
+                <ProFeatureHint
+                  compact
+                  title={tx('Tải ảnh QR độ phân giải cao', 'High-resolution QR image export')}
+                  description={tx('Kích thước 2048 × 2048 phù hợp cho in ấn chất lượng cao và chỉ có trong gói Pro.', '2048 × 2048 output is suited to high-quality printing and is available with Pro.')}
+                  source="single_download_2048"
+                  onUpgrade={onOpenPro}
+                  actionLabel={tx('Nâng cấp Pro', 'Upgrade to Pro')}
+                />
+              )}
+            </div>
             <div className="grid grid-cols-3 gap-2">
               {IMAGE_SIZES.map((size) => (
                 <button
