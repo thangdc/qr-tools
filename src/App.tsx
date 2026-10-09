@@ -923,8 +923,6 @@ export default function App() {
         {/* Scanner View */}
         {activeView === 'scanner' && (
           <ScannerView
-            isPro={isPro}
-            onOpenPro={openProModal}
             onBackToGenerator={() => setActiveView('generator')}
             onLoadIntoGenerator={handleLoadFromScanner}
           />
