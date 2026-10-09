@@ -111,7 +111,7 @@ export const WorkflowConfigurationView: React.FC<WorkflowConfigurationViewProps>
   if (!current) return null;
 
   return (
-    {isModal ? <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-950/50 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label="Cấu hình workflow"><div className="mx-auto my-2 w-full max-w-5xl space-y-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 shadow-2xl sm:my-6 sm:p-6"> : <div className="mx-auto w-full max-w-5xl space-y-6">
+    <div className={isModal ? "fixed inset-0 z-50 overflow-y-auto bg-neutral-950/50 p-3 sm:p-6" : "mx-auto w-full max-w-5xl"} role={isModal ? "dialog" : undefined} aria-modal={isModal ? true : undefined} aria-label={isModal ? "Cấu hình workflow" : undefined}><div className={isModal ? "mx-auto my-2 w-full max-w-5xl space-y-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 shadow-2xl sm:my-6 sm:p-6" : "w-full space-y-6"}>
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-5">
         <div>
           {isModal ? <button type="button" onClick={onClose} aria-label="Đóng cấu hình" className="mb-3 inline-flex h-9 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-600 hover:bg-neutral-100"><ArrowLeft className="h-4 w-4" /> Đóng</button> : <button type="button" onClick={onBack} className="mb-3 inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900"><ArrowLeft className="h-4 w-4" /> Quay lại Workflows</button>}
@@ -170,6 +170,6 @@ export const WorkflowConfigurationView: React.FC<WorkflowConfigurationViewProps>
         </div>)}
       </section>
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"><strong>Trạng thái triển khai:</strong> Đây là giao diện biên tập và lưu schema ở local browser. Cần bước tích hợp tiếp theo để từng workflow thực thi cấu hình này; Excel import vẫn phải giữ riêng và miễn phí, còn quyền Pro cho scan/print được giữ theo logic hiện hành.</div>
-    </div>}
+    </div></div>
   );
 };
