@@ -224,11 +224,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
       {!isPro && items.length > 0 && (
         <ProFeatureHint
-          title={tx('Xuất và in QR hàng loạt với Pro', 'Batch export and print with Pro')}
-          description={tx('Tải toàn bộ mã QR thành ZIP, xuất danh sách CSV hoặc in nhiều mã trong một lần thao tác. Bạn vẫn có thể xem và quản lý lịch sử miễn phí.', 'Download QR codes as a ZIP, export a CSV list, or print multiple codes in one go. Viewing and managing your history remains free.')}
+          title={tx('Xuất ZIP và CSV là quyền lợi Pro', 'ZIP and CSV export are Pro features')}
+          description={tx('Tải nhiều mã QR thành ZIP hoặc xuất dữ liệu lịch sử thành CSV. Bạn vẫn có thể xem, tải và in từng mã miễn phí.', 'Download multiple QR codes as a ZIP or export history data as CSV. You can still view, download, and print individual codes for free.')}
           source="history_productivity"
           onUpgrade={onOpenPro}
           actionLabel={tx('Khám phá Pro', 'Explore Pro')}
+          compact
         />
       )}
 
