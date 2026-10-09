@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Download, Plus, Settings2, Trash2, X } from 'lucide-react';
+import { Download, Plus, Settings2, Trash2 } from 'lucide-react';
 import type { WorkflowFieldDefinition, WorkflowInputSource, WorkflowRecord, WorkflowValueType } from '../workflows/configuration';
 import { mapWorkflowInput, validateWorkflowRecord } from '../workflows/configuration';
 
