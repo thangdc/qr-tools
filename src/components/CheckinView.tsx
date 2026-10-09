@@ -4,7 +4,7 @@ import { useQRScanner } from '../hooks/useQRScanner';
 import { trackEvent } from '../utils/analytics';
 
 interface Participant { id: string; name: string; email?: string; phone?: string; checkedInAt?: number; }
-interface CheckinViewProps { onBack: () => void; onGenerateAndPrint: (items: { id: string; label: string; payload: string }[]) => void; }
+interface CheckinViewProps { isPro: boolean; onOpenPro: (source?: string) => void; onBack: () => void; onGenerateAndPrint: (items: { id: string; label: string; payload: string }[]) => void; }
 
 function formatDateTime(timestamp: number) {
   const date = new Date(timestamp);
@@ -62,7 +62,7 @@ function parseRows(text: string): Participant[] {
 
 const SAMPLE = 'ID\tHọ tên\tEmail\nHV001\tNguyễn Văn A\ta@gmail.com\nHV002\tTrần Văn B\tb@gmail.com\nHV003\tLê Văn C\tc@gmail.com';
 
-export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndPrint }) => {
+export const CheckinView: React.FC<CheckinViewProps> = ({ isPro, onOpenPro, onBack, onGenerateAndPrint }) => {
   const [step, setStep] = useState<'data' | 'print' | 'scan' | 'result'>('data');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [rawInput, setRawInput] = useState('');
@@ -73,6 +73,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
   const checkedIn = useMemo(() => participants.filter(p => p.checkedInAt).length, [participants]);
 
   const handleScan = (raw: string) => {
+    if (!isPro) { stopCamera(); onOpenPro('workflow_checkin_scan'); return; }
     const id = raw.trim();
     const participant = participants.find(p => p.id.toLowerCase() === id.toLowerCase());
     if (!participant) {
@@ -113,6 +114,7 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
   }
 
   async function handleImageUpload(file?: File) {
+    if (!isPro) { onOpenPro('workflow_checkin_scan'); return; }
     if (!file) return;
     const raw = await scanFile(file);
     if (!raw) setError('Không tìm thấy mã QR trong ảnh.');
@@ -162,7 +164,8 @@ export const CheckinView: React.FC<CheckinViewProps> = ({ onBack, onGenerateAndP
   };
 
   const goToPrint = () => setStep('print');
-  const goToScan = () => setStep('scan');
+  const goToScan = () => { if (!isPro) { onOpenPro('workflow_checkin_scan'); return; } setStep('scan'); };
+  const handleStartScan = () => { if (!isPro) { onOpenPro('workflow_checkin_scan'); return; } void startCamera(); };
   const goToResult = () => {
     stopCamera();
     setStep('result');
@@ -243,8 +246,8 @@ HV001\tNguyễn Văn A\ta@gmail.com" className="w-full min-h-52 p-3 rounded-xl b
               </div>
               {scannerError && <div className="text-xs text-red-600">{scannerError}</div>}
               <div className="flex gap-2">
-                <button type="button" onClick={cameraActive ? stopCamera : startCamera} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
-                <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />Tải ảnh QR<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
+                <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
+                <label onClick={event=>{if(!isPro){event.preventDefault();onOpenPro('workflow_checkin_scan');}}} className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />Tải ảnh QR<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
               </div>
             </div>
             <div className="space-y-4">

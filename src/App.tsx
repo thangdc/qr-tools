@@ -776,6 +776,8 @@ export default function App() {
         {/* Check-in Workflow */}
         {activeView === 'checkin' && (
           <CheckinView
+            isPro={isPro}
+            onOpenPro={openProModal}
             onBack={() => setActiveView('workflows')}
             onGenerateAndPrint={(items) => {
               if (!isPro) {

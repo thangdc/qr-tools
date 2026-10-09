@@ -146,6 +146,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   };
 
   const handleDecodedPayment = useCallback((raw: string) => {
+    if (!isPro) { stopCamera(); onOpenPro('workflow_payment_scan'); return; }
     if (scanPaused) return;
 
     const payload = parseVietQRPayload(raw);
@@ -193,7 +194,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
       status: alreadyPaid ? 'duplicate' : 'success'
     });
     pauseAfterScan(alreadyPaid ? 1800 : 1500);
-  }, [rows, scanPaused]);
+  }, [rows, scanPaused, isPro, onOpenPro]);
 
   const { videoRef, isCameraActive: cameraActive, cameraError, startCamera, stopCamera, scanFile } = useQRScanner({
     onDecoded: handleDecodedPayment,
@@ -201,6 +202,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
   });
 
   const handleImageUpload = async (file?: File) => {
+    if (!isPro) { onOpenPro('workflow_payment_scan'); return; }
     if (!file) return;
     const raw = await scanFile(file);
     if (!raw) {
@@ -210,6 +212,9 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
       setScanError('');
     }
   };
+
+  const goToScan = () => { if (!isPro) { onOpenPro('workflow_payment_scan'); return; } setStep(3); };
+  const handleStartScan = () => { if (!isPro) { onOpenPro('workflow_payment_scan'); return; } void startCamera(); };
 
   const totalReceivables = rows.length;
   const paidCount = rows.filter(row => row.status === 'Đã thu').length;
@@ -347,7 +352,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
             ))}
           </div>
           <div className="flex justify-end">
-            <button type="button" onClick={() => setStep(3)} className="h-9 px-4 rounded-lg border border-neutral-200 text-xs font-semibold text-neutral-700 cursor-pointer">Tiếp tục theo dõi →</button>
+            <button type="button" onClick={goToScan} className="h-9 px-4 rounded-lg border border-neutral-200 text-xs font-semibold text-neutral-700 cursor-pointer">Tiếp tục theo dõi →</button>
           </div>
         </section>
       )}
@@ -390,10 +395,10 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
               {cameraError && <div className="text-xs text-red-600">{cameraError}</div>}
               {scanError && <div className="text-xs text-red-600">{scanError}</div>}
               <div className="flex gap-2">
-                <button type="button" onClick={cameraActive ? stopCamera : startCamera} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>
+                <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>
                   {cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}
                 </button>
-                <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
+                <label onClick={event=>{if(!isPro){event.preventDefault();onOpenPro('workflow_payment_scan');}}} className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
                   <Upload className="w-3.5 h-3.5" />Quét bằng ảnh
                   <input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} />
                 </label>
