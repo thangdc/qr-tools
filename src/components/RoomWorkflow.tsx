@@ -117,6 +117,7 @@ export const RoomWorkflow: React.FC<RoomWorkflowProps> = ({ isPro, onOpenPro, on
   };
 
   const handleScan = (raw: string) => {
+    if (!isPro) { stopCamera(); onOpenPro('workflow_room_scan'); return; }
     if (scanPaused) return;
     const decoded = decodeRoom(raw);
     if (!decoded) {
@@ -146,6 +147,7 @@ export const RoomWorkflow: React.FC<RoomWorkflowProps> = ({ isPro, onOpenPro, on
   };
 
   const handleImageUpload = async (file?: File) => {
+    if (!isPro) { onOpenPro('workflow_room_scan'); return; }
     if (!file) return;
     const raw = await scanFile(file);
     if (!raw) setError('Không tìm thấy mã QR trong ảnh.');
@@ -156,6 +158,8 @@ export const RoomWorkflow: React.FC<RoomWorkflowProps> = ({ isPro, onOpenPro, on
     onDecoded: handleScan,
     stopAfterDecode: false,
   });
+  const goToScan = () => { if (!isPro) { onOpenPro('workflow_room_scan'); return; } setStep('scan'); };
+  const handleStartScan = () => { if (!isPro) { onOpenPro('workflow_room_scan'); return; } void startCamera(); };
 
   const importRooms = () => {
     const parsed = parseRooms(input);
@@ -285,7 +289,7 @@ export const RoomWorkflow: React.FC<RoomWorkflowProps> = ({ isPro, onOpenPro, on
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end gap-2">
             <button type="button" onClick={handlePrint} className="h-10 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><Printer className="w-3.5 h-3.5" />Tạo & in QR {isPro ? '' : 'Pro'}</button>
-            <button type="button" onClick={() => setStep('scan')} className="h-10 px-4 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Tôi đã có QR <ArrowRight className="w-3.5 h-3.5" /></button>
+            <button type="button" onClick={goToScan} className="h-10 px-4 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Tôi đã có QR <ArrowRight className="w-3.5 h-3.5" /></button>
           </div>
           <div className="flex items-center justify-between gap-2 pt-1">
             <button type="button" onClick={() => setStep('data')} className="h-9 px-3 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5" />Quay lại danh sách</button>
@@ -309,7 +313,7 @@ export const RoomWorkflow: React.FC<RoomWorkflowProps> = ({ isPro, onOpenPro, on
               </div>
               {cameraError && <div className="text-xs text-red-600">{cameraError}</div>}
               <div className="flex gap-2">
-                <button type="button" onClick={cameraActive ? stopCamera : startCamera} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
+                <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
                 <label className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />Quét bằng ảnh<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
               </div>
             </div>
