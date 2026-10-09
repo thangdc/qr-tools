@@ -3,7 +3,7 @@ import { Download, Plus, Settings2, Trash2 } from 'lucide-react';
 import type { WorkflowFieldDefinition, WorkflowInputSource, WorkflowRecord, WorkflowValueType } from '../workflows/configuration';
 import { mapWorkflowInput, validateWorkflowRecord } from '../workflows/configuration';
 
-const STORAGE_PREFIX = 'qr_tools_workflow_definitions_v1';
+const STORAGE_PREFIX = 'qr_tools_inline_workflow_definitions_v1';
 const sources: WorkflowInputSource[] = ['manual', 'excel', 'qr'];
 const types: WorkflowValueType[] = ['text', 'number', 'date', 'email', 'url', 'phone', 'checkbox'];
 
