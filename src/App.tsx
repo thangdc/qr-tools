@@ -776,6 +776,8 @@ export default function App() {
         {/* Check-in Workflow */}
         {activeView === 'checkin' && (
           <CheckinView
+            isPro={isPro}
+            onOpenPro={openProModal}
             onBack={() => setActiveView('workflows')}
             onGenerateAndPrint={(items) => {
               if (!isPro) {
@@ -921,6 +923,8 @@ export default function App() {
         {/* Scanner View */}
         {activeView === 'scanner' && (
           <ScannerView
+            isPro={isPro}
+            onOpenPro={openProModal}
             onBackToGenerator={() => setActiveView('generator')}
             onLoadIntoGenerator={handleLoadFromScanner}
           />
