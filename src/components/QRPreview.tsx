@@ -819,6 +819,7 @@ export const QRPreview: React.FC<QRPreviewProps> = ({
           >
             <Printer className="w-3.5 h-3.5 text-neutral-400" />
             <span>{tx('In', 'Print')}</span>
+            {!isPro && <span className="rounded bg-amber-100 px-1 py-0.5 text-[9px] font-bold text-amber-800">PRO</span>}
           </button>
 
           <button
