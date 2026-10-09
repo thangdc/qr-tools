@@ -76,6 +76,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack, commerci
   };
 
   const importData = async (file?: File) => {
+    if (commercialMode === 'standalone' && !isPro) { setProOpen(true); return; }
     if (!file) return; setLoading(true); setError('');
     try {
       const source = createExcelDataSource(new Uint8Array(await file.arrayBuffer()), createXlsxParser());
