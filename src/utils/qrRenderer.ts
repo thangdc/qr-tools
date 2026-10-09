@@ -84,12 +84,23 @@ function isFinderPattern(r: number, c: number, size: number): boolean {
 /**
  * Render complete QR Code with custom module style, eye style, frame caption, and center logo
  */
+const VIETSOFT_LOGO_URL = 'https://raw.githubusercontent.com/thangdc/VietSoft/gh-pages/images/logo.png';
+
 export async function renderCustomQRCode(
   canvas: HTMLCanvasElement,
   payload: string,
-  design: QRDesignOptions,
+  designInput: QRDesignOptions,
   targetWidth: number = 320
 ): Promise<void> {
+  const isPro = typeof window !== 'undefined' && window.localStorage.getItem('qr_tools_pro') === 'true';
+  const design: QRDesignOptions = isPro
+    ? designInput
+    : {
+        ...designInput,
+        centerLogo: 'custom',
+        customLogoUrl: VIETSOFT_LOGO_URL,
+        errorCorrectionLevel: 'H',
+      };
   const qr = QRCode.create(payload, {
     errorCorrectionLevel: design.errorCorrectionLevel,
   });
