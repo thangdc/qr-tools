@@ -34,7 +34,7 @@ import { QRPreview } from './components/QRPreview';
 import { HistoryView } from './components/HistoryView';
 import { ScannerView } from './components/ScannerView';
 import { WorkflowHub } from './components/WorkflowHub';
-import { WorkflowConfigurationView } from './components/WorkflowConfigurationView';
+import { InlineWorkflowConfiguration } from './components/InlineWorkflowConfiguration';
 import { CheckinView } from './components/CheckinView';
 import { BulkPrintWorkflow } from './components/BulkPrintWorkflow';
 import { AssetWorkflow } from './components/AssetWorkflow';
@@ -704,16 +704,13 @@ export default function App() {
             onOpenRooms={() => setActiveView('rooms')}
             onOpenPayment={() => setActiveView('payment')}
             onOpenEquipmentMaintenance={() => setActiveView('equipment-maintenance')}
-            onOpenConfiguration={() => setActiveView('workflow-config')}
           />
-        )}
-
-        {activeView === 'workflow-config' && (
-          <WorkflowConfigurationView onBack={() => setActiveView('workflows')} />
         )}
 
         {/* Bulk QR Print Workflow */}
         {activeView === 'bulk-print' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="bulk-print" />
           <BulkPrintWorkflow
             isPro={isPro}
             onOpenPro={openProModal}
@@ -722,10 +719,14 @@ export default function App() {
               setBatchPrintState({ isOpen: true, items });
             }}
           />
+
+          </div>
         )}
 
         {/* Asset Management Workflow */}
         {activeView === 'assets' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="assets" />
           <AssetWorkflow
             isPro={isPro}
             onOpenPro={openProModal}
@@ -734,10 +735,14 @@ export default function App() {
               setBatchPrintState({ isOpen: true, items });
             }}
           />
+
+          </div>
         )}
 
         {/* Inventory Counting Workflow */}
         {activeView === 'inventory' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="inventory" />
           <InventoryWorkflow
             isPro={isPro}
             onOpenPro={openProModal}
@@ -746,10 +751,14 @@ export default function App() {
               setBatchPrintState({ isOpen: true, items });
             }}
           />
+
+          </div>
         )}
 
         {/* Room Management Workflow */}
         {activeView === 'rooms' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="rooms" />
           <RoomWorkflow
             isPro={isPro}
             onOpenPro={openProModal}
@@ -758,17 +767,25 @@ export default function App() {
               setBatchPrintState({ isOpen: true, items });
             }}
           />
+
+          </div>
         )}
 
         {/* Equipment Maintenance Workflow */}
         {activeView === 'equipment-maintenance' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="equipment-maintenance" />
           <EquipmentMaintenanceWorkflow
             onBack={() => setActiveView('workflows')}
           />
+
+          </div>
         )}
 
         {/* Payment Collection Workflow */}
         {activeView === 'payment' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="payment" />
           <PaymentWorkflow
             isPro={isPro}
             onOpenPro={openProModal}
@@ -777,10 +794,14 @@ export default function App() {
               setBatchPrintState({ isOpen: true, items });
             }}
           />
+
+          </div>
         )}
 
         {/* Check-in Workflow */}
         {activeView === 'checkin' && (
+          <div className="w-full">
+            <InlineWorkflowConfiguration workflowId="checkin" />
           <CheckinView
             isPro={isPro}
             onOpenPro={openProModal}
@@ -794,6 +815,8 @@ export default function App() {
               trackEvent('workflow_checkin_qr_print_opened', { count: items.length });
             }}
           />
+
+          </div>
         )}
 
         {/* Generator View */}
