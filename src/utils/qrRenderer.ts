@@ -84,12 +84,23 @@ function isFinderPattern(r: number, c: number, size: number): boolean {
 /**
  * Render complete QR Code with custom module style, eye style, frame caption, and center logo
  */
+const VIETSOFT_LOGO_URL = 'https://raw.githubusercontent.com/thangdc/VietSoft/gh-pages/images/logo.png';
+
 export async function renderCustomQRCode(
   canvas: HTMLCanvasElement,
   payload: string,
-  design: QRDesignOptions,
+  designInput: QRDesignOptions,
   targetWidth: number = 320
 ): Promise<void> {
+  const isPro = typeof window !== 'undefined' && window.localStorage.getItem('qr_tools_pro') === 'true';
+  const design: QRDesignOptions = isPro
+    ? designInput
+    : {
+        ...designInput,
+        centerLogo: 'custom',
+        customLogoUrl: VIETSOFT_LOGO_URL,
+        errorCorrectionLevel: 'H',
+      };
   const qr = QRCode.create(payload, {
     errorCorrectionLevel: design.errorCorrectionLevel,
   });
@@ -229,13 +240,24 @@ export async function renderCustomQRCode(
     if (design.centerLogo === 'custom' && design.customLogoUrl) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.src = design.customLogoUrl;
       await new Promise<void>((resolve) => {
         img.onload = () => {
-          ctx.drawImage(img, x, y, logoSize, logoSize);
+          // Preserve the VietSofts wordmark aspect ratio inside the square logo mask.
+          const aspect = (img.naturalWidth || img.width || 1) / (img.naturalHeight || img.height || 1);
+          const maxLogoSize = logoSize * 0.88;
+          const logoWidth = aspect >= 1 ? maxLogoSize : maxLogoSize * aspect;
+          const logoHeight = aspect >= 1 ? maxLogoSize / aspect : maxLogoSize;
+          ctx.drawImage(
+            img,
+            center - logoWidth / 2,
+            centerY - logoHeight / 2,
+            logoWidth,
+            logoHeight
+          );
           resolve();
         };
         img.onerror = () => resolve();
+        img.src = design.customLogoUrl!;
       });
     } else if (design.centerLogo === 'bank') {
       ctx.fillStyle = '#005f33';
