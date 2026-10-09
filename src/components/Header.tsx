@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, History, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen, ChevronDown, Workflow } from 'lucide-react';
+import { Sparkles, History, ScanLine, ShieldCheck, Keyboard, LayoutTemplate, Menu, X, BookOpen, ChevronDown, Workflow, SlidersHorizontal } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
 interface HeaderProps {
@@ -53,6 +53,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
         <nav className="hidden md:flex items-center gap-0.5 whitespace-nowrap">
           <button data-testid="nav-generator" onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
           <button data-testid="nav-workflows" onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print' || activeView === 'assets' || activeView === 'inventory' || activeView === 'rooms' || activeView === 'payment')} flex items-center gap-1.5`}><Workflow className="w-3.5 h-3.5 text-neutral-400" /><span>Workflows</span></button>
+          <button data-testid="nav-workflow-config" onClick={() => selectView('workflow-config')} className={`${navClass(activeView === 'workflow-config')} flex items-center gap-1.5`}><SlidersHorizontal className="w-3.5 h-3.5 text-blue-600" /><span>Cấu hình</span></button>
           <button data-testid="nav-history" onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-1.5`}><History className="w-3.5 h-3.5 text-neutral-400" /><span>{t('history')}</span>{historyCount > 0 && <span className="text-xs text-neutral-500 font-mono">· {historyCount}</span>}</button>
           <div className="relative">
             <button type="button" onClick={() => setIsGuideMenuOpen(v => !v)} className="px-2.5 py-1.5 text-sm font-medium rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 flex items-center gap-1.5 cursor-pointer" aria-expanded={isGuideMenuOpen} aria-haspopup="menu">
@@ -82,6 +83,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
         <nav className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-1.5">
           <button onClick={() => selectView('generator')} className={navClass(activeView === 'generator')}>{t('generator')}</button>
           <button onClick={() => selectView('workflows')} className={`${navClass(activeView === 'workflows' || activeView === 'checkin' || activeView === 'bulk-print' || activeView === 'assets' || activeView === 'inventory' || activeView === 'rooms' || activeView === 'payment')} flex items-center gap-2`}><Workflow className="w-4 h-4 text-neutral-400" />Workflows</button>
+          <button onClick={() => selectView('workflow-config')} className={`${navClass(activeView === 'workflow-config')} flex items-center gap-2`}><SlidersHorizontal className="w-4 h-4 text-blue-600" />Cấu hình dữ liệu</button>
           <button onClick={() => selectView('history')} className={`${navClass(activeView === 'history')} flex items-center gap-2`}><History className="w-4 h-4 text-neutral-400" />{t('history')}{historyCount > 0 && <span className="text-xs text-neutral-500">· {historyCount}</span>}</button>
           <button onClick={() => selectView('scanner')} className={`${navClass(activeView === 'scanner')} flex items-center gap-2`}><ScanLine className="w-4 h-4 text-neutral-400" />{t('scanner')}</button>
           <div className="col-span-2">
