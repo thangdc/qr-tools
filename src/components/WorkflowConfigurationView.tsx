@@ -112,7 +112,7 @@ export const WorkflowConfigurationView: React.FC<WorkflowConfigurationViewProps>
 
   return (
     <div className={isModal ? "fixed inset-0 z-50 overflow-y-auto bg-neutral-950/50 p-3 sm:p-6" : "mx-auto w-full max-w-5xl"} role={isModal ? "dialog" : undefined} aria-modal={isModal ? true : undefined} aria-label={isModal ? "Cấu hình workflow" : undefined}><div className={isModal ? "mx-auto my-2 w-full max-w-5xl space-y-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 shadow-2xl sm:my-6 sm:p-6" : "w-full space-y-6"}>
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-5">
+      <div className="sticky top-0 z-10 flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 bg-neutral-50/95 pb-4 pt-1 backdrop-blur-sm">
         <div>
           {isModal ? <button type="button" onClick={onClose} aria-label="Đóng cấu hình" className="mb-3 inline-flex h-9 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-600 hover:bg-neutral-100"><ArrowLeft className="h-4 w-4" /> Đóng</button> : <button type="button" onClick={onBack} className="mb-3 inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900"><ArrowLeft className="h-4 w-4" /> Quay lại Workflows</button>}
           <div className="flex items-center gap-2"><Settings2 className="h-5 w-5 text-blue-700" /><h1 className="text-2xl font-bold text-neutral-900">Cấu hình dữ liệu workflow</h1></div>
@@ -125,13 +125,13 @@ export const WorkflowConfigurationView: React.FC<WorkflowConfigurationViewProps>
 
       <section className="rounded-2xl border border-neutral-200 bg-white p-4">
         <label className="mb-2 block text-sm font-semibold text-neutral-800">Workflow</label>
-        <select value={selectedId} onChange={event => setSelectedId(event.target.value)} className="h-10 w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm md:max-w-xl">
+        <select value={selectedId} onChange={event => setSelectedId(event.target.value)} disabled={isModal} className="h-10 w-full rounded-lg border border-neutral-300 bg-white px-3 text-sm disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-500 md:max-w-xl">
           {definitions.map(definition => <option key={definition.id} value={definition.id}>{definition.name}</option>)}
         </select>
         <p className="mt-2 text-xs text-neutral-500">Phiên bản cấu hình: {current.version}. Cấu hình hiện được lưu cục bộ trong trình duyệt, chưa đồng bộ giữa thiết bị hoặc người dùng.</p>
       </section>
 
-      <section className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4">
+      <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
         <div className="flex items-center justify-between gap-3"><div><h2 className="font-semibold text-neutral-900">1. Dữ liệu đầu vào</h2><p className="text-xs text-neutral-500">Chọn kiểu dữ liệu, nguồn được phép và quy tắc kiểm tra.</p></div><button type="button" onClick={addField} className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs font-semibold"><Plus className="h-3.5 w-3.5" /> Thêm field</button></div>
         {current.fields.map((field, index) => <div key={field.key + index} className="grid grid-cols-1 gap-3 rounded-xl border border-neutral-200 p-3 md:grid-cols-12">
           <label className="md:col-span-3"><span className="mb-1 block text-xs text-neutral-500">Tên hiển thị</span><input value={field.label} onChange={event => updateField(index, { label: event.target.value })} className="h-9 w-full rounded-lg border border-neutral-300 px-2 text-sm" /></label>
