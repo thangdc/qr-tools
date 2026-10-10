@@ -337,7 +337,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
               <p className="text-xs text-neutral-500 mt-1">{rows.length} khoản thu · tổng {formatMoney(total)}</p>
             </div>
             <button type="button" onClick={handlePrint} className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-neutral-900 text-white text-xs font-semibold cursor-pointer">
-              <Printer className="w-3.5 h-3.5" /> Tạo & in QR
+              <Printer className="w-3.5 h-3.5" /> Tạo & in QR {!isPro && <span className="ml-1 rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}
             </button>
           </div>
           <div className="grid gap-2">
@@ -352,7 +352,7 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
             ))}
           </div>
           <div className="flex justify-end">
-            <button type="button" onClick={goToScan} className="h-9 px-4 rounded-lg border border-neutral-200 text-xs font-semibold text-neutral-700 cursor-pointer">Tiếp tục theo dõi →</button>
+            <button type="button" onClick={goToScan} className="h-9 px-4 rounded-lg border border-neutral-200 text-xs font-semibold text-neutral-700 cursor-pointer">Tiếp tục theo dõi → {!isPro && <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[9px] font-bold text-amber-800">PRO</span>}</button>
           </div>
         </section>
       )}
@@ -396,10 +396,10 @@ export const PaymentWorkflow: React.FC<PaymentWorkflowProps> = ({
               {scanError && <div className="text-xs text-red-600">{scanError}</div>}
               <div className="flex gap-2">
                 <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>
-                  {cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}
+                  {cameraActive ? 'Dừng camera' : <>Bắt đầu quét {!isPro && <span className="ml-1 rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}</>}
                 </button>
                 <label onClick={event=>{if(!isPro){event.preventDefault();onOpenPro('workflow_payment_scan');}}} className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer">
-                  <Upload className="w-3.5 h-3.5" />Quét bằng ảnh
+                  <Upload className="w-3.5 h-3.5" />Quét bằng ảnh {!isPro && <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[9px] font-bold text-amber-800">PRO</span>}
                   <input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} />
                 </label>
               </div>
