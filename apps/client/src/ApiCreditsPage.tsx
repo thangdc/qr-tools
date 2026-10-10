@@ -14,7 +14,7 @@ const PACKS: Array<{ code: string; name: string; price: number; credits: number;
 ];
 
 type Purchase = { order_code: string; pack_code: string; credits: number; amount: number; status: string; created_at: string; paid_at: string | null };
-type Checkout = { orderCode: string; pack: string; packName: string; amount: number; credits: number; expiresAt: string; qrUrl: string; transferDescription: string; bankAccountName: string | null; bankAccount: string; bankCode: string };
+type Checkout = { orderCode: string; pack: string; packName: string; amount: number; credits: number; expiresAt: string; checkoutEndpoint: string; checkoutFields: Record<string, string> };
 type State = { balance: number; purchases: Purchase[] };
 
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value) + "đ";
@@ -168,19 +168,25 @@ export default function ApiCreditsPage({ session }: { session: DeveloperSession 
       </div>
       <div className="credits-how"><div className="credits-how-icon"><Clock3 size={18}/></div><div><strong>Cách tính lượt</strong><p>Quota miễn phí theo phút vẫn luôn được áp dụng. Lượt trả trước chỉ dùng khi API key cá nhân vượt quota ngày hoặc tháng đã cấu hình; API key hệ thống không sử dụng số dư của bạn.</p></div></div>
     </> : <section className="credits-checkout">
-      <div className="credits-section-heading"><div><h2>Hoàn tất thanh toán</h2><p>Quét QR bằng ứng dụng ngân hàng và giữ nguyên nội dung chuyển khoản.</p></div><button className="secondary" onClick={() => setCheckout(null)}>Hủy / chọn gói khác</button></div>
+      <div className="credits-section-heading"><div><h2>Hoàn tất thanh toán</h2><p>Tiếp tục đến trang thanh toán bảo mật của SePay để quét mã QR ngân hàng.</p></div><button className="secondary" onClick={() => setCheckout(null)}>Hủy / chọn gói khác</button></div>
       <div className="credits-checkout-layout">
-        <div className="credits-qr-frame"><img src={checkout.qrUrl} alt="Mã QR chuyển khoản SePay"/><span><ShieldCheck size={14}/> QR chuyển khoản ngân hàng</span></div>
-        <div className="credits-payment-details">
+        <div className="credits-payment-summary">
+          <div className="credits-payment-total"><span>Số tiền cần thanh toán</span><strong>{money(checkout.amount)}</strong></div>
           <div className="credits-order-line"><span>Gói nạp</span><strong>{packName(checkout.pack)}</strong></div>
           <div className="credits-order-line"><span>Mã đơn hàng</span><code>{checkout.orderCode}</code></div>
           <div className="credits-order-line"><span>Hạn thanh toán</span><strong>{new Date(checkout.expiresAt).toLocaleTimeString("vi-VN")}</strong></div>
-          <div className="credits-payment-total"><span>Số tiền cần chuyển</span><strong>{money(checkout.amount)}</strong></div>
-          <label className="credits-transfer-label">Nội dung chuyển khoản <span>BẮT BUỘC</span></label>
-          <div className="credits-transfer-code"><code>{checkout.transferDescription}</code><button className="secondary" onClick={() => { void navigator.clipboard.writeText(checkout.transferDescription); setNotice("Đã sao chép nội dung chuyển khoản."); }}>Sao chép</button></div>
-          <div className="credits-bank-details"><span>Ngân hàng</span><strong>{checkout.bankCode}</strong><span>Số tài khoản</span><strong>{checkout.bankAccount}</strong>{checkout.bankAccountName && <><span>Chủ tài khoản</span><strong>{checkout.bankAccountName}</strong></>}</div>
-          <p className="credits-payment-note">Chuyển đúng số tiền và nội dung. Hệ thống tự cộng lượt sau khi nhận webhook xác nhận; không cần gửi ảnh giao dịch.</p>
-          <button className="primary full" onClick={() => void checkNow()}><RefreshCw size={16}/> Tôi đã chuyển khoản — kiểm tra</button>
+          <div className="credits-transfer-label">Nội dung tham chiếu đơn hàng</div>
+          <div className="credits-transfer-code"><code>{checkout.checkoutFields.order_invoice_number || checkout.orderCode}</code><button className="secondary" onClick={() => { void navigator.clipboard.writeText(checkout.checkoutFields.order_invoice_number || checkout.orderCode); setNotice("Đã sao chép mã tham chiếu đơn hàng."); }}>Sao chép</button></div>
+          <p className="credits-payment-note">SePay sẽ hiển thị mã QR và hướng dẫn chuyển khoản sau khi bạn mở trang thanh toán. Giữ nguyên nội dung do SePay cung cấp để hệ thống đối soát chính xác.</p>
+        </div>
+        <div className="credits-gateway-panel">
+          <div className="credits-gateway-icon"><ShieldCheck size={24}/></div>
+          <h3>Thanh toán qua SePay</h3>
+          <p>Trang SePay sẽ mở trong tab mới và hiển thị QR cùng thông tin chuyển khoản. Giữ trang API Credits này mở để hệ thống tự kiểm tra trạng thái đơn hàng và cập nhật số dư.</p>
+          <form action={checkout.checkoutEndpoint} method="post" target="_blank">
+            {Object.entries(checkout.checkoutFields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+            <button className="primary full" type="submit"><CreditCard size={16}/> Mở thanh toán SePay</button>
+          </form>
         </div>
       </div>
     </section>}
