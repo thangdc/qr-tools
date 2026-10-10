@@ -6,7 +6,6 @@ import hashlib
 import json
 import os
 import time
-from collections import deque
 from dataclasses import dataclass
 from typing import Any
 
@@ -22,6 +21,8 @@ DEFAULT_RATE_LIMIT = 60
 REQUIRED_CORS_ORIGINS = {
     "https://qr.thangdc.com",
     "https://client.thangdc.com",
+    "https://thangdc.com",
+    "https://www.thangdc.com",
 }
 
 
@@ -68,30 +69,6 @@ class ExecuteActionRequest(BaseModel):
     scan_payload: str = Field(min_length=1, max_length=4096)
     action: ScanAction
 
-
-class RateLimiter:
-    def __init__(self) -> None:
-        self._events: dict[str, deque[float]] = {}
-        self._lock = asyncio.Lock()
-
-    async def check(self, key_hash: str, limit: int) -> tuple[bool, int, int]:
-        now = time.monotonic()
-        async with self._lock:
-            events = self._events.setdefault(key_hash, deque())
-            cutoff = now - 60
-            while events and events[0] <= cutoff:
-                events.popleft()
-
-            if len(events) >= limit:
-                retry_after = max(1, int(events[0] + 60 - now))
-                return False, retry_after, 0
-
-            events.append(now)
-            remaining = max(0, limit - len(events))
-            return True, 0, remaining
-
-
-rate_limiter = RateLimiter()
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -197,7 +174,7 @@ async def require_api_key(
 
     row = await pool.fetchrow(
         """
-        select id, key_hash, rate_limit_per_minute
+        select id, key_hash, rate_limit_per_minute, allowed_origins
         from public.api_keys
         where key_hash = $1
           and status = 'active'
@@ -205,37 +182,48 @@ async def require_api_key(
         """,
         key_hash,
     )
-
     if row is None:
         raise HTTPException(status_code=401, detail="Invalid API key.")
 
     request.state.api_key_id = str(row["id"])
+    allowed_origins = list(row["allowed_origins"] or [])
+    if allowed_origins:
+        origin = request.headers.get("origin")
+        normalized_origin = origin.rstrip("/").lower() if origin else None
+        normalized_allowlist = {item.rstrip("/").lower() for item in allowed_origins}
+        if not normalized_origin or normalized_origin not in normalized_allowlist:
+            raise HTTPException(status_code=403, detail="Origin is not allowed for this API key.")
 
-    limit = int(row["rate_limit_per_minute"] or os.getenv("RATE_LIMIT_PER_MINUTE", DEFAULT_RATE_LIMIT))
-    request.state.rate_limit_limit = limit
-    allowed, retry_after, remaining = await rate_limiter.check(key_hash, limit)
-    if not allowed:
-        raise HTTPException(
-            status_code=429,
-            detail="Rate limit exceeded.",
-            headers={
-                "Retry-After": str(retry_after),
-                "X-RateLimit-Limit": str(limit),
-                "X-RateLimit-Remaining": "0",
-            },
-        )
+    quota = await pool.fetchrow(
+        "select allowed, reason, reset_at, remaining, rate_limit "
+        "from public.consume_api_request_quota($1)",
+        row["id"],
+    )
+    if quota is None or not quota["allowed"]:
+        reason = quota["reason"] if quota else "quota_unavailable"
+        reset_at = quota["reset_at"].isoformat() if quota and quota["reset_at"] else None
+        detail = {
+            "message": "API request limit exceeded.",
+            "limit_type": reason,
+            "reset_at": reset_at,
+        }
+        headers = {"X-RateLimit-Remaining": "0"}
+        if quota and quota["reset_at"]:
+            headers["Retry-After"] = str(max(1, int(quota["reset_at"].timestamp() - time.time())))
+        if quota and quota["rate_limit"] is not None:
+            headers["X-RateLimit-Limit"] = str(quota["rate_limit"])
+        raise HTTPException(status_code=429, detail=detail, headers=headers)
 
-    request.state.rate_limit_remaining = remaining
-
+    request.state.rate_limit_limit = int(quota["rate_limit"])
+    request.state.rate_limit_remaining = int(quota["remaining"])
     await pool.execute(
         "update public.api_keys set last_used_at = now() where id = $1",
         row["id"],
     )
-
     return ApiKey(
         id=str(row["id"]),
         key_hash=row["key_hash"],
-        rate_limit_per_minute=limit,
+        rate_limit_per_minute=int(quota["rate_limit"]),
     )
 
 
