@@ -13,6 +13,7 @@ import { DefaultScanRuntime } from '../../packages/workflow-engine/src/scan.ts';
 import type { WorkflowPersistence } from '../../packages/workflow-engine/src/persistence.ts';
 import { equipmentMaintenanceWorkflow } from '../../packages/workflows/equipment-maintenance/src/index.ts';
 import { importEquipmentMaintenance } from '../../packages/workflows/equipment-maintenance/src/import.ts';
+import { InlineWorkflowConfiguration } from './InlineWorkflowConfiguration';
 import { qrPayloadDecoder, qrPayloadEncoder } from '../../packages/qr-engine/src/index.ts';
 import type { WorkflowRecord } from '../../packages/types/src/index.ts';
 
@@ -75,6 +76,29 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack, commerci
     } catch (e) { setError(e instanceof Error ? e.message : 'Không thể đọc mã QR.'); setLastScan('unknown'); }
   };
 
+  const applyConfiguredRows = async (rows: WorkflowRecord[]) => {
+    const imported: WorkflowRecord[] = rows.map(row => ({
+      workflowId: equipmentMaintenanceWorkflow.id,
+      workflowVersion: equipmentMaintenanceWorkflow.version,
+      recordId: String(row.assetCode ?? '').trim(),
+      data: {
+        assetName: String(row.assetName ?? '').trim(),
+        location: String(row.location ?? '').trim(),
+        ...(row.maintenanceDate ? { maintenanceDate: String(row.maintenanceDate) } : {}),
+      },
+    })).filter(record => record.recordId && String(dataOf(record).assetName ?? '').trim());
+    if (!imported.length) { setError('Không có dòng hợp lệ để áp dụng. Hãy kiểm tra mã và tên thiết bị.'); return; }
+    setLoading(true); setError('');
+    try {
+      for (const record of imported) await persistence.records.save(record);
+      const latest = readRecords();
+      setRecords(latest);
+      setStep('print');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Không thể áp dụng dữ liệu vào workflow.');
+    } finally { setLoading(false); }
+  };
+
   const importData = async (file?: File) => {
     if (!file) return; setLoading(true); setError('');
     try {
@@ -105,7 +129,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack, commerci
       <div className="pb-5 border-b border-neutral-200">{commercialMode === 'standalone' && <button type="button" onClick={() => { stopCamera(); onBack(); }} className="qrw-button qrw-button--link inline-flex items-center gap-1.5 text-xs font-medium mb-3 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5" />Quay lại Workflows</button>}<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900">🔧 Bảo trì thiết bị</h1><p className="text-xs sm:text-sm text-neutral-500 mt-1">Danh sách → tạo & in QR → quét → ghi nhận bảo trì → kết quả.</p></div>
       <div className="qrw-step-tabs grid grid-cols-4 gap-1.5 text-[11px] sm:text-xs">{steps.map((s,i)=><button type="button" key={s} onClick={()=>go(s)} className={`qrw-step-tab rounded-lg px-2 py-2 text-center font-medium cursor-pointer ${step===s?'qrw-step-tab--active bg-neutral-900 text-white':'qrw-step-tab--inactive bg-neutral-100 text-neutral-500'}`}>{i+1}. {labels[i]}</button>)}</div>
 
-      {step==='data' && <div className="qr-tools-step1-layout"><div className="qrw-card bg-white border border-neutral-200 rounded-2xl p-5 space-y-4"><h2 className="text-sm font-semibold">1. Nhập danh sách thiết bị</h2><label className={`flex flex-col items-center justify-center gap-2 min-h-44 rounded-xl border-2 border-dashed border-neutral-300 hover:border-neutral-500 cursor-pointer ${loading?'opacity-50 pointer-events-none':''}`}><FileSpreadsheet className="w-7 h-7 text-neutral-400"/><span className="text-xs font-semibold">{loading?'Đang import...':'Chọn file Excel (.xlsx)'}</span><span className="text-[11px] text-neutral-400">Asset ID · Asset Name · Location</span><input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" disabled={loading} onChange={e=>{void importData(e.target.files?.[0]);e.currentTarget.value='';}}/></label><div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3 text-xs leading-5"><strong>Bắt buộc:</strong> Asset ID, Asset Name, Location<br/><strong>Tùy chọn:</strong> Maintenance Date, Maintenance Note</div>{error&&<p className="text-xs text-red-600">{error}</p>}</div><aside className="qrw-process qr-tools-process-card"><h2 className="qr-tools-process-title">Quy trình</h2><ol className="qr-tools-process-list"><li><span className="qr-tools-process-number">1</span><span>Import danh sách thiết bị</span></li><li><span className="qr-tools-process-number">2</span><span>Tạo & in QR</span></li><li><span className="qr-tools-process-number">3</span><span>Quét QR khi cần bảo trì</span></li><li><span className="qr-tools-process-number">4</span><span>Nhập thông tin và lưu kết quả</span></li></ol></aside></div>}
+      {step==='data' && <div className="space-y-4"><InlineWorkflowConfiguration workflowId="equipment-maintenance" onApply={rows => void applyConfiguredRows(rows)} /><div className="qr-tools-step1-layout"><div className="qrw-card bg-white border border-neutral-200 rounded-2xl p-5 space-y-4"><h2 className="text-sm font-semibold">1. Nhập danh sách thiết bị</h2><label className={`flex flex-col items-center justify-center gap-2 min-h-44 rounded-xl border-2 border-dashed border-neutral-300 hover:border-neutral-500 cursor-pointer ${loading?'opacity-50 pointer-events-none':''}`}><FileSpreadsheet className="w-7 h-7 text-neutral-400"/><span className="text-xs font-semibold">{loading?'Đang import...':'Chọn file Excel (.xlsx)'}</span><span className="text-[11px] text-neutral-400">Asset ID · Asset Name · Location</span><input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" disabled={loading} onChange={e=>{void importData(e.target.files?.[0]);e.currentTarget.value='';}}/></label><div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3 text-xs leading-5"><strong>Bắt buộc:</strong> Asset ID, Asset Name, Location<br/><strong>Tùy chọn:</strong> Maintenance Date, Maintenance Note</div>{error&&<p className="text-xs text-red-600">{error}</p>}</div><aside className="qrw-process qr-tools-process-card"><h2 className="qr-tools-process-title">Quy trình</h2><ol className="qr-tools-process-list"><li><span className="qr-tools-process-number">1</span><span>Import danh sách thiết bị</span></li><li><span className="qr-tools-process-number">2</span><span>Tạo & in QR</span></li><li><span className="qr-tools-process-number">3</span><span>Quét QR khi cần bảo trì</span></li><li><span className="qr-tools-process-number">4</span><span>Nhập thông tin và lưu kết quả</span></li></ol></aside></div></div>}
 
       {step==='print' && <div className="qrw-step-panel w-full bg-white border border-neutral-200 rounded-2xl p-5 sm:p-6 space-y-5"><div><p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wide">Bước 2</p><h2 className="text-lg font-bold text-neutral-900 mt-1">Tạo & in QR cho thiết bị</h2><p className="text-sm text-neutral-500 mt-1">Đã có <strong className="text-neutral-900">{records.length} thiết bị</strong>.</p></div><div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4 text-xs text-neutral-600 space-y-1.5"><p>• In QR và dán lên thiết bị.</p><p>• Nếu đã có QR, có thể bỏ qua bước này.</p></div><div className="overflow-x-auto border border-neutral-200 rounded-xl"><table className="w-full text-xs"><thead className="bg-neutral-50 text-neutral-500"><tr><th className="text-left px-3 py-2 font-medium">Mã</th><th className="text-left px-3 py-2 font-medium">Thiết bị</th><th className="text-left px-3 py-2 font-medium">Vị trí</th></tr></thead><tbody>{records.map(r=>{const d=dataOf(r);return <tr key={r.recordId} className="border-t border-neutral-100"><td className="px-3 py-2 font-mono">{r.recordId}</td><td className="px-3 py-2 font-medium">{String(d.assetName??'')}</td><td className="px-3 py-2">{String(d.location??'')}</td></tr>})}</tbody></table></div><div className="flex flex-wrap justify-center sm:justify-end gap-2"><button type="button" onClick={handlePrint} className="qrw-button--primary qrw-button h-10 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><Printer className="w-3.5 h-3.5"/>Tạo & in QR {commercialMode === 'standalone' && !isPro && <span className="ml-1 rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}</button><button type="button" onClick={()=>go('scan')} className="qrw-button qrw-button--secondary h-10 px-4 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Tôi đã có QR <ArrowRight className="w-3.5 h-3.5"/></button></div><div className="flex items-center justify-between gap-2"><button type="button" onClick={()=>go('data')} className="qrw-button qrw-button--secondary h-9 px-3 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><ArrowLeft className="w-3.5 h-3.5"/>Quay lại danh sách</button><button type="button" onClick={()=>go('scan')} className="qrw-button qrw-button--primary h-9 px-3 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Tiếp tục bảo trì <ArrowRight className="w-3.5 h-3.5"/></button></div></div>}
 
