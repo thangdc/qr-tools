@@ -109,19 +109,37 @@ Deno.serve(async (req) => {
       },200,origin);
     }
 
-    const {data,error}=await adminClient.from('api_keys').select('id,name,key_prefix,status,rate_limit_per_minute,expires_at,created_at,last_used_at').eq('user_id',userId).order('created_at',{ascending:false});
+    const {data,error}=await adminClient.from('api_keys').select('id,name,key_prefix,status,rate_limit_per_minute,allowed_origins,daily_request_limit,monthly_request_limit,expires_at,created_at,last_used_at').eq('user_id',userId).order('created_at',{ascending:false});
     if(error) return response({error:'list_failed'},500,origin);
     return response({keys:(data??[]).map((key)=>({...key,key_masked:maskKey(key.key_prefix)}))},200,origin);
   }
 
-  let body:{action?:string;id?:string;name?:string};
+  let body:{action?:string;id?:string;name?:string;allowedOrigins?:unknown;rateLimitPerMinute?:unknown;dailyRequestLimit?:unknown;monthlyRequestLimit?:unknown};
   try { body=await req.json(); } catch { return response({error:'invalid_json'},400,origin); }
 
   if(body.action==='create'){
     const name=body.name?.trim();
     if(!name||name.length>100) return response({error:'invalid_name'},400,origin);
+    const originsRaw=Array.isArray(body.allowedOrigins)?body.allowedOrigins:[];
+    const allowedOrigins:string[]=[];
+    for(const value of originsRaw){
+      if(typeof value!=='string'||!value.trim()) continue;
+      const raw=value.trim();
+      try{
+        const parsed=new URL(raw);
+        const localHttp=parsed.protocol==='http:'&&(parsed.hostname==='localhost'||parsed.hostname==='127.0.0.1');
+        if((parsed.protocol!=='https:'&&!localHttp)||parsed.origin!==raw.replace(/\/$/,'')) return response({error:'invalid_origin',message:`Invalid origin: ${raw}`},400,origin);
+        if(!allowedOrigins.includes(parsed.origin)) allowedOrigins.push(parsed.origin);
+      }catch{return response({error:'invalid_origin',message:`Invalid origin: ${raw}`},400,origin);}
+    }
+    const rateLimit=Number(body.rateLimitPerMinute??60);
+    const dailyLimit=Number(body.dailyRequestLimit??500);
+    const monthlyLimit=Number(body.monthlyRequestLimit??10000);
+    if(!Number.isInteger(rateLimit)||rateLimit<1||rateLimit>600) return response({error:'invalid_rate_limit'},400,origin);
+    if(!Number.isInteger(dailyLimit)||dailyLimit<1||dailyLimit>10000000) return response({error:'invalid_daily_limit'},400,origin);
+    if(!Number.isInteger(monthlyLimit)||monthlyLimit<1||monthlyLimit>100000000) return response({error:'invalid_monthly_limit'},400,origin);
     const key=randomKey(),keyHash=await sha256Hex(key);
-    const {data,error}=await adminClient.from('api_keys').insert({user_id:userId,name,key_prefix:'qr_live_',key_hash:keyHash,status:'active',rate_limit_per_minute:60}).select('id,name,key_prefix,status,rate_limit_per_minute,expires_at,created_at,last_used_at').single();
+    const {data,error}=await adminClient.from('api_keys').insert({user_id:userId,name,key_prefix:'qr_live_',key_hash:keyHash,status:'active',rate_limit_per_minute:rateLimit,allowed_origins:allowedOrigins,daily_request_limit:dailyLimit,monthly_request_limit:monthlyLimit}).select('id,name,key_prefix,status,rate_limit_per_minute,allowed_origins,daily_request_limit,monthly_request_limit,expires_at,created_at,last_used_at').single();
     if(error) return response({error:'create_failed'},500,origin);
     return response({key:{...data,key_masked:maskKey(data.key_prefix),secret:key},warning:'Store this API key now. It will not be shown again.'},201,origin);
   }
@@ -136,12 +154,12 @@ Deno.serve(async (req) => {
 
   if(body.action==='rotate'){
     if(!body.id) return response({error:'invalid_id'},400,origin);
-    const {data:oldKey,error:oldKeyError}=await adminClient.from('api_keys').select('id,name,rate_limit_per_minute,expires_at,status').eq('id',body.id).eq('user_id',userId).eq('status','active').maybeSingle();
+    const {data:oldKey,error:oldKeyError}=await adminClient.from('api_keys').select('id,name,rate_limit_per_minute,allowed_origins,daily_request_limit,monthly_request_limit,expires_at,status').eq('id',body.id).eq('user_id',userId).eq('status','active').maybeSingle();
     if(oldKeyError) return response({error:'lookup_failed'},500,origin);
     if(!oldKey) return response({error:'not_found'},404,origin);
 
     const key=randomKey(),keyHash=await sha256Hex(key);
-    const {data:newKey,error:createError}=await adminClient.from('api_keys').insert({user_id:userId,name:body.name?.trim()||oldKey.name,key_prefix:'qr_live_',key_hash:keyHash,status:'active',rate_limit_per_minute:oldKey.rate_limit_per_minute,expires_at:oldKey.expires_at}).select('id,name,key_prefix,status,rate_limit_per_minute,expires_at,created_at,last_used_at').single();
+    const {data:newKey,error:createError}=await adminClient.from('api_keys').insert({user_id:userId,name:body.name?.trim()||oldKey.name,key_prefix:'qr_live_',key_hash:keyHash,status:'active',rate_limit_per_minute:oldKey.rate_limit_per_minute,allowed_origins:oldKey.allowed_origins,daily_request_limit:oldKey.daily_request_limit,monthly_request_limit:oldKey.monthly_request_limit,expires_at:oldKey.expires_at}).select('id,name,key_prefix,status,rate_limit_per_minute,allowed_origins,daily_request_limit,monthly_request_limit,expires_at,created_at,last_used_at').single();
     if(createError) return response({error:'rotate_failed'},500,origin);
 
     const {error:revokeError}=await adminClient.from('api_keys').update({status:'revoked'}).eq('id',oldKey.id).eq('user_id',userId).eq('status','active');
