@@ -81,7 +81,7 @@ function downloadCsv(rows: WorkflowRecord[], fields: WorkflowFieldDefinition[]) 
   URL.revokeObjectURL(url);
 }
 
-interface Props { workflowId: string; onApply?: (rows: WorkflowRecord[]) => void; }
+interface Props { workflowId: string; onApply?: (rows: Array<Record<string, unknown>>) => void; }
 export const InlineWorkflowConfiguration: React.FC<Props> = ({ workflowId, onApply }) => {
   const [open, setOpen] = useState(false);
   const [definition, setDefinition] = useState<InlineDefinition>(() => loadDefinition(workflowId));
