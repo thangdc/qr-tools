@@ -76,16 +76,16 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack, commerci
     } catch (e) { setError(e instanceof Error ? e.message : 'Không thể đọc mã QR.'); setLastScan('unknown'); }
   };
 
-  const applyConfiguredRows = async (rows: WorkflowRecord[]) => {
+  const applyConfiguredRows = async (rows: Array<Record<string, unknown>>) => {
     const imported: WorkflowRecord[] = rows.map(row => ({
       workflowId: equipmentMaintenanceWorkflow.id,
       workflowVersion: equipmentMaintenanceWorkflow.version,
-      recordId: String(row.assetCode ?? '').trim(),
+      recordId: String(row['assetCode'] ?? '').trim(),
       data: {
-        assetId: String(row.assetCode ?? '').trim(),
-        assetName: String(row.assetName ?? '').trim(),
-        location: String(row.location ?? '').trim(),
-        ...(row.maintenanceDate ? { maintenanceDate: String(row.maintenanceDate) } : {}),
+        assetId: String(row['assetCode'] ?? '').trim(),
+        assetName: String(row['assetName'] ?? '').trim(),
+        location: String(row['location'] ?? '').trim(),
+        ...(row['maintenanceDate'] ? { maintenanceDate: String(row['maintenanceDate']) } : {}),
       },
     })).filter(record => record.recordId && String(dataOf(record).assetName ?? '').trim());
     if (!imported.length) { setError('Không có dòng hợp lệ để áp dụng. Hãy kiểm tra mã và tên thiết bị.'); return; }
