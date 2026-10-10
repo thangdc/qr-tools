@@ -157,7 +157,7 @@ Every tool needs a bounded MVP, API contract, representative test set, quality/c
 
 ## 6. Development rules
 1. Inspect current code and deployment before editing.
-2. Read `ROADMAP.md`, `PROJECT_STATUS.md`, and `DECISIONS.md) at the start of a new session.
+2. Read `ROADMAP.md`, `PROJECT_STATUS.md`, and `DECISIONS.md` at the start of a new session.
 3. A merged PR does not prove a production deployment or end-to-end flow works.
 4. Never repeat verified completed work without a reason.
 5. Do not silently change agreed architecture, domains, API contracts, or security policy.
