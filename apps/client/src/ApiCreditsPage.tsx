@@ -3,11 +3,11 @@ import type { DeveloperSession } from "../../../src/developer-auth/types";
 import { authenticatedFetch, authHeader } from "./auth";
 
 const ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/api-credit-orders`;
-const PACKS = [
+const PACKS: Array<{ code: string; name: string; price: number; credits: number; hint: string; featured?: boolean }> = [
   { code: "starter", name: "Starter", price: 29000, credits: 10000, hint: "Dùng thử tích hợp thực tế" },
   { code: "growth", name: "Growth", price: 99000, credits: 50000, hint: "Phù hợp dự án đang tăng trưởng", featured: true },
   { code: "business", name: "Business", price: 299000, credits: 200000, hint: "Dành cho mức sử dụng cao" },
-] as const;
+];
 
 type Purchase = { order_code: string; pack_code: string; credits: number; amount: number; status: string; created_at: string; paid_at: string | null };
 type Checkout = { orderCode: string; pack: string; packName: string; amount: number; credits: number; expiresAt: string; qrUrl: string; transferDescription: string; bankAccountName: string | null; bankAccount: string; bankCode: string };
