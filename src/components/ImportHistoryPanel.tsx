@@ -206,6 +206,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
               >
                 <Plus className="w-3.5 h-3.5" />
                 {tx('Thêm', 'Add')}
+                {!isPro && <span className="rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}
               </button>
               <button
                 type="button"
@@ -214,6 +215,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
               >
                 <Upload className="w-3.5 h-3.5" />
                 CSV/TSV
+                {!isPro && <span className="rounded bg-amber-100 px-1 py-0.5 text-[9px] font-bold text-amber-800">PRO</span>}
               </button>
               <input ref={fileInputRef} type="file" accept=".csv,.tsv,.txt" onChange={handleFileImport} className="hidden" />
             </div>
@@ -272,6 +274,7 @@ export const ImportHistoryPanel: React.FC<ImportHistoryPanelProps> = ({
             <button type="button" onClick={onClose} className="h-9 px-3 text-xs font-medium text-neutral-700 hover:bg-neutral-200 rounded-lg cursor-pointer">{tx('Hủy', 'Cancel')}</button>
             <button type="button" onClick={handleImport} disabled={!importableItems.length} className="h-9 px-4 text-xs font-semibold text-white bg-neutral-900 hover:bg-black disabled:opacity-40 rounded-lg cursor-pointer">
               {tx('Thêm vào lịch sử', 'Add to History')} ({importableItems.length})
+              {!isPro && <span className="rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}
             </button>
           </div>
         </div>
