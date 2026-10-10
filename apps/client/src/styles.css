@@ -17,3 +17,13 @@
 .credits-history{margin-top:32px}.credits-history .credits-section-heading{margin-top:0}.credits-table-card{margin-top:0;border-radius:12px}.credits-table-card table{min-width:760px}.credits-table-card th{white-space:nowrap}.credits-table-card td{vertical-align:middle}.credits-table-card td code{font-size:11px}.credits-empty-row{text-align:center!important;padding:30px!important;color:#7a8494}
 @media(max-width:1000px){.credits-pack-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.credits-pack:last-child{grid-column:1/-1}.credits-pack:last-child .credits-pack-hint{min-height:0}}
 @media(max-width:700px){.credits-page-head{gap:14px}.credits-page-head .secondary{width:100%}.credits-balance-panel{padding:22px;border-radius:14px}.credits-balance-number{font-size:34px}.credits-balance-icon{width:48px;height:48px;border-radius:14px}.credits-balance-icon svg{width:24px}.credits-section-heading{align-items:flex-start;flex-direction:column}.credits-pack-grid{grid-template-columns:1fr}.credits-pack:last-child{grid-column:auto}.credits-pack-hint{min-height:0}.credits-checkout{padding:16px}.credits-checkout-layout{grid-template-columns:1fr;gap:18px}.credits-qr-frame img{width:min(100%,250px)}.credits-transfer-code code{font-size:13px}.credits-error{align-items:flex-start}.credits-error span{flex-basis:100%}}
+
+
+/* Keep API Credits connection errors in normal document flow and prevent the alert
+   from stretching across or visually colliding with the sections below. */
+.credits-error{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px 14px;margin-bottom:24px;padding:14px 16px;min-width:0;box-sizing:border-box}
+.credits-error strong{grid-column:1/-1;line-height:1.4}
+.credits-error span{grid-column:1;grid-row:2;display:block;min-width:0;width:100%;overflow-wrap:anywhere;word-break:normal;line-height:1.55}
+.credits-error .secondary{grid-column:2;grid-row:2;align-self:start;white-space:nowrap}
+.credits-error+.credits-balance-panel{margin-top:0}
+@media(max-width:700px){.credits-error{grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:20px}.credits-error strong,.credits-error span,.credits-error .secondary{grid-column:1;grid-row:auto}.credits-error .secondary{justify-self:start}}
