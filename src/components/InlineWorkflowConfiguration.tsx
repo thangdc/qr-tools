@@ -47,9 +47,9 @@ const defaults: Record<string, InlineDefinition> = {
   'equipment-maintenance': { id: 'equipment-maintenance', name: 'Bảo trì thiết bị', version: 1, fields: [
     { key: 'assetCode', label: 'Mã thiết bị', type: 'text', sources, validation: { required: true } },
     { key: 'assetName', label: 'Tên thiết bị', type: 'text', sources, validation: { required: true } },
-    { key: 'location', label: 'Vị trí', type: 'text', sources, validation: {} },
+    { key: 'location', label: 'Vị trí', type: 'text', sources, validation: { required: true } },
     { key: 'maintenanceDate', label: 'Ngày bảo trì', type: 'date', sources, validation: {} },
-  ], mappings: [{ source: 'excel', from: 'Mã thiết bị', to: 'assetCode', transform: 'trim' }, { source: 'excel', from: 'Tên thiết bị', to: 'assetName', transform: 'trim' }, { source: 'excel', from: 'Vị trí', to: 'location', transform: 'trim' }, { source: 'excel', from: 'Ngày bảo trì', to: 'maintenanceDate', transform: 'date' }], outputs: [{ id: 'qr', label: 'Tạo QR', kind: 'qr', enabled: true }, { id: 'csv', label: 'Xuất CSV', kind: 'csv', enabled: true }] },
+  ], mappings: [{ source: 'excel', from: 'Mã thiết bị', to: 'assetCode', transform: 'trim' }, { source: 'excel', from: 'Asset ID', to: 'assetCode', transform: 'trim' }, { source: 'excel', from: 'Tên thiết bị', to: 'assetName', transform: 'trim' }, { source: 'excel', from: 'Asset Name', to: 'assetName', transform: 'trim' }, { source: 'excel', from: 'Vị trí', to: 'location', transform: 'trim' }, { source: 'excel', from: 'Location', to: 'location', transform: 'trim' }, { source: 'excel', from: 'Ngày bảo trì', to: 'maintenanceDate', transform: 'date' }, { source: 'excel', from: 'Maintenance Date', to: 'maintenanceDate', transform: 'date' }], outputs: [{ id: 'qr', label: 'Tạo QR', kind: 'qr', enabled: true }, { id: 'csv', label: 'Xuất CSV', kind: 'csv', enabled: true }] },
 };
 
 function loadDefinition(workflowId: string): InlineDefinition {
@@ -83,7 +83,7 @@ function downloadCsv(rows: WorkflowRecord[], fields: WorkflowFieldDefinition[]) 
 
 interface Props { workflowId: string; onApply?: (rows: WorkflowRecord[]) => void; }
 export const InlineWorkflowConfiguration: React.FC<Props> = ({ workflowId, onApply }) => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [definition, setDefinition] = useState<InlineDefinition>(() => loadDefinition(workflowId));
   const [input, setInput] = useState('');
   const [source, setSource] = useState<'excel' | 'json' | 'google-sheets' | 'api'>('excel');
