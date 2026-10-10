@@ -1,5 +1,11 @@
 -- API credits purchased through SePay bank-transfer QR.
 -- All balance changes happen in the payment RPC, never from the browser.
+-- Apply safe free-tier quotas to new and existing keys, including system keys.
+alter table public.api_keys alter column daily_request_limit set default 500;
+alter table public.api_keys alter column monthly_request_limit set default 10000;
+update public.api_keys set daily_request_limit = 500 where daily_request_limit is null;
+update public.api_keys set monthly_request_limit = 10000 where monthly_request_limit is null;
+
 create table if not exists public.api_credit_wallets (
   user_id uuid primary key references auth.users(id) on delete cascade,
   credits_balance bigint not null default 0 check (credits_balance >= 0),
