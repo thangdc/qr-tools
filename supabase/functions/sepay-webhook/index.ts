@@ -60,7 +60,24 @@ Deno.serve(withSupabase({ auth: [] }, async (req, ctx) => {
   const { data: existing } = await ctx.supabaseAdmin.from("payment_transactions").select("id")
     .eq("provider", "sepay").eq("provider_transaction_id", transactionId).maybeSingle();
   if (existing) {
-    if (code) await sendLicenseEmail(code);
+    if (code) {
+      const { data: existingOrder } = await ctx.supabaseAdmin.from("orders")
+        .select("order_code,product_code,status").eq("order_code", code).maybeSingle();
+      if (existingOrder?.product_code === "qr-tools-api-credits") {
+        const { error } = await ctx.supabaseAdmin.rpc("complete_api_credit_order", {
+          p_order_code: code,
+          p_transaction_id: transactionId,
+          p_transaction_amount: amount,
+          p_payment_reference: String(data.referenceCode ?? transactionId),
+        });
+        if (error) {
+          console.error("API credit order completion retry failed:", error);
+          return json({ success: false, message: "API credit order completion failed." }, 500);
+        }
+        return json({ success: true });
+      }
+      await sendLicenseEmail(code);
+    }
     return json({ success: true });
   }
 
@@ -73,8 +90,10 @@ Deno.serve(withSupabase({ auth: [] }, async (req, ctx) => {
     const { data: duplicate } = await ctx.supabaseAdmin.from("payment_transactions").select("id")
       .eq("provider", "sepay").eq("provider_transaction_id", transactionId).maybeSingle();
     if (duplicate) {
-      if (code) await sendLicenseEmail(code);
-      return json({ success: true });
+      // A concurrent/replayed webhook may have inserted the transaction already.
+      // Return a retryable error so the sender retries rather than acknowledging a
+      // transaction before the matching order has been completed.
+      return json({ success: false, message: "Duplicate transaction is being processed; retry shortly." }, 500);
     }
     console.error("Transaction insert failed:", transactionError);
     return json({ success: false, message: "Database error." }, 500);
@@ -82,11 +101,25 @@ Deno.serve(withSupabase({ auth: [] }, async (req, ctx) => {
   if (!transaction || !code) return json({ success: true });
 
   const { data: order } = await ctx.supabaseAdmin.from("orders")
-    .select("id,order_code,amount,status").eq("order_code", code).maybeSingle();
+    .select("id,order_code,product_code,amount,status").eq("order_code", code).maybeSingle();
 
   if (!order || order.status !== "pending") {
     if (order?.status === "paid") await sendLicenseEmail(code);
     return json({ success: true });
+  }
+
+  if (order.product_code === "qr-tools-api-credits") {
+    const { data: completed, error: completionError } = await ctx.supabaseAdmin.rpc("complete_api_credit_order", {
+      p_order_code: code,
+      p_transaction_id: transactionId,
+      p_transaction_amount: amount,
+      p_payment_reference: String(data.referenceCode ?? transactionId),
+    });
+    if (completionError) {
+      console.error("API credit order completion failed:", completionError);
+      return json({ success: false, message: "API credit order completion failed." }, 500);
+    }
+    return json({ success: true, completed: completed ?? [] });
   }
 
   const { data: completed, error: completionError } = await ctx.supabaseAdmin.rpc("complete_qr_tools_order", {
