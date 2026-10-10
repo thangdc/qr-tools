@@ -207,6 +207,8 @@ async def require_api_key(
             "limit_type": reason,
             "reset_at": reset_at,
         }
+        if reason in {"daily", "monthly"}:
+            detail["purchase_url"] = "https://client.thangdc.com"
         headers = {"X-RateLimit-Remaining": "0"}
         if quota and quota["reset_at"]:
             headers["Retry-After"] = str(max(1, int(quota["reset_at"].timestamp() - time.time())))
