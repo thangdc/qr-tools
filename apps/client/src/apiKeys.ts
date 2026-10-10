@@ -9,8 +9,9 @@ async function request(session:DeveloperSession, init?:RequestInit){
   if(!res.ok) throw new Error(data.error||`Request failed (${res.status})`);
   return data;
 }
-export type ApiKey={id:string;name:string;key_prefix:string;key_masked:string;status:string;rate_limit_per_minute:number;expires_at:string|null;created_at:string;last_used_at:string|null};
+export type ApiKey={id:string;name:string;key_prefix:string;key_masked:string;status:string;rate_limit_per_minute:number;allowed_origins:string[];daily_request_limit:number|null;monthly_request_limit:number|null;expires_at:string|null;created_at:string;last_used_at:string|null};
 export const listApiKeys=(s:DeveloperSession)=>request(s);
-export const createApiKey=(s:DeveloperSession,name:string)=>request(s,{method:'POST',body:JSON.stringify({action:'create',name})});
+export type ApiKeyConfig={allowedOrigins:string[];rateLimitPerMinute:number;dailyRequestLimit:number;monthlyRequestLimit:number};
+export const createApiKey=(s:DeveloperSession,name:string,config:ApiKeyConfig)=>request(s,{method:'POST',body:JSON.stringify({action:'create',name,...config})});
 export const revokeApiKey=(s:DeveloperSession,id:string)=>request(s,{method:'POST',body:JSON.stringify({action:'revoke',id})});
 export const rotateApiKey=(s:DeveloperSession,id:string)=>request(s,{method:'POST',body:JSON.stringify({action:'rotate',id})});
