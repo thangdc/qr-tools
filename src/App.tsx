@@ -774,7 +774,6 @@ export default function App() {
         {/* Equipment Maintenance Workflow */}
         {activeView === 'equipment-maintenance' && (
           <div className="w-full">
-            <InlineWorkflowConfiguration workflowId="equipment-maintenance" />
           <EquipmentMaintenanceWorkflow
             onBack={() => setActiveView('workflows')}
           />
