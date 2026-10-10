@@ -222,7 +222,7 @@ HV001\tNguyễn Văn A\ta@gmail.com" className="w-full min-h-52 p-3 rounded-xl b
 
           <div className="flex flex-wrap justify-center sm:justify-end gap-2">
             <button type="button" onClick={() => onGenerateAndPrint(participants.map(p => ({ id: p.id, label: p.name, payload: p.id })))} className="h-10 px-4 rounded-lg bg-neutral-900 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"><Printer className="w-3.5 h-3.5" />Tạo & in QR</button>
-            <button type="button" onClick={goToScan} className="h-10 px-4 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Tôi đã có QR <ArrowRight className="w-3.5 h-3.5" /></button>
+            <button type="button" onClick={goToScan} className="h-10 px-4 rounded-lg bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">Tôi đã có QR {!isPro && <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[9px] font-bold text-amber-800">PRO</span>} <ArrowRight className="w-3.5 h-3.5" /></button>
           </div>
 
           <div className="flex items-center justify-between gap-2 pt-1">
