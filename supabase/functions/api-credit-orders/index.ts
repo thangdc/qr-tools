@@ -53,6 +53,17 @@ Deno.serve(async (req) => {
         .eq("order_code", orderCode).eq("user_id", user.id).maybeSingle();
       if (error) return json({ error: "purchase_lookup_failed" }, 500, origin);
       if (!purchase) return json({ error: "order_not_found" }, 404, origin);
+
+      if (purchase.status === "pending") {
+        const { data: order, error: orderError } = await admin.from("orders")
+          .select("status,expires_at").eq("order_code", orderCode).maybeSingle();
+        if (orderError) return json({ error: "order_status_lookup_failed" }, 500, origin);
+        if (order?.status === "pending" && order.expires_at && Date.parse(order.expires_at) <= Date.now()) {
+          await admin.from("orders").update({ status: "expired", updated_at: new Date().toISOString() }).eq("order_code", orderCode).eq("status", "pending");
+          await admin.from("api_credit_purchases").update({ status: "expired" }).eq("order_code", orderCode).eq("user_id", user.id).eq("status", "pending");
+          purchase.status = "expired";
+        }
+      }
       return json({ success: true, balance: wallet?.credits_balance ?? 0, purchase }, 200, origin);
     }
 
