@@ -11,7 +11,7 @@ export type WorkflowValueType =
   | 'file'
   | 'qr';
 
-export type WorkflowInputSource = 'manual' | 'excel' | 'qr' | 'default';
+export type WorkflowInputSource = 'manual' | 'excel' | 'csv' | 'json' | 'google-sheets' | 'api' | 'qr' | 'default';
 
 export interface WorkflowValidationRule {
   required?: boolean;
