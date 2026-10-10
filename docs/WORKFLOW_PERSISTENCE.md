@@ -23,9 +23,13 @@ the same authorization check. Unowned workflows are denied to developer keys
 until ownership is explicitly assigned. Records inherit their workflow's owner;
 there is no client-supplied owner field.
 
-Legacy infrastructure keys with no `user_id` retain compatibility in this
-migration. They must be inventoried and explicitly classified/rotated in a
-separate operational change; a QR payload never establishes authorization.
+API keys have an explicit `access_mode`: `customer` (the default) or
+`system`. Customer keys must have a `user_id` and match the workflow owner.
+Only reviewed infrastructure keys may be set to `system`; do not classify keys
+by name or assume that a missing `user_id` means a key is trusted. Existing keys
+are migrated to `customer` by default, so any infrastructure key requiring
+system access must be identified and explicitly classified before deploying the
+API code.
 
 ## Migration
 
