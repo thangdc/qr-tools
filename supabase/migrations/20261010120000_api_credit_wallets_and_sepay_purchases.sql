@@ -181,8 +181,8 @@ begin
 
     if not found then
       return query select false,
-        case when v_key.daily_request_limit is not null and v_key.daily_usage_count >= v_key.daily_request_limit
-          then 'daily'::text else 'monthly'::text end,
+        case when v_key.monthly_request_limit is not null and v_key.monthly_usage_count >= v_key.monthly_request_limit
+          then 'monthly'::text else 'daily'::text end,
         v_reset, 0, v_key.rate_limit_per_minute;
       return;
     end if;
