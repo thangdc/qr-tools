@@ -27,3 +27,20 @@
 .credits-error .secondary{grid-column:2;grid-row:2;align-self:start;white-space:nowrap}
 .credits-error+.credits-balance-panel{margin-top:0}
 @media(max-width:700px){.credits-error{grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:20px}.credits-error strong,.credits-error span,.credits-error .secondary{grid-column:1;grid-row:auto}.credits-error .secondary{justify-self:start}}
+
+
+/* API Credits: make checkout hand-off clear and keep adjacent sections visually separated. */
+.credits-notice{margin-bottom:24px}
+.credits-balance-panel{margin-bottom:28px}
+.credits-checkout{margin-top:0}
+.credits-checkout-layout{align-items:stretch}
+.credits-payment-summary{min-width:0;background:#fbfcfe;border:1px solid #e7ebf2;border-radius:12px;padding:18px}
+.credits-payment-summary .credits-payment-total{padding-top:0}
+.credits-payment-summary .credits-payment-note{margin:16px 0 0}
+.credits-gateway-panel{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:10px;min-width:0;padding:24px;background:#f6f8ff;border:1px solid #e1e6fb;border-radius:12px}
+.credits-gateway-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#e8edff;color:#4d61b5}
+.credits-gateway-panel h3{font-size:17px;margin:2px 0}
+.credits-gateway-panel p{font-size:13px;color:#667287;line-height:1.65;margin:0 0 8px}
+.credits-gateway-panel form{width:100%;margin-top:8px}
+.credits-gateway-panel .primary{min-height:44px}
+@media(max-width:700px){.credits-balance-panel{margin-bottom:22px}.credits-payment-summary,.credits-gateway-panel{padding:16px}.credits-checkout-layout{gap:14px}}
