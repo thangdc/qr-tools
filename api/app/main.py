@@ -54,6 +54,8 @@ class ApiKey:
     id: str
     key_hash: str
     rate_limit_per_minute: int
+    user_id: str | None
+    access_mode: str
 
 
 class ScanRequest(BaseModel):
@@ -174,7 +176,7 @@ async def require_api_key(
 
     row = await pool.fetchrow(
         """
-        select id, key_hash, rate_limit_per_minute, allowed_origins
+        select id, key_hash, rate_limit_per_minute, allowed_origins, user_id, access_mode
         from public.api_keys
         where key_hash = $1
           and status = 'active'
@@ -226,6 +228,8 @@ async def require_api_key(
         id=str(row["id"]),
         key_hash=row["key_hash"],
         rate_limit_per_minute=int(quota["rate_limit"]),
+        user_id=str(row["user_id"]) if row["user_id"] is not None else None,
+        access_mode=str(row["access_mode"]),
     )
 
 
@@ -275,12 +279,31 @@ def decode_qr_identity(payload: str) -> dict[str, Any]:
     return identity
 
 
-async def scan_core(pool: asyncpg.Pool, payload: str) -> dict[str, Any]:
+def _authorize_workflow_access(api_key: ApiKey, definition: Any) -> None:
+    """Restrict developer-owned keys to workflows owned by the same Supabase user.
+
+    Only explicitly classified system keys bypass per-user ownership checks.
+    Customer keys must have a user_id and match an owned workflow. QR payloads
+    never establish authorization.
+    """
+    if api_key.access_mode == "system":
+        return
+    if api_key.user_id is None:
+        raise HTTPException(status_code=403, detail="API key is not authorized for this workflow.")
+
+    owner_user_id = definition["owner_user_id"]
+    if owner_user_id is None or str(owner_user_id) != api_key.user_id:
+        raise HTTPException(status_code=403, detail="API key is not authorized for this workflow.")
+
+
+async def scan_core(
+    pool: asyncpg.Pool, payload: str, api_key: ApiKey | None = None
+) -> dict[str, Any]:
     identity = decode_qr_identity(payload)
 
     definition = await pool.fetchrow(
         """
-        select id, version, name, input_fields, mappings
+        select id, version, name, input_fields, mappings, owner_user_id
         from public.workflow_definitions
         where id = $1 and version = $2
         """,
@@ -289,6 +312,9 @@ async def scan_core(pool: asyncpg.Pool, payload: str) -> dict[str, Any]:
     )
     if definition is None:
         raise HTTPException(status_code=404, detail="Workflow definition not found.")
+
+    if api_key is not None:
+        _authorize_workflow_access(api_key, definition)
 
     record = await pool.fetchrow(
         """
@@ -351,7 +377,7 @@ async def scan(
     _api_key: ApiKey = Depends(require_api_key),
 ) -> dict[str, Any]:
     pool = _require_pool()
-    return await scan_core(pool, request.payload)
+    return await scan_core(pool, request.payload, _api_key)
 
 
 @app.post("/v1/actions/execute")
@@ -360,7 +386,7 @@ async def execute_action(
     _api_key: ApiKey = Depends(require_api_key),
 ) -> dict[str, Any]:
     pool = _require_pool()
-    result = await scan_core(pool, request.scan_payload)
+    result = await scan_core(pool, request.scan_payload, _api_key)
 
     if result["record"] is None:
         raise HTTPException(

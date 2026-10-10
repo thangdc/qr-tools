@@ -55,7 +55,9 @@ The action is first validated against the scan result. Phase 3 only exposes the 
 
 Consumer keys are sent as Bearer tokens. Only SHA-256 hashes are stored in `public.api_keys`. Raw keys are never persisted.
 
-API keys are intentionally managed outside this public API in the future `client.thangdc.com` / `admin.thangdc.com` phases.
+Developer API keys are managed by the authenticated developer dashboard. Keys default to `access_mode=customer` and can access only workflow versions whose `owner_user_id` matches the key owner's Supabase user ID. Both scan and action execution enforce this check. Workflows without an owner are denied to customer keys.
+
+The `system` access mode bypasses per-user workflow ownership and is reserved for explicitly reviewed infrastructure keys. Existing keys are classified as customer by default in the ownership migration; inventory and explicitly classify any infrastructure keys before deploying the updated API. Never trust a QR payload to establish ownership.
 
 ## Rate limiting
 
