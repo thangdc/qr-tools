@@ -246,8 +246,8 @@ HV001\tNguyễn Văn A\ta@gmail.com" className="w-full min-h-52 p-3 rounded-xl b
               </div>
               {scannerError && <div className="text-xs text-red-600">{scannerError}</div>}
               <div className="flex gap-2">
-                <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : 'Bắt đầu quét'}</button>
-                <label onClick={event=>{if(!isPro){event.preventDefault();onOpenPro('workflow_checkin_scan');}}} className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />Tải ảnh QR<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
+                <button type="button" onClick={cameraActive ? stopCamera : handleStartScan} className={`flex-1 h-9 rounded-lg text-xs font-semibold cursor-pointer ${cameraActive ? 'bg-red-600 text-white' : 'bg-neutral-900 text-white'}`}>{cameraActive ? 'Dừng camera' : <>Bắt đầu quét {!isPro && <span className="ml-1 rounded bg-white/15 px-1 py-0.5 text-[9px] font-bold">PRO</span>}</>}</button>
+                <label onClick={event=>{if(!isPro){event.preventDefault();onOpenPro('workflow_checkin_scan');}}} className="flex-1 h-9 rounded-lg bg-neutral-100 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"><Upload className="w-3.5 h-3.5" />{<>Tải ảnh QR {!isPro && <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[9px] font-bold text-amber-800">PRO</span>}</>}<input type="file" accept="image/*" className="hidden" onChange={e => void handleImageUpload(e.target.files?.[0])} /></label>
               </div>
             </div>
             <div className="space-y-4">
