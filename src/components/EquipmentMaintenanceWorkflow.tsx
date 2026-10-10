@@ -82,6 +82,7 @@ export const EquipmentMaintenanceWorkflow: React.FC<Props> = ({ onBack, commerci
       workflowVersion: equipmentMaintenanceWorkflow.version,
       recordId: String(row.assetCode ?? '').trim(),
       data: {
+        assetId: String(row.assetCode ?? '').trim(),
         assetName: String(row.assetName ?? '').trim(),
         location: String(row.location ?? '').trim(),
         ...(row.maintenanceDate ? { maintenanceDate: String(row.maintenanceDate) } : {}),
