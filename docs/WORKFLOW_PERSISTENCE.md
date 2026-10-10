@@ -5,27 +5,31 @@ customer-specific business tables.
 
 ## Tables
 
-- `workflow_definitions`: versioned workflow metadata and field mappings.
-- `workflow_records`: versioned records identified by workflow + record ID.
+- `workflow_definitions`: versioned workflow metadata and field mappings, with nullable `owner_user_id` for tenant ownership.
+- `workflow_records`: versioned records identified by workflow + record ID. Records inherit access scope from their workflow definition.
 
 Records reference their workflow definition version with a composite foreign
 key. Deleting a workflow definition version cascades to its records.
 
 ## Security
 
-Both tables have RLS enabled.
+Both tables have RLS enabled. `anon` and `authenticated` receive no table
+privileges; only the trusted API server accesses them through its database
+connection. Browser/SDK clients must never receive the service-role key.
 
-The initial policy is deliberately **server-side only**: `anon` and
-`authenticated` receive no table privileges. The adapter may use
-`service_role` from a trusted server environment.
+Developer API keys linked to a Supabase user can resolve only workflows whose
+`owner_user_id` matches that key's `user_id`. Both scan and action execution use
+the same authorization check. Unowned workflows are denied to developer keys
+until ownership is explicitly assigned. Records inherit their workflow's owner;
+there is no client-supplied owner field.
 
-Browser/SDK clients must not receive the service-role key.
-
-Customer-facing authorization policies should be introduced when authentication
-and tenant ownership are part of the workflow data model. Do not make workflow
-records publicly readable just to simplify the first hosted UI.
+Legacy infrastructure keys with no `user_id` retain compatibility in this
+migration. They must be inventoried and explicitly classified/rotated in a
+separate operational change; a QR payload never establishes authorization.
 
 ## Migration
 
-The migration is additive and does not modify existing QR Tools business
-tables.
+The ownership migration is additive. Existing workflows remain unowned and
+customer API keys cannot access them until an operator assigns the correct
+Supabase user owner after reviewing the production mapping. No production
+migration is applied as part of the pull request.
