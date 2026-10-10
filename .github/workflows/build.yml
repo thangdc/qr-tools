@@ -60,6 +60,8 @@ jobs:
           assert decode_qr_identity("qrtools:" + raw) == identity
           print("API QR contract check passed")
           PY
+          python -m unittest api.test_workflow_authorization
+          PY
 
       - name: Upload Pages artifact
         if: github.event_name == 'push'
