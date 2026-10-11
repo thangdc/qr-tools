@@ -1,6 +1,6 @@
 # ThangDC Ecosystem Roadmap
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Last updated:** 2026-10-11  
 **Purpose:** A durable source of truth for AI assistants and contributors continuing this work after a context reset.
 
@@ -8,12 +8,15 @@
 
 Build an ecosystem of small, useful automation tools. Each tool solves one concrete task, works independently, and can be combined with other tools through APIs, SDKs, widgets, webhooks, and workflows.
 
+The ecosystem should also support reusable business workflow modules, starting with equipment maintenance and later extending to check-in/check-out, delivery, inventory, and payment integrations. The shared platform should provide common identity/access, workflow, QR, data, and integration capabilities without forcing unrelated business domains into one generic data model.
+
 Examples:
 - Image/PDF -> OCR -> normalized JSON -> CSV/Excel.
 - Spreadsheet -> bulk QR generation -> print labels -> scan -> report.
 - Vietnamese audio -> transcript -> summary -> tasks.
 - Image -> object detection/counting -> report.
 - Vehicle image -> license-plate recognition -> entry/exit event.
+- Asset registry -> QR scan -> maintenance record -> history/report.
 
 Optimize for practical usefulness, low maintenance, incremental delivery, and monetization. Do not build a large platform or many AI services before validating demand.
 
@@ -27,13 +30,18 @@ Optimize for practical usefulness, low maintenance, incremental delivery, and mo
 6. Reuse existing infrastructure when it meets requirements; do not rewrite completed capabilities.
 7. Prioritize small, testable PRs and evidence-based completion.
 8. Treat ideas and proposals as NOT STARTED until code and behavior are verified.
+9. Share platform primitives, but keep domain models and critical business rules inside their owning modules.
+10. Prove reuse with a second real module before investing in a generalized workflow designer.
 
 ## 3. Architecture
 
 ### A. Shared platform
+- Authentication integration and organization/member/role primitives.
+- Tenant authorization and data-access boundaries.
 - API authentication and key lifecycle.
 - Origin/domain restrictions and service permissions.
 - Rate limits, quotas, usage tracking, logs, monitoring, versioning.
+- QR identity, scan/resolve, workflow execution contracts, generic persistence/audit conventions.
 - Billing and payment integration when justified.
 
 ### B. Reusable tools
@@ -53,11 +61,15 @@ Optimize for practical usefulness, low maintenance, incremental delivery, and mo
 - Webhooks and external API connectors.
 - A minimal sequential workflow runner.
 
-### D. End-user products
+### D. Business modules and end-user products
 - QR Tools and existing QR workflows.
+- Equipment Maintenance — first module to validate shared business workflow primitives.
+- Future modules: check-in/check-out, delivery/asset tracking, inventory, and payment integration.
 - Standalone free/paid utility pages.
 - Embeddable customer widgets.
 - Domain-specific products assembled from reusable tools.
+
+The equipment maintenance execution plan and its acceptance criteria live in `MAINTENANCE_ROADMAP.md`. It is a product roadmap, not a claim that the module is implemented or production-ready.
 
 ## 4. Existing project context (must be re-verified)
 
@@ -77,7 +89,7 @@ Historical widget issues to re-check, not assume still open:
 - Widget bundle once raised `Uncaught ReferenceError: process is not defined` at `client.js:31`.
 - A Blogger API-key setup was recorded with allowed origins `thangdc.com` and `www.thangdc.com`, 10 requests/minute, 500/day, 10,000/month. A Blogger demo/published end-to-end flow was not yet verified in the last recorded status.
 
-## 5. Phased roadmap
+## 5. Phased ecosystem roadmap
 
 ### Phase 0 — Verify and stabilize existing platform
 - Inspect current branch, commits, PRs, deployments, logs, and repository documentation.
@@ -155,6 +167,8 @@ Every tool needs a bounded MVP, API contract, representative test set, quality/c
 - Track adoption, conversion, support burden, and maintenance cost.
 - Invest in tools with demonstrated use; avoid speculative breadth.
 
+**Product-module sequencing:** Equipment Maintenance has a separate staged roadmap in `MAINTENANCE_ROADMAP.md`. Its first prerequisite is to verify the shared platform and current workflow, not to assume that the current QR widget already provides durable, multi-user maintenance management.
+
 ## 6. Development rules
 1. Inspect current code and deployment before editing.
 2. Read `ROADMAP.md`, `PROJECT_STATUS.md`, and `DECISIONS.md` at the start of a new session.
@@ -180,6 +194,6 @@ At the start of each new session:
 If documents conflict with code or production evidence, investigate and update the documents. Do not silently discard recorded decisions.
 
 ## 8. Initial next step
-Start with Phase 0: verify the current API, API-key/tenant authorization, widget production behavior, and Blogger integration. Then update `PROJECT_STATUS.md` with evidence and continue to Phase 1 only for gaps that remain.
+Start with Phase 0: verify the current API, API-key/tenant authorization, widget production behavior, and Blogger integration. Then update `PROJECT_STATUS.md` with evidence and continue to Phase 1 only for gaps that remain. For the maintenance product, follow M0 in `MAINTENANCE_ROADMAP.md` and choose the earliest unverified prerequisite.
 
 **Long-term success:** many small independently useful tools, connected by stable integrations and composable into automations, with manageable operating cost and a credible path to revenue.
