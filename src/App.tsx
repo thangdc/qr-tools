@@ -301,6 +301,45 @@ export default function App() {
     items: [],
   });
 
+  // Accept a one-time batch-print handoff from VietSoft via the URL fragment.
+  // Fragments are not sent to the web server in HTTP requests.
+  useEffect(() => {
+    const prefix = '#vietsoft-export=';
+    if (!window.location.hash.startsWith(prefix)) return;
+
+    const encoded = window.location.hash.slice(prefix.length);
+    try {
+      const binary = window.atob(encoded.replace(/-/g, '+').replace(/_/g, '/'));
+      const json = decodeURIComponent(
+        Array.from(binary, (char) => '%' + char.charCodeAt(0).toString(16).padStart(2, '0')).join('')
+      );
+      const parsed: unknown = JSON.parse(json);
+      if (!Array.isArray(parsed) || parsed.length === 0 || parsed.length > 200) return;
+
+      const items: BatchPrintItem[] = parsed.filter((item: any) =>
+        item && typeof item.payload === 'string' && item.payload.length > 0 &&
+        typeof item.label === 'string'
+      ).map((item: any) => ({
+        id: typeof item.id === 'string' ? item.id : undefined,
+        label: item.label.slice(0, 300),
+        payload: item.payload.slice(0, 10000),
+        type: typeof item.type === 'string' ? item.type as QRType : undefined,
+        subtitle: typeof item.subtitle === 'string' ? item.subtitle.slice(0, 500) : undefined,
+        accountName: typeof item.accountName === 'string' ? item.accountName.slice(0, 300) : undefined,
+        accountNumber: typeof item.accountNumber === 'string' ? item.accountNumber.slice(0, 100) : undefined,
+        bankName: typeof item.bankName === 'string' ? item.bankName.slice(0, 200) : undefined,
+      }));
+
+      if (items.length > 0) {
+        setBatchPrintState({ isOpen: true, items });
+      }
+    } catch (error) {
+      console.error('Unable to read VietSoft print handoff.', error);
+    } finally {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, []);
+
   // Sync output settings to localStorage
   useEffect(() => {
     try {
