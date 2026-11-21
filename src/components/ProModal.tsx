@@ -129,7 +129,13 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
         setActivePanel('checkout');
         setMessage(tx('License đã hết hạn hoặc không còn hợp lệ. Bạn có thể gia hạn hoặc nhập License Key khác.', 'The license has expired or is no longer valid. You can renew or enter another License Key.'));
       } catch {
-        // Keep the locally cached Pro state when validation is temporarily unavailable.
+        if (cancelled) return;
+        // Fail closed when the server cannot verify the license.
+        localStorage.removeItem('qr_tools_pro');
+        localStorage.removeItem('qr_tools_pro_expires_at');
+        onTogglePro(false);
+        setActivePanel('checkout');
+        setMessage(tx('Không thể xác minh License. Pro đã tạm khóa; vui lòng thử lại khi có kết nối.', 'Unable to verify the license. Pro access is temporarily locked; please try again when connected.'));
       }
     };
 
