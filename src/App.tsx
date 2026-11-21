@@ -52,7 +52,7 @@ import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
 import { useLanguage } from './i18n';
 import { initAnalytics, trackEvent } from './utils/analytics';
-import { cancelProOrder } from './services/revenueService';
+import { cancelProOrder, getDeviceId, validateProLicense } from './services/revenueService';
 
 const INITIAL_FORM_DATA: QRFormData = {
   url: { url: 'https://example.com' },
@@ -274,13 +274,50 @@ export default function App() {
     }
   });
 
-  const [isPro, setIsPro] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('qr_tools_pro') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  // Pro access is never restored from localStorage alone. The server is the source of truth.
+  const [isPro, setIsPro] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const restoreProAccess = async () => {
+      try {
+        const cachedPro = localStorage.getItem('qr_tools_pro') === 'true';
+        if (!cachedPro) return;
+
+        const savedEmail = localStorage.getItem('qr_tools_license_email');
+        const activationToken = localStorage.getItem('qr_tools_activation_token');
+        if (!savedEmail || !activationToken) {
+          localStorage.removeItem('qr_tools_pro');
+          localStorage.removeItem('qr_tools_pro_expires_at');
+          return;
+        }
+
+        const result = await validateProLicense(savedEmail, getDeviceId(), activationToken);
+        if (cancelled) return;
+
+        if (result.success && result.expiresAt && new Date(result.expiresAt).getTime() > Date.now()) {
+          localStorage.setItem('qr_tools_pro_expires_at', result.expiresAt);
+          setIsPro(true);
+          return;
+        }
+
+        localStorage.removeItem('qr_tools_pro');
+        localStorage.removeItem('qr_tools_pro_expires_at');
+        setIsPro(false);
+      } catch (error) {
+        // Fail closed: a cached entitlement must not grant Pro when the server cannot verify it.
+        if (cancelled) return;
+        localStorage.removeItem('qr_tools_pro');
+        localStorage.removeItem('qr_tools_pro_expires_at');
+        setIsPro(false);
+        console.warn('Unable to validate the saved QR Tools Pro license.', error);
+      }
+    };
+
+    void restoreProAccess();
+    return () => { cancelled = true; };
+  }, []);
 
   // Modals state
   const [isProModalOpen, setIsProModalOpen] = useState(false);
