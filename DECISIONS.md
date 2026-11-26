@@ -43,5 +43,15 @@ This file records decisions that should survive context resets. Change a decisio
 **Rationale:** Reusable value and manageable scope.  
 **Implication:** Do not implement all AI services simultaneously. Face-related capabilities require a separate privacy/security review.
 
+## D-009 — Shared business platform, separate domain modules
+**Decision:** Build reusable identity/access, organization boundaries, QR identity, workflow contracts, persistence conventions, audit, and integration primitives once; keep each business module's domain data and critical rules separate. Equipment Maintenance is the first module used to validate these primitives.  
+**Rationale:** Enable later modules such as check-in/check-out, delivery, inventory, and payments without building a maintenance-only platform or coupling all business data into one generic schema.  
+**Implication:** The maintenance product roadmap lives in `MAINTENANCE_ROADMAP.md`. Validate reuse with a second real module before building a generalized workflow designer.
+
+## D-010 — Asset changes must not erase maintenance history
+**Decision:** Treat maintenance submissions/history as separate append-oriented domain records, not fields overwritten on the asset row.  
+**Rationale:** Maintenance history needs traceability and reliable reporting even as equipment metadata changes.  
+**Implication:** Asset imports may update agreed asset fields by stable key but must not overwrite prior maintenance records. Corrections to submitted records must remain auditable.
+
 ## Reconsideration process
 For any change, record: current decision, proposed alternative, reason, impact on existing tools, migration/rollback plan, and acceptance criteria.

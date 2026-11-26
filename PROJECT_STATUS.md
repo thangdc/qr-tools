@@ -9,7 +9,7 @@
 
 **Phase 0 — Verify and stabilize existing platform.**
 
-Do not start multiple new AI tools before confirming the shared platform and widget behavior. Do not redo completed work without checking evidence.
+Do not start multiple new AI tools before confirming the shared platform and widget behavior. The equipment-maintenance product is planned as the first business module, but its current widget must not be treated as a durable multi-user maintenance-management product until persistence, access control, and the end-to-end flow are verified.
 
 ## Recorded implementation context
 
@@ -25,8 +25,11 @@ Do not start multiple new AI tools before confirming the shared platform and wid
 | Widget bundle | `process is not defined` at `client.js:31` after PR #168 was reported | Historical issue; retest before opening a bug |
 | Blogger key | Allowed origins `thangdc.com`, `www.thangdc.com`; 10/min, 500/day, 10,000/month recorded | NEEDS_VERIFICATION in database and live request |
 | Blogger demo | End-to-end public demo was not verified in last recorded status | NEEDS_VERIFICATION |
+| Maintenance domain model | Current workflow contract has asset ID/name/location and optional maintenance date/note | Code contract exists; not evidence of a full asset/job/history data model |
+| Maintenance persistence | Generic persistence interfaces exist in workflow-engine | NEEDS_VERIFICATION: adapter, production database persistence, and cross-session/device behavior |
+| Maintenance management UI | Proposed manager and technician surfaces described in `MAINTENANCE_ROADMAP.md` | NOT_STARTED as a verified product capability |
 
-## Phase 0 checklist
+## Phase 0 checklist — Shared platform
 
 - [ ] Inspect main HEAD and recent relevant PRs/commits.
 - [ ] Verify current API deployment and health.
@@ -40,7 +43,23 @@ Do not start multiple new AI tools before confirming the shared platform and wid
 - [ ] Verify Blogger integration end-to-end without exposing a secret key.
 - [ ] Record test evidence, remaining bugs, and next task.
 
-## Backlog after Phase 0
+## Maintenance module — Current plan
+
+Follow `MAINTENANCE_ROADMAP.md`. Phases are planned, not completed.
+
+| Phase | Focus | Status |
+|---|---|---|
+| M0 | Verify current workflow, persistence, tenant security, and validate one real customer use case | NEEDS_VERIFICATION |
+| M1 | Finalize domain model, API contracts, role/permission matrix, and migration plan | NOT_STARTED |
+| M2 | Persistent organization-scoped asset registry, import, QR labels, search/export | NOT_STARTED |
+| M3 | Technician QR scan, maintenance submission, durable history, duplicate-submit protection | NOT_STARTED |
+| M4 | Maintenance history, assignments/scheduling, overdue view, reports | NOT_STARTED |
+| M5 | Small real-world pilot, security/device tests, demand and willingness-to-pay validation | NOT_STARTED |
+| M6 | Reuse platform primitives for other modules; separate domain-specific rules | NOT_STARTED |
+
+**Next maintenance task:** Complete M0 evidence gathering. Do not create a new schema or implement manager UI until existing Supabase tables/RLS/migrations and the persistence adapter are inspected.
+
+## Ecosystem backlog after platform verification
 
 1. Phase 1 — Standardize tool contracts, error schema, versioning, file limits, usage metering, and integration/security tests.
 2. Phase 2 — Data Transformer MVP.
@@ -52,8 +71,8 @@ Do not start multiple new AI tools before confirming the shared platform and wid
 
 ## Current blockers
 
-No blocker has been newly confirmed by this documentation PR. Historical widget and deployment issues remain `NEEDS_VERIFICATION` until retested.
+No blocker has been newly confirmed by this documentation change. Historical widget and deployment issues remain `NEEDS_VERIFICATION` until retested. Maintenance data persistence and multi-user access are key unknowns, not assumed features.
 
 ## Update log
 
-- 2026-10-11: Initial status checkpoint drafted from the available project context. Production state and old issues intentionally marked for verification.
+- 2026-10-11: Added a dedicated maintenance-module roadmap and linked it to the shared ecosystem roadmap/status. No application code, production configuration, or database migration was changed.
