@@ -52,7 +52,7 @@ import { generatePayload, getQRSummary } from './utils/qrPayload';
 import { renderTemplatedQR } from './utils/templateRenderer';
 import { useLanguage } from './i18n';
 import { initAnalytics, trackEvent } from './utils/analytics';
-import { cancelProOrder, getDeviceId, validateProLicense } from './services/revenueService';
+import { cancelProOrder, getDeviceId, validateProLicense, type ProPlan } from './services/revenueService';
 
 const INITIAL_FORM_DATA: QRFormData = {
   url: { url: 'https://example.com' },
@@ -168,15 +168,17 @@ const DEEP_LINK_TYPES: Partial<Record<QRType, true>> = {
   email: true, phone: true, sms: true, location: true, event: true,
 };
 
-function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance' | 'workflow-config'; type?: QRType; source?: string } {
+function getDeepLinkConfig(): { view: 'generator' | 'scanner' | 'history' | 'workflows' | 'checkin' | 'bulk-print' | 'assets' | 'inventory' | 'rooms' | 'payment' | 'equipment-maintenance' | 'workflow-config'; type?: QRType; source?: string; proPlan?: ProPlan } {
   if (typeof window === 'undefined') return { view: 'generator' };
   const params = new URLSearchParams(window.location.search);
   const requestedType = params.get('type') as QRType | null;
   const viewParam = params.get('view');
+  const proParam = params.get('pro');
   return {
     view: viewParam === 'history' || viewParam === 'scanner' || viewParam === 'workflows' || viewParam === 'checkin' || viewParam === 'bulk-print' || viewParam === 'assets' || viewParam === 'inventory' || viewParam === 'rooms' || viewParam === 'payment' || viewParam === 'equipment-maintenance' || viewParam === 'workflow-config' ? viewParam : 'generator',
     type: requestedType && DEEP_LINK_TYPES[requestedType] ? requestedType : undefined,
     source: params.get('source') || undefined,
+    proPlan: proParam === 'monthly' || proParam === 'yearly' ? proParam : undefined,
   };
 }
 
@@ -321,6 +323,8 @@ export default function App() {
 
   // Modals state
   const [isProModalOpen, setIsProModalOpen] = useState(false);
+  const [proInitialPlan, setProInitialPlan] = useState<ProPlan>(deepLink.proPlan || 'monthly');
+  const proDeepLinkHandledRef = useRef(false);
   const customizeTrackedRef = useRef(false);
 
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
@@ -497,6 +501,13 @@ export default function App() {
     });
     setIsProModalOpen(true);
   };
+
+  useEffect(() => {
+    if (proDeepLinkHandledRef.current || !deepLink.proPlan) return;
+    proDeepLinkHandledRef.current = true;
+    setProInitialPlan(deepLink.proPlan);
+    openProModal(deepLink.source || 'landing_pro');
+  }, [deepLink.proPlan, deepLink.source, openProModal]);
 
   // Save current QR code to history
   const handleSaveToHistory = () => {
@@ -1103,6 +1114,7 @@ export default function App() {
         onClose={() => setIsProModalOpen(false)}
         isPro={isPro}
         onTogglePro={handleTogglePro}
+        initialPlan={proInitialPlan}
       />
     </div>
   );

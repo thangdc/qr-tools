@@ -19,9 +19,10 @@ interface ProModalProps {
   onClose: () => void;
   isPro: boolean;
   onTogglePro: (val: boolean) => void;
+  initialPlan?: ProPlan;
 }
 
-export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTogglePro }) => {
+export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTogglePro, initialPlan }) => {
   const { tx } = useLanguage();
   const [plan, setPlan] = useState<ProPlan>('monthly');
   const [email, setEmail] = useState('');
@@ -68,6 +69,8 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
       return;
     }
 
+    setPlan(initialPlan || 'monthly');
+
     try {
       const savedExpiry = localStorage.getItem('qr_tools_pro_expires_at');
       if (savedExpiry) setExpiresAt(savedExpiry);
@@ -101,7 +104,7 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
     } catch {
       clearOrderSession();
     }
-  }, [isOpen, isPro]);
+  }, [isOpen, isPro, initialPlan]);
 
   useEffect(() => {
     if (!isOpen || !isPro) return;
