@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Copy, KeyRound, Loader2, ExternalLink, Sparkles, X } from 'lucide-react';
 import { useLanguage } from '../i18n';
-import { trackEvent } from '../utils/analytics';
+import { trackEvent, trackPurchase } from '../utils/analytics';
 import {
   activateProLicense,
   createProOrder,
@@ -198,6 +198,9 @@ export const ProModal: React.FC<ProModalProps> = ({ isOpen, onClose, isPro, onTo
 
           clearOrderSession();
           trackEvent('pro_payment_confirmed', { plan, amount });
+          if (amount > 0) {
+            trackPurchase({ transactionId: orderCode, value: amount, plan });
+          }
           trackEvent('pro_license_activated', { source: 'payment', plan });
           onTogglePro(true);
           setActivePanel('active');
